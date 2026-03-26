@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:/Users/aldoh/.claude/notify-waiting.ps1"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:/Users/aldoh/.claude/notify-done.ps1"
+          }
+        ]
+      }
+    ]
+  },
+  "skipDangerousModePermissionPrompt": true
+}
