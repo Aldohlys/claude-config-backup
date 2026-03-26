@@ -19,8 +19,8 @@ Example: `/analyze TGT long`, `/analyze AAPL short --force`
 
 ## Step 2: Load Data Sources
 
-### 2a. Swing Scanner CSV
-Find the most recent swing scanner CSV:
+### 2a. BOT Scanner
+Find the most recent scanner CSV:
 ```bash
 ls -t C:/Users/aldoh/Documents/NewTrading/reports/swing_scanner_*.csv | head -1
 ```
@@ -32,7 +32,7 @@ Do NOT use `^TICKER;` — fields are quoted so the line starts with `"TICKER"`, 
 
 **If ticker not found in CSV**: Report "Ticker not in scanner" and ask user whether to proceed with manual data or abort. If proceeding, user must provide: IV30, RV30, IVP, RVP, VRP values.
 
-**Available CSV columns**: Ticker, Sector, Sector_ETF, Price, ATR_pct, Long_Score, Long_Signal, Long_Entry, Long_Stop, Long_Target, Short_Score, Short_Signal, Short_Entry, Short_Stop, Short_Target, ADX10, RSI14, RSI_slope, MA50_dist, OBV_rising, UpDn_ratio, RS_vs_ETF, Macro_Note, Best_Signal, IV30, RV30, IVP, VRP, Optionality, TermStr, Vol_Date, Composite, Gate_Tech, Gate_Opt, All_Gates, Rank
+**BOT-relevant CSV columns**: Ticker, Sector, Sector_ETF, Price, ATR_pct, BOT_Score, BOT_Setup, BOT_Breakout, BOT_Squeeze, BOT_VolDec, BOT_VolSurge, BOT_Flags, RSI14, RSI_slope, MA50_dist, OBV_rising, UpDn_ratio, RS_vs_ETF, Macro_Note, IV30, RV30, IVP, RVP, VRP, Optionality, TermStr, Vol_Date, Composite, Gate_Opt, All_Gates
 
 ### 2b. Macro Context HTML
 Find the most recent macro context HTML:
@@ -82,17 +82,12 @@ Read S5FI (breadth) from macro context and apply:
 
 **Output**: PASS (with conviction level: HIGH/PREFERRED/YES/CAUTION) or FAIL + reason
 
-### GATE 2: Scanner Quality + Directional Fit
+### GATE 2: BOT Quality
 
-**IMPORTANT**: This is a BOT (Breakout Option Trade) analysis. Use **BOT columns**, not swing Long/Short columns.
-
-Read from scanner CSV:
-- **BOT_Score**: must be **≥ 7** to pass. This is the composite BOT score.
-- **BOT_Flags**: Contains setup and breakout scores in format `S:X/6 BK:Y/4 | S1:+/- S2:+/- ... | BK1:+/- ...`. Setup ≥ 4/6 AND Breakout ≥ 3/4 = confirmed (green in HTML). Report which individual criteria pass/fail.
+Read from scanner CSV (BOT columns only):
+- **BOT_Score**: must be **≥ 7** to pass. This is the composite BOT score (S + BK).
+- **BOT_Flags**: Setup and breakout scores in format `S:X/6 BK:Y/4 | S1:+/- S2:+/- ... | BK1:+/- ...`. Setup ≥ 4/6 AND Breakout ≥ 3/4 = confirmed (green in HTML). Report which individual criteria pass/fail.
 - **RS_vs_ETF**: must be positive for longs, negative for shorts
-- **Long_Entry / Long_Stop / Long_Target** (or Short_ equivalents): Use for R/R ratio and M3 computation. These are directional levels from the swing scanner but still relevant for BOT entry/stop/target planning.
-
-Do NOT use `Long_Signal` or `Short_Signal` — those are swing scanner ranking signals, not BOT signals. A ticker can be SKIP for swing but a valid BOT candidate.
 
 **Sector historical performance** — add conviction note:
 | Sector | Historical Edge | Note |
@@ -103,8 +98,7 @@ Do NOT use `Long_Signal` or `Short_Signal` — those are swing scanner ranking s
 | Basic Materials | +$134 avg, 36.4% WR | Mixed |
 | Energy | -$66 avg, 30% WR | Weak — macro-dependent |
 
-**Gate 2 criterion decomposition** — show actual computed values for each criterion:
-- M3 (room to 20d low/high): compute `(price - low20) / ATR` for shorts or `(high20 - price) / ATR` for longs. Show the ratio value (e.g., "0.4 ✗" or "1.8 ✓"). Threshold is > 1 ATR. Add note only if the value adds context (e.g., "near 20d low").
+**Gate 2 criterion decomposition** — show actual values for each S1-S6 and BK1-BK4 criterion from BOT_Flags. Also show ADX10 as supplementary trend strength context (not a BOT criterion).
 
 **Output**: PASS (BOT S:X/6 BK:Y/4, RS, sector conviction) or FAIL + reason
 
@@ -266,7 +260,7 @@ Print a compact summary to the terminal:
           S5FI: <value>% | VIX: <value> | Bias: <bias>
           <sector tailwinds/headwinds if any>
 
-  GATE 2  Scanner Quality  <PASS ✓ / FAIL ✗>  BOT: S:<X>/6 BK:<Y>/4
+  GATE 2  BOT Quality  <PASS ✓ / FAIL ✗>  BOT: S:<X>/6 BK:<Y>/4
           RS vs ETF: <value> | Sector WR: <X>% | BOT flags: <summary>
 
   GATE 3  Vol Profile      <PASS ✓ / PASS~ / FAIL ✗ / INCOMPLETE ?>
@@ -304,7 +298,6 @@ Start at 0, add points:
 
 Subtract points (soft flags):
 - RSI < 30 or > 70 (oversold/overbought): -1 pt
-- M3 fails (near 20d low/high): -1 pt
 - Entry day not Tue/Wed: -0.5 pt
 
 **Result**: HIGH ≥ 3 pts | MEDIUM 1.5-2.5 pts | LOW < 1.5 pts
@@ -367,15 +360,13 @@ Use `--pass-light` for passing row backgrounds, `--fail-light` for failing rows,
 | BK3 | Range position | `rng_pct >= 70%` | Pushing against resistance — price near 20d high |
 | BK4 | Volume surge | `today_vol/20d_avg >= 1.2` | Breakout volume — conviction behind the move |
 
-**Supplementary (swing-only, not BOT criteria)**:
+**Supplementary context (not a BOT criterion, shown for information)**:
 
-| ID | Indicator | Condition | What it means |
-|:--:|-----------|-----------|---------------|
-| ADX/DI | Directional conviction | `adx10>20 && dip>din` | Trend has directional strength, not just drift |
-| MA dist | Distance to MA50 | `ma50_dist <= 15%` | Not overextended — room before mean reversion |
-| Room | Room to run | `(high20-price)/atr > 1` | Not pinned to resistance — at least 1 ATR of upside |
+| ID | Indicator | What it means |
+|:--:|-----------|---------------|
+| ADX | Trend strength | ADX(10) > 20 = trending. Low ADX = weak/no trend, breakout may lack follow-through |
 
-Do NOT use the old T1/T2/M1/M2/RS1/V1/V2 aliases — one indicator, one name.
+Do NOT use swing naming (T1/M1/V1/L4c etc.) — BOT uses S1-S6/BK1-BK4 only.
 
 **HTML tooltips (MANDATORY)** — each indicator `<td>` in the HTML report MUST have a `title` attribute with a self-contained explanation: what it measures, how it's computed, and what the threshold means. Use these exact tooltips:
 
@@ -390,9 +381,7 @@ BK1: "Momentum ignition. RSI(14) above 50 AND its 5-day slope positive. Buyers h
 BK2: "Buying pressure. Sum of volume on up-days divided by sum on down-days (10-day window). Above 1.1 = more volume flows into up-moves than down-moves — demand exceeds supply."
 BK3: "Resistance test. Current price position within the 20-day high-low range, as percentage. Above 70% = price is pushing against the top of its recent range — testing resistance."
 BK4: "Breakout volume. Today's volume divided by 20-day average. Above 1.2 = 20%+ surge in participation — conviction behind the move, not just drift."
-ADX/DI: "Directional conviction. ADX(10) measures trend strength (>20 = trending), DI+/DI- measures direction. Both together confirm the trend has real directional momentum, not just range drift."
-MA dist: "Extension check. How far price is from MA50, as %. Below 15% = not overextended. Stocks too far above MA50 tend to mean-revert before continuing."
-Room: "Upside room. Distance from price to 20-day high, measured in ATR units. Above 1.0 = at least one ATR of space before hitting recent resistance ceiling."
+ADX: "Trend strength (supplementary, not a BOT criterion). ADX(10) above 20 = stock is trending. Below 20 = weak/no trend — breakout may lack follow-through. Shown for context only."
 ```
 
 **Terse notes rule** (MANDATORY):
@@ -402,13 +391,13 @@ Room: "Upside room. Distance from price to 20-day high, measured in ATR units. A
 - Good note: "momentum fading" (adds context beyond the number). Bad note: "Well below threshold — options cheap. Below winner avg 27.7%." (restates what 27.4% ✓ already says).
 - Good note: "stock near 20-day ceiling" (explains why ✗). Bad note: "slightly expensive but acceptable. Not overpaying." (redundant).
 
-Use the same CSS style as macro_context and swing_scanner (`.section`, `.stitle`, `.snum`, badge classes, zone classes) but with the colorblind-safe palette above. The HTML report should contain:
+Use the same CSS style as macro_context reports (`.section`, `.stitle`, `.snum`, badge classes, zone classes) but with the colorblind-safe palette above. The HTML report should contain:
 
 1. **Header**: Ticker, direction, date **and time** (HH:MM), price, sector
 2. **Gate Summary**: Visual pass/fail badges for each gate (same as terminal but with color coding)
 3. **Gate 3 Detail**: Full 4-dimension IV table with values, DOW pattern scoring breakdown
 4. **Macro Context Summary**: Relevant extracts from macro_context (bias, VIX, breadth, events, sector tailwinds/headwinds)
-5. **Scanner Data**: Key technical metrics from CSV row
+5. **Technical Data**: Key BOT metrics from CSV row
 6. **Verdict**: Final recommendation with conviction and edge source
 7. **Historical Reference**: Sector historical WR and avg P&L
 

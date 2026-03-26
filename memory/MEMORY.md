@@ -66,6 +66,12 @@
 - See: [feedback_analyze_html.md](feedback_analyze_html.md)
 - Use DOW-style report template: decomposed Gate 2 (Trend/Momentum/RS/Volume), clean header with time
 - See: [feedback_analyze_report_style.md](feedback_analyze_report_style.md)
+- Use BOT columns (BOT_Score, BOT_Flags S1-S6/BK1-BK4), NOT swing Long_Score/Long_Signal
+- See: [feedback_analyze_bot_vs_swing.md](feedback_analyze_bot_vs_swing.md)
+
+## Claude Config Backup
+- Private repo: `Aldohlys/claude-config-backup` — commands, skills, memory, settings
+- Sync manually: ask "sync claude config backup"
 
 ## Windows Task Scheduler
 - `schtasks` flags like `/create` get intercepted by Git Bash as paths - use `.bat` files with `cmd //c`
