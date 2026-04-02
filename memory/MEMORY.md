@@ -73,6 +73,10 @@
 - Private repo: `Aldohlys/claude-config-backup` — commands, skills, memory, settings
 - Sync manually: ask "sync claude config backup"
 
+## Economic Events Calendar
+- Equals Money calendar works with WebFetch (ForexFactory returns 403)
+- See: [reference_events_calendar.md](reference_events_calendar.md)
+
 ## Windows Task Scheduler
 - `schtasks` flags like `/create` get intercepted by Git Bash as paths - use `.bat` files with `cmd //c`
 - `fsutil hardlink create` works better than `mklink /H` for programmatic use
