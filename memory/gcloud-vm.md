@@ -65,6 +65,12 @@
 - `backup_database.R` updated with `unistr()` post-processing safety net
 - Dump verified: all 17 tables, all row counts match after restore
 
+## RStudies / scanner / analyze on VM (added 2026-06-02)
+- RStudies is seeded (subset) at `/home/aldohlys/RProjects/RStudies/` — `reports/{analyze,shared,swing_scanner,macro_context}/`. `/analyze` runs via `/opt/scripts/analyze.sh <TICKER> <DIR>` (needs IB Gateway up).
+- **Blessed deploy:** `RApplication/scripts/push-rstudies-to-vm.ps1` — but it's INTERACTIVE (a `Read-Host` y/N confirm), so it can't be run non-interactively. For a targeted push, stage LF-normalized files (`tr -d '\r'`) → `gcloud compute scp --recurse` to `/tmp/...` → ssh `rsync -a /tmp/.../reports/ $R/reports/`. (gcloud is authed as aldohlys@gmail.com; runs non-interactively fine.)
+- **VM DB has NO `scanner_results` table** — the swing scanner runs LOCALLY (writes scanner_results to the local mydb.db); the VM only runs `/analyze`, which doesn't touch that table. So scanner schema/column changes need no VM DB migration.
+- Inline `Rscript -e "..."` over `gcloud ssh --command='...'` is quote-hell — for parse checks etc., scp a small `.sh` to /tmp and `bash` it instead.
+
 ## TODO (next session)
 1. Check `/srv/shiny-server/rjournal/` — how it links to the app
 2. Fix permissions — app runs as `shiny` user but DB owned by `aldohlys`

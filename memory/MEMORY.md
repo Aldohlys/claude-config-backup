@@ -1,48 +1,33 @@
 # Claude Code Memory - RApplication
 
+## Risk Refactoring (TODO #38)
+- [Trades table now uses signed-delta Risk + EventType + stored Return](project_trades_signed_delta_risk.md) — BOT shipped 2026-05-18; sum(Risk)=0 for closed trades; OFI/WHEEL/etc. still on legacy scheme until Phase 5
+- [Tdata::saveTrades drops + recreates Trades table (overwrite=TRUE)](reference_savetrades_overwrite.md) — new schema columns survive via RSQLite auto-inference; smoke-test with scripts/smoke_test_savetrades.R before any user clicks Save
+- [Don't filter-then-aggregate event-typed rows when verifying per-trade invariants](feedback_sql_aggregation_event_filter.md) — WHERE EventType='Close' GROUP BY TradeNr SUM(Risk) summed only close rows and triggered a false-alarm rollback panic on 2026-05-18
+
 ## Critical R Gotchas
+- [testthat with_mocked_bindings can't mock active bindings](feedback_mock_active_bindings.md) — tdata_py getter fires on assign; swap `.tdata_state$value` via `local_mock_tdata_py()`
+- [Tbasics::display_error_message calls stop() — code after it is unreachable](feedback_display_error_message_stops.md) — affects twr/getOptIBKRPrice; tests use expect_error, new code use display_message or log_error+return(NA)
+- [R `$` partial matching: result$error matches result$errors — use result[["error"]]](r-partial-matching.md) — empty list() is NOT NULL
+- [apply(df,1,fn) stringifies rows → isTRUE() always FALSE](feedback_apply_df_row_coercion.md) — use `vapply(seq_len(nrow(df)), \(i) fn(df[i,,drop=FALSE]), ...)`
 
-### R `$` Partial Matching Bug
-- `result$error` will match `result$errors` due to R's partial matching on `$`
-- An empty list `list()` is NOT NULL, so `!is.null(list())` is TRUE
-- Combined: checking `result$error` when Python returns `errors` (empty list) causes false error detection
-- **Fix**: Always use `result[["error"]]` for exact key matching when checking dict/list keys from Python
-- See: [r-partial-matching.md](r-partial-matching.md)
+## Python / reticulate
+- tdata_py CONFIG loads once at import (find_config_file searches CWD up) and caches — restart R to pick up config.yml/hardlink changes; Shiny apps need config.yml in their CWD
+- [Tdata::tdata_py is lazy — touch it before py_run_file() that imports tdata_py](project_tdata_py_lazy_init_startup.md) — ROrder regression 2026-05-12; RPreTrade is the reference
+- Each Shiny app dir needs a hardlink to `C:\Users\aldoh\config.yml` (`fsutil hardlink create`; `mklink /H` unreliable in Git Bash) — else Python backend uses defaults
+- [tdata_py API returns: list_historical_config / update_historical_data field names](reference_tdata_py_api_returns.md) — active_contract_details (not contracts); errors (plural) not error
 
-## Python/reticulate Integration
-
-### CONFIG Loaded Once at Import Time
-- `tdata_py._core.CONFIG = load_config()` runs at module import (line 129)
-- `load_config()` calls `find_config_file()` which searches from CWD upward
-- Once Python module is imported in an R session, CONFIG is cached - won't reload on re-import
-- **Must restart R** to pick up config.yml changes or new hard links
-- Shiny apps set CWD to their app directory - need config.yml there
-
-### Shiny App config.yml Hard Links
-- Every Shiny app directory needs a hard link to `C:\Users\aldoh\config.yml`
-- Without it, Python backend falls back to defaults (missing `historical_config` path, etc.)
-- Create with: `fsutil hardlink create <target> C:\Users\aldoh\config.yml`
-- `mklink /H` may silently fail in Git Bash; `fsutil` is more reliable on Windows
-
-## Python API Return Structures
-
-### `list_historical_config(return_dict=TRUE)` returns:
-- `active_contract_details` (NOT `contracts`) - list of contract dicts
-- `collection_settings` (nested) - contains `historical_duration`, `historical_frequency`, etc.
-- `contract_summary` - contains `total_contracts`, `active_contracts`, `expired_contracts`
-- Contract dicts include: symbol, trading_class, expiration, strike, right, exchange, active, last_updated (as of v5.8.22)
-
-### `update_historical_data()` / `collect_data_for_active_contracts()` returns:
-- `contracts_processed`, `contracts_errors`, `files_updated` (ints)
-- `errors` (plural, list of strings) - NOT `error` (singular)
-- Only returns `error` (singular string) when top-level exception occurs
+## IBKR Sub-Accounts
+- [IBKR Sub-Account API](project_ibkr_subaccounts.md) — portfolio subscription required, accountSummary tags split across sub-accounts vs All
 
 ## Google Cloud VM (trading-vm)
-- See: [gcloud-vm.md](gcloud-vm.md) for full details
-- Project `rtrading-basic`, zone `us-east1-b`, auto-terminates at 22:15 UTC
-- Two users: `aldoh` (gcloud SSH) and `aldohlys` (main user with RProjects)
-- Shiny server runs as `shiny` user — permission fix still needed
-- SQLite 3.37.2 on VM — no `unistr()` support, use `replace()/char(10)`
+- [gcloud-vm.md](gcloud-vm.md) — rtrading-basic / us-east1-b, auto-terminate 22:15 UTC; users aldoh(ssh)+aldohlys(RProjects); Shiny as `shiny` user (perm fix needed); SQLite 3.37.2 no unistr()
+- VM runs /analyze (RStudies seeded subset); scanner runs LOCALLY → VM has no scanner_results table; push-rstudies-to-vm.ps1 is interactive, targeted deploy = scp LF + rsync
+
+## Tooling / Automation
+- [Run a project slash command headlessly: `claude -p "/cmd args" --permission-mode acceptEdits` (cwd under .claude/commands)](reference_claude_headless_slash_command.md)
+- [Transcribe pipeline auto-summarizes via headless claude; NewTrading is a LOCAL-ONLY git repo (no remote, don't push)](project_transcribe_autosummary.md)
+- [data/mydb.sql: generated by scripts/backup_database.R; CRLF/autocrlf → full-file diff every commit is NORMAL; use pathspec commit](reference_mydb_sql_dump.md)
 
 ## Rscript Multiline Segfault
 - Multiline `Rscript -e "..."` causes segfaults on Windows — use temp script files instead
@@ -56,6 +41,7 @@
 - ScannerUniverse must include all Tickers with IV=YES and price ≤$500
 - Tickers table sector names are the canonical namespace (singular form)
 - See: [project_scanner_universe.md](project_scanner_universe.md)
+- [Flow_Score (Phase B) = flow/context composite, NOT raw BOT score; +2026-06-02 gate fixes](project_scanner_flow_score.md) — renamed from Pull_Score; extended stage_pts 1→2, sector −2→0; schema v7; sectorization→TODO #71 (correlation clustering)
 
 ## User Profile
 - Colorblind — use high-contrast colorblind-safe palette (blue/vermillion/amber, not green/red/orange)
@@ -68,6 +54,33 @@
 - See: [feedback_analyze_report_style.md](feedback_analyze_report_style.md)
 - Use BOT columns (BOT_Score, BOT_Flags S1-S6/BK1-BK4), NOT swing Long_Score/Long_Signal
 - See: [feedback_analyze_bot_vs_swing.md](feedback_analyze_bot_vs_swing.md)
+- Neutral stance — present bare facts, no GO/NO-GO verdict, no recommendation, no editorial adjectives
+- See: [feedback_analyze_neutral_stance.md](feedback_analyze_neutral_stance.md)
+- Every indicator must be live-fetched (IBKR/yfinance) — no n/a / unknown / unavailable cells; phase short-circuiting is forbidden for data fetch (only for badge/classification). PSX 2026-04-30 run was the failing example.
+- See: [feedback_analyze_live_data_fallback.md](feedback_analyze_live_data_fallback.md)
+- TWS reachability: gated on `Tdata::isIBAvailable()` at startup; live fetches short-circuit to "FETCH FAILED: TWS not reachable" if probe fails. Residual hang surface (TWS up but stuck) waits on TODO #52.
+- See: [project_analyze_tws_gate.md](project_analyze_tws_gate.md)
+- [De-gated 2026-06-02 (TODO #60): no verdicts; provenance vocab LIVE/CACHED/NO DATA/FETCH FAILED; coverage summary](project_analyze_degate.md) — NO DATA≠FETCH FAILED; `shared/live_sources.R` is /analyze-only despite the path
+
+## TWS Reachability & Hang Mitigation
+- [Tdata::isIBAvailable() is the canonical TWS reachability probe](reference_isIBAvailable.md) — don't re-implement TCP socket probes
+- [IB.RequestTimeout caps stuck ib_async requests — shipped Tdata 5.10.12 (2026-04-30)](project_ib_request_timeout.md) — runtime-verified at 60s; partially closes TODO #52
+- [Test IBKR/TWS API code changes against live TWS BEFORE editing source](feedback_test_tws_first.md) — TWS API is not trustworthy enough to edit blindly; if TWS is not active, halt and warn the user instead
+- [TWS subscription state populates even when end-event await times out](feedback_tws_subscription_outlives_end_event.md) — read ib.portfolio()/accountValues() after the timeout; don't abandon
+
+## IBKR Contract Field Conventions
+- [FUT / FOP Contract field reference (verified 2026-05-10)](reference_ibkr_fut_fop_contract_fields.md) — symbol vs localSymbol, FOP needs root+tradingClass, reqSecDefOptParams unreliable for FUT (use reqContractDetails on FOP root); MCLN6/MCO conIds for canary tests
+
+## IBKR Futures Contracts
+- [`lastTradeDateOrContractMonth='YYYYMM'` picks by last-trade-date, not contract-month label](feedback_ibkr_lasttradedate_yyyymm.md) — MCL Jul-26 (label JUL26, expires 2026-06-18) returns MCLM6 if you pass '202606'; use full date or conId
+- [Tickers FUT row convention: Name=local symbol, TradingClass=options class](reference_tickers_fut_row_convention.md) — MCO for MCL futures, LO for CL futures; not the future's own trading class shown in TWS
+- [chains_manager.py FUT bug — fixed in Tdata 5.10.16 + 5.10.17 on 2026-05-10](project_chains_manager_fut_bug.md) — root causes: localSymbol vs symbol mismatch + reqSecDefOptParams unreliable for FUT (workaround: reqContractDetails on FOP root) + strike qualification needed FOP/root path. All live-tested before deploy.
+
+## R Idioms
+- [Use Filter(Negate(is.null), list(...)) — `c(NULL, x)` drops NULLs but parallel `sapply(..., is.null)` mask doesn't, creating length-mismatch NA](feedback_filter_negate_isnull.md)
+
+## Shiny / plotly
+- [ggplotly() needs layout(autosize=TRUE) + config(responsive=TRUE) to fill plotlyOutput container](feedback_ggplotly_autosize.md) — inner canvas defaults to ~half panel width despite plotlyOutput being 100%
 
 ## Claude Config Backup
 - Private repo: `Aldohlys/claude-config-backup` — commands, skills, memory, settings
@@ -77,8 +90,103 @@
 - Equals Money calendar works with WebFetch (ForexFactory returns 403)
 - See: [reference_events_calendar.md](reference_events_calendar.md)
 
+## Audit Verification
+- Verify sub-agent "orphaned/unused" claims with fresh direct Grep before destructive ops
+- See: [feedback_verify_audit_claims.md](feedback_verify_audit_claims.md)
+
+## R Sourced Scripts
+- Never use `on.exit()` at top-level of scripts the user will source — causes "Invalid or closed connection". Use explicit `dbDisconnect()` instead.
+- See: [feedback_sourced_script_on_exit.md](feedback_sourced_script_on_exit.md)
+
+## R Library Paths
+- Use `.libPaths()[1]` instead of hardcoding `C:/Users/aldoh/Documents/RLibrary` when installing into the user's main library.
+- See: [feedback_libpaths_not_hardcoded.md](feedback_libpaths_not_hardcoded.md)
+- [Sys.getenv("HOME") on Windows = USERPROFILE, NOT Documents](feedback_sys_getenv_home_windows.md) — never use `paste0(Sys.getenv("HOME"), "/RApplication/...")` in launchers; rely on cwd from the .bat instead
+- [tibble/dplyr drift can leave vctrs as a load-time bomb in RLibrary](feedback_vctrs_tibble_dplyr_cascade.md) — `getIBKR` crash with "vctrs 0.6.5 already loaded, but >= 0.7.1 required" → upgrade vctrs in RLibrary
+
+## IBKR WSH Gotcha
+- WSH event-data API needs News Feed entitlement, not just WSH subscription (Error 10276)
+- See: [project_wsh_news_feed_gotcha.md](project_wsh_news_feed_gotcha.md)
+
+## IBKR Flex Query Coverage
+- [Flex Trade section excludes transfers/corporate actions](project_flex_query_coverage.md) — debug missing TradeNr via Monthly Activity Statement, not Flex CSV
+- [Master-level Flex returns identical CSVs per sub-account](project_flex_query_master_level.md) — add ClientAccountID column or create per-sub-account queries
+
+## Earnings-Date Feature
+- NextEarnings column + EarningsInDays flag in swing scanner — uses yfinance, not WSH
+- See: [project_earnings_flag_feature.md](project_earnings_flag_feature.md)
+
 ## Windows Task Scheduler
 - `schtasks` flags like `/create` get intercepted by Git Bash as paths - use `.bat` files with `cmd //c`
 - `fsutil hardlink create` works better than `mklink /H` for programmatic use
 - `StartWhenAvailable` in XML ensures missed tasks run when computer wakes up
 - XML approach is more reliable than command-line flags for complex settings
+
+## IBKR Batch Reliability
+- [reticulate/asyncio uninterruptible](feedback_reticulate_asyncio_uninterruptible.md) — R tryCatch cannot bound latency of a Python asyncio call; timeout must live in Python
+- [TWS drops connection on malformed requests](feedback_tws_drops_connection_on_malformed.md) — Error 320/200 + Peer-closed corrupts subsequent tickers in the same batch
+- [Never send NaN to TWS API](feedback_no_nan_to_tws.md) — filter NaN at the call boundary; getOptValue guard added 2026-04-28 in contract.py
+
+## Tdata Build & Install
+- [Check the Welcome Tdata version log line first](feedback_check_welcome_log.md) — fastest diagnostic when a script "uses old library" or hangs
+- [install.packages() can leave Python files stale on Windows](feedback_install_packages_python_stale.md) — verify by grep, or remove.packages() before reinstalling
+- [Tdata lives in 8 install locations; /build covers only 6](project_tdata_install_locations.md) — RLibrary + renv sandbox need explicit install
+- [Don't fix the renv version-mismatch warning with renv::restore(packages='renv')](feedback_renv_restore_corrupts_activate.md) — under old renv it rewrites activate.R with an unsubstituted ..md5.. placeholder → app won't launch; copy renv pkg dir or regen activate.R via the new renv instead
+- [Leave renv lockfiles alone — never snapshot to silence out-of-sync](feedback_renv_leave_lockfiles_alone.md) — library-ahead-of-lockfile drift is expected; updates are deliberate/periodic only (restore→bump→snapshot), never to clear a warning
+- [Update CHANGELOG.md before /build](feedback_changelog_before_build.md) — without an entry for the new version, build_package.R falls back to a generic file-list commit message
+- [Use quick_tests=TRUE for Python-only Tdata changes](feedback_tdata_quick_tests_for_python_only.md) — full test suite calls live IBKR via reticulate and can hang 15+ min on getHistoricalBars
+- [build_package.R force=TRUE when version bump was committed manually](feedback_build_package_force_after_manual.md) — bypasses the "No changes since last commit" guard; deploys to all 6 renv apps + system library
+
+## Background Tasks
+- [Don't pipe background Bash through tail/buffering filters](feedback_no_tail_on_background_bash.md) — .output stays empty until pipe closes; stream raw and tail the file later
+- [Diagnose hung background build via side channels](feedback_diagnose_hung_background_build.md) — tasklist + find -mmin + logs/t-*.log + git + renv/staging when stdout is dark
+- [Use python -u when piping through tee](feedback_python_unbuffered_with_tee.md) — Python block-buffers stdout off-tty; without -u, log stays empty until script exits and a hung script looks identical to a still-running one
+
+## Asymmetric Trade Thesis (swing scanner + vol metrics)
+- [project_asymmetric_trade_thesis.md](project_asymmetric_trade_thesis.md) — "2nd/3rd inning" over "1st inning" breakout; 30-60 DTE sweet spot; 10-day earnings buffer; VRP = log-ratio; IVR + IVP_2y both kept
+
+## DB Sync Scripts (sync_db / diff_db / merge_db)
+- [Account and Trades have non-unique defined keys](project_nonunique_keys.md) — never use merge_db.ps1 -Update on these; use sync_db.ps1 Push instead
+- [Delete cached snapshot before re-running diff_db.ps1](feedback_verify_db_snapshot_fresh.md) — after any write path to VM, the cached snapshot is likely stale
+
+## Portfolio TradeNr backfill
+- [TradeNr=NULL in portfolio when leg is entered into Trades after snapshot](project_tradenr_backfill_stale.md) — `Rscript data/fix_tradenr.R <table> <YYYYMMDD>`; script lacks Account filter, unsafe for DU5221795 cash rows
+
+## PowerShell Quirks
+- [Use $bt = [char]96 for literal backticks in strings](feedback_powershell_backtick_quoting.md) — double-backtick escaping breaks parser in here-strings + ForEach-Object + $_ variable expansion
+
+## iOS / Mobile Web
+- [iOS Mail opens HTML attachments in QuickLook, not Safari — JS event listeners don't fire](feedback_ios_mail_quicklook_no_js.md) — test mobile HTML via real Safari over HTTP/HTTPS (local server + explicit `http://lan-ip:port/file.html`, or Netlify Drop); save to Home Screen for offline use
+- [Offline-capable HTML/PWA pattern for iPhone](reference_pwa_offline_pattern.md) — manifest.json + sw.js + register-from-load; bump sw.js CACHE key on every meaningful update; reference impl `tools/bs_calculator/` (TODO #66); SW requires HTTPS host
+- [BSM Calculator design conventions](project_bs_calculator_design.md) — shared inputs above tabs (fixed order: Start/Pos · Spot/q · Exp/K · σ/r), per-tab segmented selectors collapse multi-axis matrices, Risks tab uses Taylor-decomposed PnL at t=0 with Vega-bump selector for Total
+
+## UX Iteration
+- [Present design before coding when iterating on UI](feedback_design_before_code.md) — text plan + ASCII previews via AskUserQuestion `preview` field, wait for explicit approval; the 2026-05-19 BSM session surfaced 4 hidden requirements only after the user saw layout options
+
+## File Placement
+- [Don't write scratch scripts to C:\Users\aldoh\](feedback_no_scratch_in_home.md) — pick the project subdir (RApplication/scripts, /data, /logs, NewTrading/Transcripts) before writing, not after; cleanup on 2026-05-07 found 9 stray artifacts
+
+## Git Discipline
+- [Re-run git status immediately before git commit](feedback_git_status_before_commit.md) — `git add <paths>` and `git commit` are independent; pre-staged files from session start ride along silently
+- [Unified RApplication repo policy](project_rapplication_repo_policy.md) — what's tracked / ignored / locally-excluded across all 7 R apps; canonical reference for "should I commit X?"
+- [TODO #55 closure commits](project_todo_55_unified_repo_policy.md) — audit trail for the 7 commits that established the unified policy on 2026-04-30
+- [.gitignore edits resurface state](feedback_gitignore_edit_resurfaces_state.md) — after editing .gitignore, re-run `git status` and inspect any newly-visible `??` files before staging
+- [Re-survey state before stale TODO](feedback_resurvey_stale_todos.md) — for any "execute this plan" TODO older than a few days, re-run the survey first; recorded inventory is a snapshot, not ground truth
+- [Verify "NEVER X" policy assertions](feedback_verify_policy_assertions.md) — when a memory/CLAUDE.md/TODO says "never do X", check whether the underlying reason still applies; surface evidence and ask, don't silently defer
+- [Unify-the-rule needs full audit](feedback_unify_rule_audit_full_surface.md) — for "do X everywhere" directives, audit `git ls-files` and `.gitignore` per repo; rule may have been silently violated in repos that don't show modified files
+- [renv state safe to track](reference_renv_safe_to_track.md) — renv-managed `renv/.gitignore` excludes library/staging/cellar/etc.; track .Rprofile + renv.lock + renv/{activate.R,settings.json,.gitignore}. RApplication-wide policy set 2026-04-30 via TODO #55
+- [`git add` of tracked file in ignored dir returns exit 1](feedback_git_add_ignored_dir.md) — `data/` gitignored, `data/mydb.sql` tracked: add succeeds but warns + exits 1, breaking `git add && git commit` chains. Use `-f` or run separately
+- [Move DONE TODO items to trailing "✅ COMPLETED ITEMS" section](feedback_todo_done_to_completed_section.md) — don't mark in-place; convention established 2026-05-18 via commit `2e7883c`. Partial/deferred entries stay in active section
+
+## Account / TWR
+- [readPortfolio() returns date as Date class, NOT YYYYMMDD int like Trades.TradeDate](feedback_readportfolio_date_type.md) — silent zero-match in mixed filters; check both column classes before joining
+- [Strategy / slice value pitfalls: futures mktValue is notional not cash, TWR breaks on cumulative-PnL series, r_factor is UI-only (RReporting/app/ui.R:95 default 200)](reference_strategy_value_pitfalls.md) — use unPnL not mktValue; see [TODO #69] for the StrategyCapital fix
+- [2026-04-16 transfer TWR fix: missing in-kind position rows + Tdata::twr interpolation bug](project_account_transfer_cashflow_signs.md) — record cash AND in-kind legs in Account.CashFlow; Tdata 5.10.18 chain-links observed dates only
+- [Account.CashFlow conventions](reference_account_cashflow_conventions.md) — native ccy storage, FX via AccountWithConversionRate view on read, position transfers need explicit synthetic rows
+- [IBKR Activity Statement layout](reference_ibkr_activity_statement.md) — manual export by user (no API); where to find official TWR, per-ccy cashflows, in-kind transfers; pull both source AND dest sides
+
+## Shiny Reactivity
+- [Don't use priority= in Shiny observers](feedback_no_shiny_priority.md) — ordering is buggy; one observer per UI trigger, source-order writes inside
+- [selectInput crashes on missing selectize-plugin-a11y](feedback_selectize_plugin_a11y.md) — default to selectize=FALSE; symptom is modal opens but inputs/buttons inside silently don't fire
+- [Use shinytest2 AppDriver for silent client-side bugs](feedback_shinytest2_for_silent_bugs.md) — when R terminal is clean but UI is unresponsive, app$get_logs() surfaces JS errors fast
+- [Snapshot DT selection at button press, not at modal OK](feedback_snapshot_dt_selection_for_modals.md) — `input$<tbl>_rows_selected` drifts between press and OK (multi-select preservation, intermediate filter changes, double-fire); caused RReporting trade 721 NVDA leak
