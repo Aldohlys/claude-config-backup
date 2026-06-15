@@ -1,5 +1,5 @@
 ---
-name: IBKR FUT / FOP Contract field conventions — quick reference
+name: reference_ibkr_fut_fop_contract_fields
 description: Field semantics differ sharply between STK and FUT/FOP; getting them wrong silently fails with Error 200 or hangs reqSecDefOptParams. Verified 2026-05-10 against live TWS with MCLN6 / MCO chain.
 type: reference
 originSessionId: 110f4600-4558-489d-88b2-cdf4eb853b4a

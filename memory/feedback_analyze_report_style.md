@@ -1,5 +1,5 @@
 ---
-name: Analyze report HTML style
+name: feedback_analyze_report_style
 description: /analyze HTML reports must use colorblind-safe palette, DOW-style Gate 2 breakdown, consistent T/M/RS/V labels, terse notes, no WATCH/TRADE signal
 type: feedback
 ---

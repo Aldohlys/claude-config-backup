@@ -1,5 +1,5 @@
 ---
-name: Asymmetric Trade Thesis (BOT Strategy)
+name: project_asymmetric_trade_thesis
 description: User's trading philosophy driving the swing scanner design — confirmed-trend-plus-pullback over breakout detection, with option structure chosen from vol regime
 type: project
 originSessionId: 85e16fdb-97b2-4ddc-a82d-4a001be0eb4e

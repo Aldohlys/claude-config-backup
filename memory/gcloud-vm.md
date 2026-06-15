@@ -1,3 +1,12 @@
+---
+name: gcloud-vm
+description: "Google Cloud trading-vm reference — connection/SSH/SCP, filesystem layout, Shiny Server, R env, SQL-dump compatibility (SQLite 3.37.2), and RStudies//analyze deploy"
+metadata: 
+  node_type: memory
+  type: reference
+  originSessionId: b7c72d7e-945c-4cbf-8075-4bd8bf2373ec
+---
+
 # Google Cloud VM - trading-vm
 
 ## Connection

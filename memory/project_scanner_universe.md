@@ -1,5 +1,5 @@
 ---
-name: Scanner Universe design principles
+name: project_scanner_universe
 description: ScannerUniverse origin (top-5-per-sector seed), sync rules (IV=YES, ≤$500), and canonical sector namespace
 type: project
 originSessionId: 1347083d-d9f2-4281-99ce-26cad155e9e3

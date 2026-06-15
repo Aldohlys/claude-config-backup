@@ -1,5 +1,5 @@
 ---
-name: Don't pipe background Bash through tail/buffering filters
+name: feedback_no_tail_on_background_bash
 description: tail -N (and similar) buffer until stdin closes, leaving the .output file empty for the entire run — lose all progress visibility
 type: feedback
 originSessionId: 29cdc5d5-050d-4ed2-a819-c20c72b37017

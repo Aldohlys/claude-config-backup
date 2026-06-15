@@ -1,5 +1,5 @@
 ---
-name: Verify sub-agent audit claims before destructive ops
+name: feedback_verify_audit_claims
 description: Before dropping DB tables, files, or config based on a sub-agent's "unused/orphaned" classification, re-grep directly for reads across all downstream consumers
 type: feedback
 originSessionId: 1347083d-d9f2-4281-99ce-26cad155e9e3

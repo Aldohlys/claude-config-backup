@@ -1,5 +1,5 @@
 ---
-name: Use python -u when piping through tee on Windows or output buffers indefinitely
+name: feedback_python_unbuffered_with_tee
 description: Python's stdout buffers when not connected to a tty (i.e. through a pipe). With `python script.py | tee log.log`, output stays empty until the script exits — masks hung scripts as still-running and stalls live diagnostics.
 type: feedback
 originSessionId: 110f4600-4558-489d-88b2-cdf4eb853b4a

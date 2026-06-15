@@ -1,5 +1,5 @@
 ---
-name: renv state is safe to git-track because of the renv-managed sub-gitignore
+name: reference_renv_safe_to_track
 description: Each renv/ ships a renv/.gitignore that excludes library/staging/cellar/etc., so `git add renv/` won't drag in hundreds of MB. Track .Rprofile, renv.lock, renv/activate.R, renv/settings.json.
 type: reference
 originSessionId: 66254968-8c04-4ad8-bfc3-2b1d56f655a0

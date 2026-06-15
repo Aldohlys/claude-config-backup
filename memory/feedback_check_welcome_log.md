@@ -1,5 +1,5 @@
 ---
-name: Check the "Welcome Tdata version X.Y.Z !" log line first
+name: feedback_check_welcome_log
 description: When a Tdata-based script behaves unexpectedly, the loaded Tdata version printed at startup is the fastest diagnostic — usually before re-reading the script
 type: feedback
 originSessionId: 967d9aec-f0cc-4ee7-a35d-cd2e96f70722

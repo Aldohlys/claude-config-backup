@@ -1,5 +1,5 @@
 ---
-name: apply(df, 1, ...) coerces rows to character — use vapply with seq_len(nrow)
+name: feedback_apply_df_row_coercion
 description: R gotcha — apply over data.frame rows stringifies logical/numeric values; isTRUE() on a coerced "TRUE" string returns FALSE
 type: feedback
 originSessionId: 57dce0f1-1905-4f9f-a79f-6683750fbd0a

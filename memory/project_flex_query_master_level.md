@@ -1,5 +1,5 @@
 ---
-name: Master-level Flex Queries produce identical CSVs per sub-account
+name: project_flex_query_master_level
 description: Flex Query configured at master/F-account level ignores sub-account context; both TradeU1804173.csv and TradeU25343478.csv are byte-identical unless ClientAccountID is added
 type: project
 originSessionId: f923bfb7-376f-4fb9-8735-ba041515b3a2

@@ -1,5 +1,5 @@
 ---
-name: Editing .gitignore can surface previously hidden files — re-check status
+name: feedback_gitignore_edit_resurfaces_state
 description: After removing a pattern from .gitignore, re-run `git status` and inspect any newly visible files before staging.
 type: feedback
 originSessionId: 66254968-8c04-4ad8-bfc3-2b1d56f655a0

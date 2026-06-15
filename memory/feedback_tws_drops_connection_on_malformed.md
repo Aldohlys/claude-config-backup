@@ -1,5 +1,5 @@
 ---
-name: TWS drops the whole client connection on malformed requests, not just the one request
+name: feedback_tws_drops_connection_on_malformed
 description: Sending bad field values (NaN strike, None conId, missing tradingClass) causes TWS to tear down the API session, corrupting subsequent calls in the batch
 type: feedback
 originSessionId: efdcf942-8e75-4a7f-a442-14c3e668ac27

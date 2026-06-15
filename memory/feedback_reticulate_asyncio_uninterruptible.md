@@ -1,5 +1,5 @@
 ---
-name: R tryCatch cannot interrupt Python asyncio in reticulate
+name: feedback_reticulate_asyncio_uninterruptible
 description: R-side error handling is useless once execution enters a blocking async Python call via reticulate — the timeout must live on the Python side
 type: feedback
 originSessionId: efdcf942-8e75-4a7f-a442-14c3e668ac27

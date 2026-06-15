@@ -1,5 +1,5 @@
 ---
-name: Tickers table FUT row convention — TradingClass = OPTIONS class, Name = IBKR local symbol
+name: reference_tickers_fut_row_convention
 description: When inserting a future into Tickers, Name uses the IBKR local symbol (e.g. MCLN6) and TradingClass stores the *options* trading class (e.g. MCO for MCL futures, LO for CL futures), not the future's own trading class shown in TWS.
 type: reference
 originSessionId: 435ffc45-0ae7-46ab-8d17-978675432004

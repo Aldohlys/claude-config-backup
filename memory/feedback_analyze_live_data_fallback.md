@@ -1,5 +1,5 @@
 ---
-name: /analyze must compute or fetch every indicator live (IBKR / yfinance)
+name: feedback_analyze_live_data_fallback
 description: When /analyze runs, NO field should report n/a / unknown / unavailable due to missing cache or skipped upstream phase. If a value isn't already computed, fetch it live.
 type: feedback
 originSessionId: 66254968-8c04-4ad8-bfc3-2b1d56f655a0

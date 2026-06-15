@@ -1,5 +1,5 @@
 ---
-name: feedback-ggplotly-autosize
+name: feedback_ggplotly_autosize
 description: ggplotly() output renders at fixed default width inside plotlyOutput() even though container is 100% wide — must pipe through layout(autosize=TRUE) and config(responsive=TRUE)
 metadata: 
   node_type: memory

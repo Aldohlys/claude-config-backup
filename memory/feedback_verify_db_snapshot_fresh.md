@@ -1,5 +1,5 @@
 ---
-name: Force fresh VM snapshot download to verify post-upload state
+name: feedback_verify_db_snapshot_fresh
 description: diff_db.ps1 reuses a cached local snapshot; after any sync/merge/upload, delete the cached file to force a fresh download before trusting the diff
 type: feedback
 originSessionId: 20890e27-e237-4b5b-ad56-028d4f1ab618

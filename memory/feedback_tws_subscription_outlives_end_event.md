@@ -1,5 +1,5 @@
 ---
-name: TWS subscription state populates even when ib_async's end-event await times out
+name: feedback_tws_subscription_outlives_end_event
 description: A wait_for(reqXxxAsync, timeout) timing out doesn't mean no data arrived — the subscription is often active and ib.portfolio() / ib.accountValues() / etc. already have the streamed data. Don't abandon — read after the timeout.
 type: feedback
 originSessionId: 110f4600-4558-489d-88b2-cdf4eb853b4a

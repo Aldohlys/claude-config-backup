@@ -1,5 +1,5 @@
 ---
-name: reference-account-cashflow-conventions
+name: reference_account_cashflow_conventions
 description: "Account.CashFlow conventions - native currency storage, FX via AccountWithConversionRate view, position transfers require explicit rows"
 metadata: 
   node_type: memory
@@ -32,5 +32,5 @@ INSERT INTO Account(account, date, heure, NetLiquidation, CashFlow, Currency)
 The accountf.R TWR caller (`group_by(date) |> summarize(CashFlow = sum(CashFlow))`) sums across all rows for the day. Since `readAccount` has already FX-converted each row, the sum is in base currency — meaningful even when legs span multiple currencies. Missing or wrong-signed legs produce phantom market moves in the TWR series.
 
 ### Related
-- [[reference-ibkr-activity-statement]] — where to source the per-symbol/per-currency ground truth
-- [[project-account-transfer-cashflow-signs]] — the 2026-04-16 case study and the Tdata 5.10.18 `twr` interpolation fix
+- [[reference_ibkr_activity_statement]] — where to source the per-symbol/per-currency ground truth
+- [[project_account_transfer_cashflow_signs]] — the 2026-04-16 case study and the Tdata 5.10.18 `twr` interpolation fix

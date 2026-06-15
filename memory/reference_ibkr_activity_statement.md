@@ -1,5 +1,5 @@
 ---
-name: reference-ibkr-activity-statement
+name: reference_ibkr_activity_statement
 description: "IBKR Activity Statement CSV layout - how to source official TWR, cashflows, and in-kind transfers for reconciliation"
 metadata: 
   node_type: memory
@@ -30,7 +30,7 @@ The user's mental model ("I moved everything from A to B") can be incomplete —
 | `Forex Balances` | Per-currency cash balances at period end |
 
 ### Sign convention
-All sections take **this account's perspective**: positive = IN, negative = OUT. The mirror account's statement will have opposite signs. The DB `Account.CashFlow` follows the same convention (per `[[project-account-transfer-cashflow-signs]]`).
+All sections take **this account's perspective**: positive = IN, negative = OUT. The mirror account's statement will have opposite signs. The DB `Account.CashFlow` follows the same convention (per `[[project_account_transfer_cashflow_signs]]`).
 
 ### Statement period
 Header: `Statement, Data, Period, "<start> - <end>"`. The TWR is computed over this exact range — match your DB query window to it for clean comparisons.

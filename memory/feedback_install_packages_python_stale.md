@@ -1,5 +1,5 @@
 ---
-name: install.packages() can silently leave Tdata Python files stale on Windows
+name: feedback_install_packages_python_stale
 description: On Windows, install.packages() of a Tdata source tarball reports DONE and bumps packageVersion() but may leave inst/python/*.py files unchanged if a stale R/Python process holds them. Always verify by grep, or remove.packages() first.
 type: feedback
 originSessionId: 967d9aec-f0cc-4ee7-a35d-cd2e96f70722

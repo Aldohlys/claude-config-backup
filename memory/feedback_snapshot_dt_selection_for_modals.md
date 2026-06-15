@@ -1,5 +1,5 @@
 ---
-name: snapshot-dt-selection-for-modals
+name: feedback_snapshot_dt_selection_for_modals
 description: "In Shiny+DT modal flows, snapshot `input$<table>_rows_selected` data at button-press time; reading it again at modal-OK time can silently act on a different row than the modal was opened for"
 metadata: 
   node_type: memory

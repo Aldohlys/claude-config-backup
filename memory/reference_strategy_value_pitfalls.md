@@ -1,5 +1,5 @@
 ---
-name: reference-strategy-value-pitfalls
+name: reference_strategy_value_pitfalls
 description: "Per-strategy / per-slice account-value calculations — futures mktValue is notional (not cash), TWR breaks on cumulative-PnL series, r_factor lives in RReporting UI"
 metadata: 
   node_type: memory

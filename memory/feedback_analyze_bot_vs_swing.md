@@ -1,5 +1,5 @@
 ---
-name: /analyze uses BOT columns not swing columns
+name: feedback_analyze_bot_vs_swing
 description: The /analyze command must use BOT_Score, BOT_Flags (S1-S6, BK1-BK4), not Long_Score/Long_Signal which are swing scanner signals
 type: feedback
 ---

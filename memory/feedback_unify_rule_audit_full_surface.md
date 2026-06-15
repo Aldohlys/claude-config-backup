@@ -1,5 +1,5 @@
 ---
-name: "Unify the rule" directives need a full-surface audit, not just a modified-files commit
+name: feedback_unify_rule_audit_full_surface
 description: When the user says "do X everywhere", audit `git ls-files` and `.gitignore` per repo to find places where the rule has been silently violated, not just where it's currently in flux.
 type: feedback
 originSessionId: 66254968-8c04-4ad8-bfc3-2b1d56f655a0

@@ -1,5 +1,5 @@
 ---
-name: git add returns exit 1 for tracked files in ignored dirs (breaks && chains)
+name: feedback_git_add_ignored_dir
 description: `data/` is gitignored but `data/mydb.sql` is tracked; `git add data/mydb.sql` stages the file BUT emits a warning and returns exit code 1, killing `git add && git commit` shell chains
 type: feedback
 originSessionId: 3e9e8622-37ca-48f5-8116-4573ce74aa2f

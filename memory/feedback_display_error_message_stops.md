@@ -1,5 +1,5 @@
 ---
-name: Tbasics::display_error_message calls stop() — return(NA) after it is dead code
+name: feedback_display_error_message_stops
 description: name suggests "display a message" but implementation stops execution; affects defensive code patterns in twr, getOptIBKRPrice, calculate_target_vol, etc.
 type: feedback
 originSessionId: 110f4600-4558-489d-88b2-cdf4eb853b4a

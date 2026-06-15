@@ -1,5 +1,5 @@
 ---
-name: selectInput selectize plugin a11y crash
+name: feedback_selectize_plugin_a11y
 description: Default selectInput crashes Shiny binding pass with 'selectize-plugin-a11y' missing — use selectize=FALSE
 type: feedback
 originSessionId: 29cdc5d5-050d-4ed2-a819-c20c72b37017

@@ -1,5 +1,5 @@
 ---
-name: with_mocked_bindings cannot replace active bindings — use state-swap helper instead
+name: feedback_mock_active_bindings
 description: testthat's with_mocked_bindings fires the active binding's getter when trying to assign the mock; required for Tdata's tdata_py and any other active-binding-backed package globals
 type: feedback
 originSessionId: 110f4600-4558-489d-88b2-cdf4eb853b4a

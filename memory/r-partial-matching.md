@@ -1,3 +1,12 @@
+---
+name: r-partial-matching
+description: "R $ does partial matching — result$error matches result$errors; use result[[\"error\"]] for exact keys (esp. reticulate Python dicts). Empty list() is not NULL."
+metadata: 
+  node_type: memory
+  type: feedback
+  originSessionId: b7c72d7e-945c-4cbf-8075-4bd8bf2373ec
+---
+
 # R `$` Partial Matching - Detailed Notes
 
 ## The Problem

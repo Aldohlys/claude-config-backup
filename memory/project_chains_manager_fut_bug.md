@@ -1,5 +1,5 @@
 ---
-name: chains_manager.py FUT bug — RESOLVED in Tdata 5.10.16 + 5.10.17 (2026-05-10)
+name: project_chains_manager_fut_bug
 description: Three sequential bugs in chains_manager prevented FUT/FOP option-chain fetching. All fixed and live-tested. Kept as historical record.
 type: project
 originSessionId: 435ffc45-0ae7-46ab-8d17-978675432004

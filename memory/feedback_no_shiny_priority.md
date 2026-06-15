@@ -1,5 +1,5 @@
 ---
-name: Don't use priority= in Shiny observers
+name: feedback_no_shiny_priority
 description: Avoid observeEvent/observe priority argument — ordering is buggy and unreliable; restructure reactivity instead
 type: feedback
 originSessionId: 29cdc5d5-050d-4ed2-a819-c20c72b37017

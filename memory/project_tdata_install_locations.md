@@ -1,5 +1,5 @@
 ---
-name: Tdata is installed in 8 separate libraries; /build deploys to 7 of them (since 2026-04-27)
+name: project_tdata_install_locations
 description: Tdata exists in user RLibrary, an renv sandbox, and 6 app renv libraries. As of 2026-04-27 the /build slash command + build_package.R deploy step covers RLibrary in addition to the 6 app renvs — only the RApplication renv sandbox (#2) still needs a separate install.
 type: project
 originSessionId: 967d9aec-f0cc-4ee7-a35d-cd2e96f70722

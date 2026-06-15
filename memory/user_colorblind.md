@@ -1,5 +1,5 @@
 ---
-name: User is colorblind
+name: user_colorblind
 description: User is colorblind — HTML reports must use high-contrast colorblind-safe palette, not red/green
 type: user
 ---

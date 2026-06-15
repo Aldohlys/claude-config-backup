@@ -1,5 +1,5 @@
 ---
-name: feedback-ios-mail-quicklook-no-js
+name: feedback_ios_mail_quicklook_no_js
 description: "iOS Mail (and Files preview) renders HTML attachments via QuickLook, not Safari — JavaScript event listeners on document don't fire, localStorage may be sandboxed. Never test HTML apps that way."
 metadata: 
   node_type: memory

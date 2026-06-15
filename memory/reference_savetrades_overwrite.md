@@ -1,5 +1,5 @@
 ---
-name: reference-savetrades-overwrite
+name: reference_savetrades_overwrite
 description: "Tdata::saveTrades() drops and recreates the Trades table on every save (dbWriteTable overwrite=TRUE). New columns survive via RSQLite auto-inference, but should be smoke-tested with scripts/smoke_test_savetrades.R before any user clicks Save in RReporting."
 metadata: 
   node_type: memory

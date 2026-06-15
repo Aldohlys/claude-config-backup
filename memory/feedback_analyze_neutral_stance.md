@@ -1,5 +1,5 @@
 ---
-name: Analyze command neutral stance
+name: feedback_analyze_neutral_stance
 description: /analyze must present bare facts only — no recommendations, no GO/NO-GO verdicts, no buy/sell/wait suggestions; let the user judge
 type: feedback
 originSessionId: 374e2580-c4c8-4600-b2d2-140902429eb7

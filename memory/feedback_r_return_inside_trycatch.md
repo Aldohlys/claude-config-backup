@@ -1,5 +1,5 @@
 ---
-name: r-return-inside-trycatch
+name: feedback_r_return_inside_trycatch
 description: "return() inside tryCatch({...}) body exits the ENCLOSING function, not the tryCatch — silently aborts caller, mimics fatal error"
 metadata: 
   node_type: memory

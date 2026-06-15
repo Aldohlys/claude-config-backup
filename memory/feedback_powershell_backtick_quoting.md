@@ -1,5 +1,5 @@
 ---
-name: Use $bt = [char]96 instead of escaped backticks in PowerShell strings
+name: feedback_powershell_backtick_quoting
 description: Double-backtick escaping in here-strings with variable expansion triggers cryptic parser errors; literal [char]96 is always safe
 type: feedback
 originSessionId: 20890e27-e237-4b5b-ad56-028d4f1ab618

@@ -1,5 +1,5 @@
 ---
-name: Don't use on.exit() at top-level of sourced R scripts
+name: feedback_sourced_script_on_exit
 description: on.exit() inside functions is fine, but at top-level of a sourced .R script it causes "Invalid or closed connection" errors; use explicit dbDisconnect at end
 type: feedback
 originSessionId: 1347083d-d9f2-4281-99ce-26cad155e9e3

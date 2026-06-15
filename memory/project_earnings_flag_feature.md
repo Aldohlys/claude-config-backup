@@ -1,5 +1,5 @@
 ---
-name: Earnings-date flag for swing scanner
+name: project_earnings_flag_feature
 description: How the NextEarnings + EarningsInDays feature is wired — uses yfinance (not WSH), refreshed at scanner start
 type: project
 originSessionId: 1347083d-d9f2-4281-99ce-26cad155e9e3

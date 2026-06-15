@@ -1,5 +1,5 @@
 ---
-name: Use shinytest2 AppDriver to surface silent client-side bugs
+name: feedback_shinytest2_for_silent_bugs
 description: When a Shiny app has unresponsive widgets but a clean R terminal, drive it via shinytest2::AppDriver and read app$get_logs() before debugging R code
 type: feedback
 originSessionId: 29cdc5d5-050d-4ed2-a819-c20c72b37017

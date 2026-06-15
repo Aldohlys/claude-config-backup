@@ -1,5 +1,5 @@
 ---
-name: Never send NaN to TWS API
+name: feedback_no_nan_to_tws
 description: Defensive validation rule — filter NaN strikes/values before any TWS API call to avoid Error 320 + peer-closed cascade
 type: feedback
 originSessionId: 29cdc5d5-050d-4ed2-a819-c20c72b37017

@@ -1,5 +1,5 @@
 ---
-name: FX trade risk methodology
+name: project_fx_risk
 description: How Risk is set for FX/cash positions in the Trades table — 30% of notional based on historical drawdown analysis
 type: project
 ---

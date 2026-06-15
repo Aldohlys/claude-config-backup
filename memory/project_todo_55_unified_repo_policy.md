@@ -1,5 +1,5 @@
 ---
-name: TODO #55 — unified RApplication repo policy commits
+name: project_todo_55_unified_repo_policy
 description: Index of the 7 commits that closed TODO #55 (clean uncommitted state across all repos) and established the unified config.yml/renv tracking policy on 2026-04-30.
 type: project
 ---

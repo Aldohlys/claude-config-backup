@@ -1,5 +1,5 @@
 ---
-name: Test IBKR/TWS API code changes against a live TWS BEFORE editing source
+name: feedback_test_tws_first
 description: Any change touching ib_async / TWS API behaviour must be validated against the live API first; if TWS is not active, halt and warn the user instead of editing blindly
 type: feedback
 originSessionId: 110f4600-4558-489d-88b2-cdf4eb853b4a

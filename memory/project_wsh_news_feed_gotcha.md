@@ -1,5 +1,5 @@
 ---
-name: WSH event-data needs News Feed entitlement (Error 10276)
+name: project_wsh_news_feed_gotcha
 description: IBKR's "WSH fee waived" subscription alone does NOT grant reqWshEventData access — need separate News Feed entitlement
 type: project
 originSessionId: 1347083d-d9f2-4281-99ce-26cad155e9e3

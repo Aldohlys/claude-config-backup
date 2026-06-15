@@ -1,5 +1,5 @@
 ---
-name: feedback-todo-done-to-completed-section
+name: feedback_todo_done_to_completed_section
 description: "When marking a TODO item DONE in docs/TODO.md, move it to the trailing \"## ✅ COMPLETED ITEMS\" section, don't leave it in place."
 metadata: 
   node_type: memory

@@ -1,5 +1,5 @@
 ---
-name: Re-run git status immediately before git commit
+name: feedback_git_status_before_commit
 description: When chaining git add + git commit + git push, always re-check git status first to avoid sweeping pre-staged unrelated files into a topical commit
 type: feedback
 originSessionId: 6bd2f12e-5604-4dc1-8c3d-43f23ae6d408

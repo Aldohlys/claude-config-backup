@@ -1,5 +1,5 @@
 ---
-name: Flex Query Trades section excludes transfers and corporate actions
+name: project_flex_query_coverage
 description: Positions arriving via external transfer or corporate action are invisible to a Trade-only Flex Query, regardless of date range — use Monthly Activity Statement as ground truth
 type: project
 originSessionId: f923bfb7-376f-4fb9-8735-ba041515b3a2

@@ -1,5 +1,5 @@
 ---
-name: tibble/dplyr drift can leave vctrs as a load-time bomb
+name: feedback_vctrs_tibble_dplyr_cascade
 description: When tibble or dplyr is upgraded in RLibrary but vctrs isn't, getIBKR / other Tdata-using scripts crash mid-run with "vctrs 0.6.5 already loaded but >= 0.7.1 required". Upgrade vctrs to clear it.
 type: feedback
 originSessionId: d15d36be-5525-4cb1-836d-35a4a21221dd

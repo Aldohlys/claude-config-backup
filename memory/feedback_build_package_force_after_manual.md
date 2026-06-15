@@ -1,5 +1,5 @@
 ---
-name: build_package.R force=TRUE when you've already manually committed the version bump
+name: feedback_build_package_force_after_manual
 description: /build refuses with "No changes since last commit" if you've committed the CHANGELOG + DESCRIPTION bump manually; force=TRUE bypasses the check and re-deploys
 type: feedback
 originSessionId: 110f4600-4558-489d-88b2-cdf4eb853b4a

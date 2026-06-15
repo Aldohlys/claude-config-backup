@@ -1,5 +1,5 @@
 ---
-name: project-trades-signed-delta-risk
+name: project_trades_signed_delta_risk
 description: Trades table Risk is now a signed-delta per row; closure auto-balances to 0 and stores Return on the close row. BOT v1 shipped 2026-05-18; OFI/WHEEL/BPT/CS/Sharpe2/Perso still on old per-row scheme until Phase 5.
 metadata: 
   node_type: memory

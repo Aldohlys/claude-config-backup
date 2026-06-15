@@ -1,5 +1,5 @@
 ---
-name: feedback-readportfolio-date-type
+name: feedback_readportfolio_date_type
 description: "Tdata::readPortfolio returns date as Date class, NOT YYYYMMDD integer like Trades.TradeDate — easy to write a silent zero-match filter"
 metadata: 
   node_type: memory

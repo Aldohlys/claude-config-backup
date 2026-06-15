@@ -1,5 +1,5 @@
 ---
-name: reference-pwa-offline-pattern
+name: reference_pwa_offline_pattern
 description: "Template for building an offline-capable HTML deliverable for iPhone — manifest.json + sw.js + register-from-load. Use `tools/bs_calculator/` as the reference implementation."
 metadata: 
   node_type: memory
@@ -38,10 +38,10 @@ When the user asks for a mobile HTML deliverable that "works offline once saved 
 - Any HTTPS static host.
 
 **iOS quirks to remember:**
-- Don't test by emailing the HTML file — iOS Mail uses QuickLook (no JS event listeners). See [[feedback-ios-mail-quicklook-no-js]].
+- Don't test by emailing the HTML file — iOS Mail uses QuickLook (no JS event listeners). See [[feedback_ios_mail_quicklook_no_js]].
 - iOS Safari HTTPS-upgrade can block plain `http://lan-ip:port` URLs; type the full URL with explicit `http://` + path (e.g. `/index.html`).
 - "Add to Home Screen" alone does NOT cache offline without a Service Worker — it just bookmarks the URL.
 
 **Cache-key discipline:** every time you ship new HTML/JS for an installed PWA, bump the `CACHE` constant in `sw.js` (e.g. `bsm-v1` → `bsm-v2` → `bsm-v3`). The `activate` handler diffs the cache keys and deletes the old one, then `install` precaches the new ASSETS on next online visit. Without the bump, the SW serves the stale cached HTML forever even though you redeployed. The 2026-05-19 BSM session went through three rev cycles (v1→v2→v3) and each rev needed a key bump to roll out.
 
-**Reference implementation:** `tools/bs_calculator/` (TODO #66, shipped 2026-05-18, extended 2026-05-19 with Vol/Risks tabs + Position + Taylor-decomposed PnL; see [[project-bs-calculator-design]]). Single-file BSM calculator that became a PWA via the pattern above. Live-tested airplane-mode after install — works.
+**Reference implementation:** `tools/bs_calculator/` (TODO #66, shipped 2026-05-18, extended 2026-05-19 with Vol/Risks tabs + Position + Taylor-decomposed PnL; see [[project_bs_calculator_design]]). Single-file BSM calculator that became a PWA via the pattern above. Live-tested airplane-mode after install — works.

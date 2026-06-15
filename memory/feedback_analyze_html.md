@@ -1,5 +1,5 @@
 ---
-name: Always generate HTML for /analyze
+name: feedback_analyze_html
 description: /analyze command must always produce HTML report regardless of GO/NO-GO verdict
 type: feedback
 ---

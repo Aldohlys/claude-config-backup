@@ -1,5 +1,5 @@
 ---
-name: TradeNr=NULL in portfolio for late-entered legs
+name: project_tradenr_backfill_stale
 description: When a trade leg is entered into Trades AFTER one or more portfolio snapshots, those snapshots keep TradeNr=NULL forever; RReporting unPnL underreports
 type: project
 originSessionId: 3e9e8622-37ca-48f5-8116-4573ce74aa2f

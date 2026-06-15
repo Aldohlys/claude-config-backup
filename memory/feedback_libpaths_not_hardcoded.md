@@ -1,5 +1,5 @@
 ---
-name: Use .libPaths()[1], not a hardcoded RLibrary path, when installing into the user's main library
+name: feedback_libpaths_not_hardcoded
 description: In build_package.R and any other R script that needs to install into the user's main (non-renv) R library, prefer `.libPaths()[1]` over hardcoding `C:/Users/aldoh/Documents/RLibrary`. The user's library order is configured via `R_LIBS_USER` in Renviron.site and could be reordered or moved.
 type: feedback
 originSessionId: 38ba25ab-2b85-4e02-b278-742aad088c20

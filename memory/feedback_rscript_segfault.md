@@ -1,5 +1,5 @@
 ---
-name: Rscript multiline segfault
+name: feedback_rscript_segfault
 description: Multiline R code passed via Rscript -e causes segfaults on Windows — use temp script files instead
 type: feedback
 ---

@@ -1,5 +1,5 @@
 ---
-name: feedback-sql-aggregation-event-filter
+name: feedback_sql_aggregation_event_filter
 description: "When verifying per-trade invariants (e.g. sum(Risk)=0 after backfill), don't filter the aggregation by EventType — use a subquery for the trade-set, then aggregate over all rows. Filtering-then-aggregating gave a false-alarm rollback signal after a clean Phase 3 commit on 2026-05-18."
 metadata: 
   node_type: memory

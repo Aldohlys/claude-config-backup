@@ -1,5 +1,5 @@
 ---
-name: Unified RApplication repo policy (config.yml, renv, secrets, caches)
+name: project_rapplication_repo_policy
 description: Canonical statement of what is tracked / ignored / locally-excluded across all 7 R apps under RApplication. Set 2026-04-30 via TODO #55.
 type: project
 ---

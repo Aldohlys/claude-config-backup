@@ -1,5 +1,5 @@
 ---
-name: IBKR lastTradeDateOrContractMonth='YYYYMM' picks by last-trade-date, not contract-month label
+name: feedback_ibkr_lasttradedate_yyyymm
 description: When qualifying a futures Contract by root symbol + 6-digit month, IBKR returns the contract whose last trading date falls in that month — which usually means the *previous* contract-month-label. Use full date or conId.
 type: feedback
 originSessionId: 435ffc45-0ae7-46ab-8d17-978675432004

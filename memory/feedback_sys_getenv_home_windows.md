@@ -1,5 +1,5 @@
 ---
-name: Sys.getenv("HOME") on Windows resolves to USERPROFILE, not Documents
+name: feedback_sys_getenv_home_windows
 description: Windows R sets HOME to C:\Users\<user>, NOT C:\Users\<user>\Documents. Launchers building paths from HOME silently break. Use the cwd already set by the .bat instead.
 type: feedback
 originSessionId: d15d36be-5525-4cb1-836d-35a4a21221dd

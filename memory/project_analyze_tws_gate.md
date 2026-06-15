@@ -1,5 +1,5 @@
 ---
-name: /analyze TWS reachability gate (isIBAvailable)
+name: project_analyze_tws_gate
 description: How /analyze handles TWS down vs TWS-stuck states; live fetches gated on isIBAvailable; residual hang risk requires TODO #52
 type: project
 originSessionId: 67df7b93-72b2-4e92-a5f8-7541ce5b225c

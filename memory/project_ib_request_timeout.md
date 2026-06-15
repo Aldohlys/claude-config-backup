@@ -1,5 +1,5 @@
 ---
-name: IB.RequestTimeout caps stuck ib_async requests; one-line fix for half of TODO #52
+name: project_ib_request_timeout
 description: ib_async exposes IB.RequestTimeout as a class attribute (default 0=no timeout); setting it once at module init puts a global ceiling on every util.run() call without per-callsite asyncio.wait_for wrapping
 type: project
 originSessionId: 67df7b93-72b2-4e92-a5f8-7541ce5b225c

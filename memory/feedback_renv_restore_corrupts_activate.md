@@ -1,5 +1,5 @@
 ---
-name: renv-restore-packages-renv-under-old-renv-corrupts-activate-r-with-md5
+name: feedback_renv_restore_corrupts_activate
 description: "How to align a project's installed renv version with its lockfile WITHOUT breaking the bootstrap. The naive renv::restore rewrites activate.R leaving an unsubstituted ..md5.. placeholder, which makes the app fail to launch at all."
 metadata: 
   node_type: memory
@@ -7,7 +7,7 @@ metadata:
   originSessionId: 6f5786db-5489-4ea1-851d-9477ce02eb6c
 ---
 
-All 6 app renv libraries (Tuser, RPreTrade, RReporting, RJournal, ROrder, RStudies) can drift in the **renv version itself**: the lockfile + working-tree `renv/activate.R` request one version (e.g. 1.2.2) while the project library has an older one installed (e.g. 1.1.5). Symptom on every launch: `renv X was loaded from project library, but this project is configured to use Y`. This is **non-fatal** — old renv still resolves the correct triplet libpath (`renv/library/windows/R-4.4/x86_64-w64-mingw32/`), so packages still load. It is NOT the cause of a `library(Tdata)` "package not found" crash (that's the install-location gap — see [[Tdata is installed in 8 separate libraries; /build deploys to 7 of them (since 2026-04-27)]]; renv app libs also need the package physically present).
+All 6 app renv libraries (Tuser, RPreTrade, RReporting, RJournal, ROrder, RStudies) can drift in the **renv version itself**: the lockfile + working-tree `renv/activate.R` request one version (e.g. 1.2.2) while the project library has an older one installed (e.g. 1.1.5). Symptom on every launch: `renv X was loaded from project library, but this project is configured to use Y`. This is **non-fatal** — old renv still resolves the correct triplet libpath (`renv/library/windows/R-4.4/x86_64-w64-mingw32/`), so packages still load. It is NOT the cause of a `library(Tdata)` "package not found" crash (that's the install-location gap — see [[project_tdata_install_locations]]; renv app libs also need the package physically present).
 
 **The trap (2026-06-02):** fixing the version warning by running, inside the app, `renv::restore(packages="renv", prompt=FALSE)` **under the old renv** installs the new renv BUT rewrites `renv/activate.R` leaving the literal placeholder `attr(version, "md5") <- ..md5..` (writer template not substituted). Next launch then dies hard with `Erreur dans eval(...): objet '..md5..' introuvable` — the app won't start at all. Worse than the original cosmetic warning.
 

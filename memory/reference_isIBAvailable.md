@@ -1,5 +1,5 @@
 ---
-name: Tdata::isIBAvailable() is the canonical TWS reachability probe
+name: reference_isIBAvailable
 description: Use Tdata::isIBAvailable() — not a custom TCP socket probe — when an R script needs to check whether TWS is reachable before issuing live IBKR requests
 type: reference
 originSessionId: 67df7b93-72b2-4e92-a5f8-7541ce5b225c

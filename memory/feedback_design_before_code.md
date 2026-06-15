@@ -1,5 +1,5 @@
 ---
-name: feedback-design-before-code
+name: feedback_design_before_code
 description: "On non-trivial UI/UX iterations, present the design (text plan + ASCII mockups via AskUserQuestion `preview`) and wait for approval before editing files."
 metadata: 
   node_type: memory
@@ -24,4 +24,4 @@ All four would have been wrong-and-rewritten if I'd coded straight from the init
 - After answers, write one consolidated final-design summary and ask for a single yes/no approval before touching code.
 - Once approved, no further questions — just implement.
 
-**Related:** [[reference-pwa-offline-pattern]] (the BSM calculator that triggered this), [[feedback-todo-done-to-completed-section]] (similar "user clarifies after seeing the first attempt" pattern).
+**Related:** [[reference_pwa_offline_pattern]] (the BSM calculator that triggered this), [[feedback_todo_done_to_completed_section]] (similar "user clarifies after seeing the first attempt" pattern).

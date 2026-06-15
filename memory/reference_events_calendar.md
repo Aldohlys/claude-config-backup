@@ -1,5 +1,5 @@
 ---
-name: Economic events calendar URL
+name: reference_events_calendar
 description: Working URL to fetch weekly economic events for macro_context report section 08
 type: reference
 ---

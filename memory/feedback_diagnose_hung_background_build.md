@@ -1,5 +1,5 @@
 ---
-name: Diagnose a hung background build without stdout visibility
+name: feedback_diagnose_hung_background_build
 description: Side-channel signals (tasklist, find -mmin, project logs, git, renv/staging) to figure out what a silent background build is actually doing
 type: feedback
 originSessionId: 29cdc5d5-050d-4ed2-a819-c20c72b37017

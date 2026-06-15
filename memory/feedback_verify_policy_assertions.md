@@ -1,5 +1,5 @@
 ---
-name: Verify "NEVER do X" policy assertions before deferring to them
+name: feedback_verify_policy_assertions
 description: When a memory, CLAUDE.md, or doc says "NEVER commit/touch/use X", check whether the underlying reason still applies. Surface evidence and ask, don't silently honour.
 type: feedback
 originSessionId: 66254968-8c04-4ad8-bfc3-2b1d56f655a0

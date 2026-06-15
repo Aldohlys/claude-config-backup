@@ -1,5 +1,5 @@
 ---
-name: Account and Trades tables have non-unique defined keys
+name: project_nonunique_keys
 description: Sync/merge scripts hardcode keys that aren't actually unique in these two tables; JOIN-based merges produce Cartesian counts and -Update is unsafe
 type: project
 originSessionId: 20890e27-e237-4b5b-ad56-028d4f1ab618

@@ -1,5 +1,5 @@
 ---
-name: IBKR Sub-Account API Behavior
+name: project_ibkr_subaccounts
 description: Critical API differences when using IBKR sub-accounts vs single account - portfolio subscription, accountSummary split
 type: project
 originSessionId: 5ceb604c-8e70-4a7f-a505-a5a16612d921

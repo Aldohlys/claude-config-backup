@@ -1,5 +1,5 @@
 ---
-name: project-account-transfer-cashflow-signs
+name: project_account_transfer_cashflow_signs
 description: 2026-04-16 U1804173↔U25343478 transfer TWR fix - missing in-kind position transfer rows + Tdata::twr interpolation bug
 metadata: 
   node_type: memory

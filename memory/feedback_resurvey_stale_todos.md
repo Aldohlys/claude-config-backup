@@ -1,5 +1,5 @@
 ---
-name: Re-survey state before executing a stale TODO
+name: feedback_resurvey_stale_todos
 description: For any "execute this plan" TODO older than a few days, re-run the underlying survey before acting on the inventory.
 type: feedback
 originSessionId: 66254968-8c04-4ad8-bfc3-2b1d56f655a0

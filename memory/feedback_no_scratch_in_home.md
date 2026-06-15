@@ -1,5 +1,5 @@
 ---
-name: Don't write scratch scripts to C:\Users\aldoh\
+name: feedback_no_scratch_in_home
 description: One-shot scripts/SQL/logs Claude generates must land under RApplication/ or NewTrading/ from the start, never the user's Windows home directory.
 type: feedback
 originSessionId: fd5e246c-38e1-4547-a0ba-784fc9e1dbdf

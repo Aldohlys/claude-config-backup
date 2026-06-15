@@ -1,5 +1,5 @@
 ---
-name: leave-renv-lockfiles-alone-never-snapshot-to-silence-an-out-of-sync-warning
+name: feedback_renv_leave_lockfiles_alone
 description: "User policy on renv lockfile hygiene across the 6 app renvs. The renv \"out-of-sync\" warning is expected and must NOT be fixed with renv::snapshot(); library updates are deliberate and periodic only."
 metadata: 
   node_type: memory

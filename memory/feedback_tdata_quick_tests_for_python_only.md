@@ -1,5 +1,5 @@
 ---
-name: Use quick_tests=TRUE for Tdata builds touching only inst/python
+name: feedback_tdata_quick_tests_for_python_only
 description: Tdata's full test suite hits live IBKR via reticulate and can hang 15+ min; quick_tests skips it for Python-only changes
 type: feedback
 originSessionId: 29cdc5d5-050d-4ed2-a819-c20c72b37017

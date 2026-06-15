@@ -1,5 +1,5 @@
 ---
-name: Use Filter(Negate(is.null), list(...)) — c() drops NULLs but parallel sapply(..., is.null) doesn't
+name: feedback_filter_negate_isnull
 description: Combining `c(NULL, x)` (drops NULLs) with a parallel `sapply(list(NULL, x), is.null)` mask creates a length mismatch that recycles into NA — use Filter() instead
 originSessionId: 67df7b93-72b2-4e92-a5f8-7541ce5b225c
 type: feedback
