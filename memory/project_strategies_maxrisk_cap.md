@@ -57,14 +57,20 @@ BOT-only — now covers OFI/WHEEL/CS/BPT/Sharpe2/Perso. See
   (reader memoises in `.strategy_risk_cache`; live edit needs `reset_strategy_risk_cache()`).
   TODO #75 CLOSED 2026-06-15 → archived to docs/TODO_COMPLETED.md.
 
-**MaxRisk = per-trade capital BUDGET, not true risk (key, non-obvious).** The
-display cap `pmin(Risk, MaxRisk)` hits ALL strategies, but the cap only does useful
-*tolerance* work for the short-premium set (OFI/WHEEL/Sharpe2/CS/BPT) where raw Risk =
-large assignment notional. For debit/long/stock/FX strategies (BOT/LTO/CAL/Perso/VALUE/
-FOREX) the raw Risk IS the true max loss (premium paid / stop-based / notional), so a low
-budget UNDERSTATES it — set those HIGH enough to never clip. Edges: MaxRisk `NULL`→600
-fallback; `0`/negative→cap disabled for that strategy. Proposed 2026-06-15 starting
-values (CHF, tune to account): OFI 800, WHEEL 1000, Sharpe2 600, CS 600, BPT 600,
-Perso 1000, BOT 1500, LTO 2000, CAL 1000, VALUE 5000, FOREX 3000, TBILL/A14/Dan 600,
-Erreur 300. Peak-risk audit: VALUE peaks ~100k (stock notional), FOREX ~130k, short-puts
-to ~40-77k (uncapped assignment) — these are exactly what the cap tames at display.
+**MaxRisk = per-trade capital POLICY BUDGET (decided 2026-06-16).** The display cap
+`pmin(Risk, MaxRisk)` hits ALL strategies. Treated as a hard per-trade budget: a
+debit/long/stock/FX trade (BOT/LTO/VALUE/FOREX) whose TRUE risk exceeds budget displays
+*capped* on purpose — that clamp is an oversize FLAG, not an error to hide by raising the
+ceiling. (Earlier 2026-06-15 framing said "set those HIGH so they never clip" — superseded.)
+Edges: MaxRisk `NULL`→600 fallback; `0`/negative→cap disabled for that strategy.
+
+**Sizing base: 1% of the IBKR sleeve, NOT total NLV.** All strategy-tagged Trades live in
+the IBKR accounts — overwhelmingly U1804173 (~58.6k CHF), VALUE in U25343478 (~22.2k); the
+402k Gonet stock book is untagged (CSV, stocks-only) and does NOT back these budgets. So the
+absolute per-trade ceiling = 1% of U1804173+U25343478 (~80.7k) ≈ **800 CHF**. Telling: 1% of
+U1804173 alone ≈ 586 ≈ the old 600 default. **Applied values (DB, 2026-06-16, CHF):** OFI 800,
+BOT 800 (full 1%, core/proven); WHEEL 700, BPT 700, VALUE 700; CS 600, LTO 600, FOREX 600;
+Sharpe2 500, Perso 500; CAL 400, A14 400, Dan 400; TBILL 100, Erreur 100 (near-zero/mistake
+floors). Differentiated by conviction × risk-definition. (Stale VALUE/FOREX peak-risk of
+~100k/~130k in old audits = legacy full-notional, not real for a 22k account → VALUE is
+stop-based.)

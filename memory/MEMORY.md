@@ -18,7 +18,8 @@
 
 ## Risk, Trades & FX
 - [Trades table: signed-delta Risk + EventType + stored Return](project_trades_signed_delta_risk.md) — BOT shipped 2026-05-18; generalized to all strategies 2026-06-10 (Phase 5)
-- [Strategies.MaxRisk per-strategy Risk budget + signed-delta generalized to OFI/WHEEL/CS/BPT/Sharpe2/Perso](project_strategies_maxrisk_cap.md) — base-ccy ceiling default 600; going-forward only; residuals TODO #75
+- [Strategies.MaxRisk per-strategy Risk budget + signed-delta generalized to OFI/WHEEL/CS/BPT/Sharpe2/Perso](project_strategies_maxrisk_cap.md) — #75 CLOSED 2026-06-16; values set to 1%-of-IBKR-sleeve (~800 ceiling) policy budgets; MaxRisk caps DISPLAY for all strategies
+- [Account↔strategy topology + per-trade risk sizing base](reference_account_strategy_topology.md) — strategy trades live in IBKR sleeve (U1804173 main, VALUE in U25343478); Gonet 402k stocks-only CSV untagged; size vs ~80.7k sleeve not 483k total; aggregate overlay → TODO #76
 - [Tdata::saveTrades drops+recreates Trades table (overwrite=TRUE)](reference_savetrades_overwrite.md) — smoke-test scripts/smoke_test_savetrades.R before Save
 - [Verifying per-trade invariants: don't filter-then-aggregate event rows](feedback_sql_aggregation_event_filter.md) — false-alarm rollback panic 2026-05-18
 - [Trades↔portfolio join key depends on instrument type](reference_trades_portfolio_join_key_by_type.md) — stocks via Ssjacent==symbol, options/futures via Instrument; bit stats_one_position (trade 697)
@@ -129,6 +130,7 @@
 - Claude config backup: private repo Aldohlys/claude-config-backup (commands/skills/memory/settings); sync on "sync claude config backup"
 - Windows Task Scheduler: .bat + cmd //c (schtasks flags intercepted by Git Bash); fsutil hardlink > mklink /H; StartWhenAvailable in XML for missed-task wake
 - [Register schtasks from XML: use PowerShell tool (Bash mangles /create) + XML must be UTF-16](reference_schtasks_xml_registration.md) — RestartOnFailure + exit /b %ERRORLEVEL% for TWS-down retry
+- [daily_portfolio_update subprocesses contend with parent DB writes — busy_timeout + honor exit codes](reference_daily_update_subprocess_db_contention.md) — spurious "STALE" was an exit-5 crash, not real staleness (commit 15049ff)
 - [Don't pipe background Bash through tail — stream raw, tail file later](feedback_no_tail_on_background_bash.md)
 - [Diagnose hung background build via side channels (tasklist / find -mmin / logs / git / renv)](feedback_diagnose_hung_background_build.md)
 - [python -u when piping through tee — else log empty until exit](feedback_python_unbuffered_with_tee.md)
