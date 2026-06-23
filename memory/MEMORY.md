@@ -30,6 +30,8 @@
 - [Trades column-rename playbook (flag-day)](reference_trades_column_rename_playbook.md) — sed must cover test dirs; no field.types edit for TEXT; summarize() self-ref trap; smoke-test symf via load_all not library; gate symbol-join filter(type=="Stock")
 - [Adding a Trades column: update RReporting trade_fields + all 4 row builders](reference_rreporting_trade_fields_schema_sync.md) — else New-Trade rbind breaks + Save silently drops the column; is_options_block crashes on staged data (use Strike/Right gate)
 - [Summary-tab open-trade realizedPnL from the trade's OWN legs, not broker avgCost](project_rreporting_summary_realized_pnl.md) — accumulate-only=0; avgCost carries fees Total omits (702 = UK stamp duty); Risk capped at MaxRisk in this view
+- [RReporting Summary is trade-driven — untagged CASH (TradeNr=NA, no CASH trade) is invisible](reference_untagged_cash_hidden_in_summary.md) — 2026-06-23 U1804173 GBP 31.59 hidden (no GBP trade); EUR/JPY/USD show via 659/687/704
+- [Activating a currency auto-enrolls FX conversion but NOT interest rates (needs a fetcher)](reference_adding_currency_two_pipelines.md) — Tdata 5.11.0 added GBP/KRW fetchers; "No ConvertToCHF rate for X; defaulting to 1.0" = missing data not a bug
 
 ## Account / TWR / CashFlow
 - [readPortfolio() date is Date class, NOT YYYYMMDD int like Trades.TradeDate](feedback_readportfolio_date_type.md)
@@ -82,6 +84,7 @@
 - [vctrs load-time bomb in RLibrary from tibble/dplyr drift — upgrade vctrs](feedback_vctrs_tibble_dplyr_cascade.md)
 
 ## R Gotchas & Idioms
+- [any()/all() over NA-bearing vector returns NA → crashes scalar if()](feedback_any_na_crashes_scalar_if.md) — regexpr() returns NA for NA input; make predicates NA-total at source; bit RReporting Summary tab 2026-06-17
 - [dplyr summarize() args evaluated in order — a new col shadows an input col of the same name for later args](feedback_dplyr_summarize_self_reference.md) — `Total_native=sum(Total)` after `Total=sum(base_Total)` reads the new scalar; bit RReporting realizedPnL 2026-06-15
 - [Rscript -e multiline segfaults on Windows — use temp script files](feedback_rscript_segfault.md)
 - [display_error_message calls stop() — code after is unreachable](feedback_display_error_message_stops.md)
@@ -105,6 +108,8 @@
 - [ggplotly() needs layout(autosize=TRUE)+config(responsive=TRUE) to fill container](feedback_ggplotly_autosize.md)
 - [DT: sort currency-formatted cols by hidden base-ccy col + pin TOTAL via orderFixed.pre](reference_dt_basecurrency_sort_pin_row.md) — portf_datatable(), both account branches
 - [fileInput's green "Upload complete" is a built-in label (transfer only), not custom text — add showNotification for processing](feedback_shiny_fileinput_upload_complete.md)
+- [plotly mode="lines" connects in ROW order — sort by x before add_trace](feedback_plotly_lines_sort_by_x.md) — bind_rows(include_archived=TRUE) isn't chronological; jagged line is a plotting bug not a data bug
+- [Historical-option / IV-history charts live in RPreTrade, NOT RReporting](reference_historical_option_module_in_rpretrade.md) — Tuser/studies/view/historicalOptionUI.R, wired via RPreTrade/R/historical_options.R
 
 ## Git Discipline
 - [Re-run git status immediately before commit — pre-staged files ride along](feedback_git_status_before_commit.md)
@@ -130,7 +135,7 @@
 - Claude config backup: private repo Aldohlys/claude-config-backup (commands/skills/memory/settings); sync on "sync claude config backup"
 - Windows Task Scheduler: .bat + cmd //c (schtasks flags intercepted by Git Bash); fsutil hardlink > mklink /H; StartWhenAvailable in XML for missed-task wake
 - [Register schtasks from XML: use PowerShell tool (Bash mangles /create) + XML must be UTF-16](reference_schtasks_xml_registration.md) — RestartOnFailure + exit /b %ERRORLEVEL% for TWS-down retry
-- [daily_portfolio_update subprocesses contend with parent DB writes — busy_timeout + honor exit codes](reference_daily_update_subprocess_db_contention.md) — spurious "STALE" was an exit-5 crash, not real staleness (commit 15049ff)
+- [daily_portfolio_update subprocesses contend with parent DB writes — busy_timeout + honor exit codes](reference_daily_update_subprocess_db_contention.md) — exit-5 = SQLITE_BUSY crash, not real staleness; ROOT fix = busy_timeout in Tdata safe_db_connect (5.10.30); 15049ff was incomplete (patched wrong connection)
 - [Don't pipe background Bash through tail — stream raw, tail file later](feedback_no_tail_on_background_bash.md)
 - [Diagnose hung background build via side channels (tasklist / find -mmin / logs / git / renv)](feedback_diagnose_hung_background_build.md)
 - [python -u when piping through tee — else log empty until exit](feedback_python_unbuffered_with_tee.md)
@@ -142,3 +147,4 @@
 - [iOS Mail opens HTML in QuickLook — JS doesn't fire; test via real Safari over HTTP](feedback_ios_mail_quicklook_no_js.md)
 - [Offline PWA pattern for iPhone](reference_pwa_offline_pattern.md) — manifest+sw.js; bump CACHE key; tools/bs_calculator (TODO #66)
 - [BSM Calculator design conventions](project_bs_calculator_design.md) — shared inputs above tabs; segmented selectors; Taylor PnL Risks tab
+- [RPreTrade Position Analysis IV/skew projection model](project_position_analysis_iv_skew_conventions.md) — projected IV = entry + vol offset (all legs) + skew (OTM |delta|≤0.30, puts & calls); per-IV chart anchors to the ATM leg; 3 P/L charts = date/price/IV
