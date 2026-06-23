@@ -1,0 +1,3 @@
+- [Trades table schema](trades_table_schema.md) — Ssjacent=underlying, PnL only on close, Statut='Fermé', Strategy='BOT' for long bought
+- [Research style — falsification first](research_style_falsification.md) — user wants robustness checks and literature review before celebrating positives
+- [IVolatility data pipeline](ivolatility_data_pipeline.md) — async job pattern, probe script, 17 tickers of 2021-2026 IV-surface parquets on disk

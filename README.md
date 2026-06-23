@@ -23,10 +23,16 @@ project-NewTrading/              # NewTrading/.claude/
   settings.local.json
   wheel_analysis.md              # WHEEL strategy deep-dive reference
 
-memory/                          # Persistent memory (RApplication project key)
-  MEMORY.md                      # Memory index
-  *.md                           # Individual memory records
+memory/                          # Persistent memory — AUTO-DISCOVERED, one subfolder per project key
+  C--Users-aldoh-Documents-RApplication/            # RApplication memory
+  C--Users-aldoh-Documents-RApplication-RStudies/   # RStudies memory
+  C--Users-aldoh-Documents-NewTrading/              # NewTrading memory
+    MEMORY.md                    # Memory index (per project)
+    *.md                         # Individual memory records
 ```
+
+`memory/` is rebuilt from scratch on every `/sync` by iterating `~/.claude/projects/*/memory/`, so any
+new project's memory is backed up automatically (no spec change needed).
 
 ## Restore
 
@@ -34,7 +40,7 @@ Copy files back to their original locations:
 - `global/*`               -> `~/.claude/`
 - `project-RApplication/*` -> `RApplication/.claude/`
 - `project-NewTrading/*`   -> `NewTrading/.claude/`
-- `memory/*`               -> `~/.claude/projects/C--Users-aldoh-Documents-RApplication/memory/`
+- `memory/<project-key>/*` -> `~/.claude/projects/<project-key>/memory/`
 
 ## Sync
 

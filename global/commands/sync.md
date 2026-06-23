@@ -24,16 +24,14 @@ RApplication/.claude/settings.local.json                        -> project-RAppl
 NewTrading/.claude/commands/                                     -> project-NewTrading/commands/     (/analyze, /transcribe)
 NewTrading/.claude/settings.local.json                          -> project-NewTrading/settings.local.json
 NewTrading/.claude/wheel_analysis.md                            -> project-NewTrading/wheel_analysis.md
-~/.claude/projects/C--Users-aldoh-Documents-RApplication/memory/ -> memory/                            (RApplication memory — legacy bare path)
-~/.claude/projects/C--Users-aldoh-Documents-NewTrading/memory/   -> project-NewTrading/memory/
+~/.claude/projects/<any-project-key>/memory/                     -> memory/<any-project-key>/         (AUTO-DISCOVERED — every project, see step 4)
 ```
 
 Absolute source roots:
 - Global:          `C:/Users/aldoh/.claude`
 - RApplication:    `C:/Users/aldoh/Documents/RApplication/.claude`
 - NewTrading:      `C:/Users/aldoh/Documents/NewTrading/.claude`
-- Memory (RApp):   `C:/Users/aldoh/.claude/projects/C--Users-aldoh-Documents-RApplication/memory`
-- Memory (NT):     `C:/Users/aldoh/.claude/projects/C--Users-aldoh-Documents-NewTrading/memory`
+- Projects root:   `C:/Users/aldoh/.claude/projects`   (each `<key>/memory/` is auto-discovered)
 - Backup repo:     `C:/Users/aldoh/Documents/claude-config-backup`
 
 ## How to mirror
@@ -63,9 +61,19 @@ mirror() { rm -rf "$2" && mkdir -p "$2" && cp -r "$1/." "$2/"; }
    - `cp <NT>/settings.local.json <backup>/project-NewTrading/settings.local.json`
    - `cp <NT>/wheel_analysis.md   <backup>/project-NewTrading/wheel_analysis.md`
 
-4. **Memory (all projects):**
-   - `mirror <memory-RApp> <backup>/memory`
-   - `mirror <memory-NT>   <backup>/project-NewTrading/memory`
+4. **Memory (ALL projects — auto-discovered).** Do NOT hardcode project keys. Wipe `<backup>/memory`
+   and rebuild it by iterating every project that has a `memory/` subfolder. This automatically
+   picks up new projects and drops ones deleted locally:
+   ```bash
+   PROJ="C:/Users/aldoh/.claude/projects"
+   rm -rf "<backup>/memory" && mkdir -p "<backup>/memory"
+   for d in "$PROJ"/*/; do
+     key=$(basename "$d")
+     [ -d "$d/memory" ] && mirror "$d/memory" "<backup>/memory/$key"
+   done
+   ```
+   Result: `<backup>/memory/<full-project-key>/...` per project (key = the dir name under `projects/`,
+   e.g. `C--Users-aldoh-Documents-NewTrading`).
 
 5. **Secrets — never copy.** `config.yml`, `.Renviron`, `Renviron.site`, `*.secret`, `*.key`, `*.pem`, `*.p12`, or any file containing credentials/tokens. `settings.local.json` is allowed (it has been backed up before) but **skim it for literal secrets first** — env-var *name* references (e.g. `ALERT_EMAIL_PASSWORD`) are fine; literal keys/passwords/emails are not.
 
@@ -80,6 +88,6 @@ mirror() { rm -rf "$2" && mkdir -p "$2" && cp -r "$1/." "$2/"; }
 8. **Report** the commit hash, push result, and a one-line summary of what was mirrored.
 
 ## Notes
-- Backup layout: `global/` (user `~/.claude`), `project-<name>/` per project (each may contain its own `memory/`), bare `memory/` (RApplication's memory — legacy path kept for history). To add another project, create a new `project-<name>/` folder with its `memory/` subfolder — never overwrite an existing project's folder or the shared `memory/`.
+- Backup layout: `global/` (user `~/.claude`), `project-<name>/` per project for hand-curated config (commands/skills/settings/loose files), and `memory/<full-project-key>/` for memory — the memory tree is auto-discovered from `~/.claude/projects/*/memory/`, so new projects' memory is captured with no spec change. Adding a new project's **config** (commands/skills/settings) still needs a new `project-<name>/` block in steps 2-3; its **memory** is automatic.
 - Keep `<backup>/README.md` in sync with the layout if it changes.
 - The LF→CRLF warnings from git on Windows are normal and harmless.
