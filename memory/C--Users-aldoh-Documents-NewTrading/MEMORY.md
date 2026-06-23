@@ -61,6 +61,7 @@
 - [ESTX50 hedge roll](project_estx50_hedge_roll_20260601.md) — EXEC 2026-06-02: closed Sep 5200P, opened Dec 5700/4600 @125 (823EUR/lot); GOnet partial cover; SPY 660P parked (id=61)
 
 ## Open Work Programs
+- [Claude API integration](project_claude_api_integration_todo.md) — add Anthropic SDK calls to scripts: summarize Journal entries, classify trades, extract from Daubasses PDFs + transcripts, generate report text; use /claude-api skill, Batches for bulk
 - [Vol ATR band guardrails](project_vol_atr_band_guardrails_todo.md) — clamp xmoveUI horizon max→20 + conf max→90 (app, now); effective-n flag + tail-support guard in Tdata atr_move.R (next rebuild)
 - [/analyze prefer-monthly expiry](project_analyze_prefer_monthly_expiry.md) — `.pick_expiry_for_dte` prefers 3rd-Fri monthly over weeklies; uncommitted in RStudies
 - [XLF financials screen](project_xlf_breakout_screen_20260608.md) — C only GREEN; financials = spread-not-call (MID beta); BX only long-call; `xlf_screen.py`

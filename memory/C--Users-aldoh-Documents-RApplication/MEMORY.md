@@ -15,6 +15,7 @@
 - [Every indicator live-fetched; no n/a cells; no phase short-circuit for data fetch](feedback_analyze_live_data_fallback.md)
 - [De-gated 2026-06-02 (TODO #60): provenance vocab LIVE/CACHED/NO DATA/FETCH FAILED](project_analyze_degate.md) — NO DATA≠FETCH FAILED; shared/live_sources.R is /analyze-only
 - [TWS-gated at startup via isIBAvailable(); short-circuits to "FETCH FAILED" if probe fails](project_analyze_tws_gate.md) — residual hang TODO #52
+- [/analyze command lives in NewTrading/.claude/commands/ — thin wrapper to RStudies reports/analyze/main.R](reference_analyze_command_location.md) — NOT RApplication; gitignored→only in config-backup; Windows Rscript (cwd RStudies) / VM /opt/scripts/analyze.sh; current = neutral data report
 
 ## Risk, Trades & FX
 - [Trades table: signed-delta Risk + EventType + stored Return](project_trades_signed_delta_risk.md) — BOT shipped 2026-05-18; generalized to all strategies 2026-06-10 (Phase 5)
@@ -132,7 +133,7 @@
 - [Delete cached snapshot before re-running diff_db.ps1](feedback_verify_db_snapshot_fresh.md)
 - [Run project slash command headlessly: claude -p "/cmd" --permission-mode acceptEdits](reference_claude_headless_slash_command.md)
 - [Transcribe pipeline auto-summarizes; NewTrading is LOCAL-ONLY git (no remote, don't push)](project_transcribe_autosummary.md)
-- Claude config backup: private repo Aldohlys/claude-config-backup (commands/skills/memory/settings); sync on "sync claude config backup"
+- [Claude config backup + /save & /sync commands](reference_claude_config_backup.md) — Aldohlys/claude-config-backup; user-level commands work in any project; memory auto-discovered per project key; rsync absent→cp-mirror; sync on "sync claude config backup" or /sync
 - Windows Task Scheduler: .bat + cmd //c (schtasks flags intercepted by Git Bash); fsutil hardlink > mklink /H; StartWhenAvailable in XML for missed-task wake
 - [Register schtasks from XML: use PowerShell tool (Bash mangles /create) + XML must be UTF-16](reference_schtasks_xml_registration.md) — RestartOnFailure + exit /b %ERRORLEVEL% for TWS-down retry
 - [daily_portfolio_update subprocesses contend with parent DB writes — busy_timeout + honor exit codes](reference_daily_update_subprocess_db_contention.md) — exit-5 = SQLITE_BUSY crash, not real staleness; ROOT fix = busy_timeout in Tdata safe_db_connect (5.10.30); 15049ff was incomplete (patched wrong connection)
