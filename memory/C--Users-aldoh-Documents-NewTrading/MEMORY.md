@@ -160,7 +160,7 @@
 - [ATR→move multiples](reference_atr_move_multiples.md) — 10d move: typical 1.5×, strong 4× ATR%; payable freq by beta; prior not gate; mid-bucket graveyard; √N scales
 - [ATR empirical band limits](reference_atr_empirical_band_limits.md) — Tuser/vol Empirical row: effective n≈n_obs/N (overlapping windows), regime-pooled→optimistic in tails; trust 70-80%, distrust ≥90%/long-horizon
 - [No LaTeX math](feedback_no_latex_math_blocks.md) — renderer garbles `$$`/`$`; use plain text/code for formulas; escape EVERY `\$` in prices (2 bare `$` on one line = garbled math, e.g. `+$344 … −$172`)
-- [Trades.Right sparse](reference_trades_right_column_sparse.md) — null on older rows; parse vehicle from Instrument; ticker=Ssjacent; trade=group by TradeNr; PnL on closing fill
+- [Trades schema migrated](reference_trades_right_column_sparse.md) — French→English cols (Ssjacent→Underlying, Statut→Status…); Underlying+Right EMPTY for BOT → parse ticker+vehicle from Instrument; trade=group by TradeNr; PnL on closing fill
 - [Size analytics to horizon](feedback_size_analytics_to_trade_horizon.md) — window metrics to 2-4wk horizon (~40d), adaptive ZigZag over fixed-window
 - [PowerShell `$Var:` scope-qualified](reference_powershell_variable_colon.md) — `"$VMInstance:$Path"` errors; use `"${VMInstance}:${Path}"`
 - [gcloud scp --recurse needs dest dir](reference_pscp_recursive_destdir.md) — pscp.exe won't create remote dir; pre-create via ssh, scp contents
