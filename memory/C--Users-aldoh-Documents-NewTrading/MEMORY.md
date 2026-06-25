@@ -141,6 +141,7 @@
 - [Tdata IR refresh system](reference_tdata_ir_refresh_system.md) — Currencies table (percent), getLastRate DTE buckets, getInterestRates registry (USD/EUR/CHF/JPY/CAD)
 - [U1804173.IV is underlying iv30](reference_u1804173_iv_column.md) — IV col = underlying ATM iv30, not per-option; pull IBKR hist option data for OTM vega
 - [transcribe.py atomic](reference_transcribe_pipeline_atomic.md) — no resume; crash=full re-run; -SkipDownload skips Vimeo; ~80min/50min audio
+- [Markdown→PDF pipeline](reference_markdown_pdf_pipeline.md) — pandoc (gfm→standalone HTML) → Chrome headless --print-to-pdf; tool paths + CSS; html gitignored, md+pdf tracked
 - [/analyze TWS-down degraded](reference_analyze_tws_down_degraded.md) — FETCH FAILED markers = TWS closed; BS grid + structural targets still work
 - [/analyze vehicle rule](feedback_analyze_vehicle_rule.md) — outright if stock<$150 & IVP<60, spread if >$150 or IVP>60, stock if <$10; apply BEFORE grid
 - [/analyze off-universe fallback](feedback_analyze_off_universe_fallback.md) — non-universe ticker → yfinance history+chains+BS-solve; never dead-end
