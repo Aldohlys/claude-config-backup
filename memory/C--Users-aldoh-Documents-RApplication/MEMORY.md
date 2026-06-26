@@ -33,6 +33,7 @@
 - [Summary-tab open-trade realizedPnL from the trade's OWN legs, not broker avgCost](project_rreporting_summary_realized_pnl.md) — accumulate-only=0; avgCost carries fees Total omits (702 = UK stamp duty); Risk capped at MaxRisk in this view
 - [RReporting Summary is trade-driven — untagged CASH (TradeNr=NA, no CASH trade) is invisible](reference_untagged_cash_hidden_in_summary.md) — 2026-06-23 U1804173 GBP 31.59 hidden (no GBP trade); EUR/JPY/USD show via 659/687/704
 - [Activating a currency auto-enrolls FX conversion but NOT interest rates (needs a fetcher)](reference_adding_currency_two_pipelines.md) — Tdata 5.11.0 added GBP/KRW fetchers; "No ConvertToCHF rate for X; defaulting to 1.0" = missing data not a bug
+- [greeksNet contract (5.12.0): deltanotional in TRADE currency + currency col, type-based notional](reference_greeksnet_contract.md) — per-group single-ccy; uPrice is option-only (0 for stock/future→use mktPrice); stored delta: stock=1, future/CFD/TBill=0; CASH row currency=base; convert-before-sum to aggregate
 
 ## Account / TWR / CashFlow
 - [readPortfolio() date is Date class, NOT YYYYMMDD int like Trades.TradeDate](feedback_readportfolio_date_type.md)
@@ -82,6 +83,8 @@
 - [Leave renv lockfiles alone — never snapshot to silence out-of-sync](feedback_renv_leave_lockfiles_alone.md)
 - [Don't fix renv warning with renv::restore(packages='renv') — corrupts activate.R](feedback_renv_restore_corrupts_activate.md)
 - [renv state safe to track: .Rprofile + renv.lock + renv/{activate.R,settings.json,.gitignore}](reference_renv_safe_to_track.md)
+- [/build runs renv::snapshot per app → churns renv.lock + activate.R; revert after build](feedback_build_renv_churn_revert.md) — bumps renv 1.1.5→1.2.2, dozens of pkg bumps, records built pkg one version behind (install is correct); `git checkout -- renv.lock renv/activate.R`
+- [Tuser has per-R-version renv trees — verify deploys in windows/R-4.4 (active R 4.4.3)](reference_tuser_multi_r_renv_trees.md) — R-4.3/R-4.5 trees are stale (held Tdata 2.4.5/5.5.1); naive find can grab wrong tree
 - [vctrs load-time bomb in RLibrary from tibble/dplyr drift — upgrade vctrs](feedback_vctrs_tibble_dplyr_cascade.md)
 
 ## R Gotchas & Idioms
