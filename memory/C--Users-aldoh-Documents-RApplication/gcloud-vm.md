@@ -17,6 +17,22 @@ metadata:
 - **VM auto-terminates at 22:15 UTC** (cost-saving schedule)
 - gcloud CLI path (Windows): `"/c/Users/aldoh/AppData/Local/Google/Cloud SDK/google-cloud-sdk/bin/gcloud.cmd"`
 - Auth: `aldohlys@gmail.com`
+- **gcloud.cmd from Git Bash mangles `--command="bash /x.sh"`** (splits on the space in the install path → "Google Cloud not recognized"). `scp`/`describe` work from Bash, but for `ssh --command=` invoke via the PowerShell tool: `& $gcloud compute ssh ... --command="bash /tmp/x.sh"`.
+
+## Start/Stop automation & boot wiring (verified 2026-06-26)
+- **NOT a Windows task / NOT a startup-script.** Start & stop are two **Cloud Scheduler** jobs in location `us-east1` (project `rtrading-basic`), each a direct OAuth POST to the Compute API (no Cloud Function), as SA `scheduler-sa@rtrading-basic.iam.gserviceaccount.com`:
+  - `start-trading-vm` — `45 8 * * 1-5` Europe/Zürich (08:45 Mon–Fri) → `…/instances/trading-vm/start`. **PAUSED by user 2026-06-26** to stop idle billing.
+  - `stop-trading-vm` — `15 22 * * 1-5` Europe/Zürich (the 22:15 stop) → still **ENABLED** (safety net; triggers clean IB Gateway shutdown via `ExecStop`).
+  - Manage: `gcloud scheduler jobs {pause|resume|run} start-trading-vm --location=us-east1 --project=rtrading-basic`.
+- **The scheduler ONLY powers the VM on.** Everything else is `multi-user.target` systemd, so ANY power-on (Cloud iOS app "Start", gcloud, console) reproduces the full stack:
+  - `xvfb.service` → `Xvfb :1` (virtual display for headless GUI)
+  - `trading-stack.service` ("Trading Stack (IB Gateway + IBC)") → `/opt/scripts/start-trading.sh`, runs as `aldohlys`, `Requires=xvfb`, `After=network-online+xvfb`, `Restart=on-failure`, `TimeoutStartSec=360`. `ExecStop=/opt/scripts/stop-trading.sh`.
+  - `shiny-server.service` (independent). `supervisor.service` enabled but `conf.d` empty (unused). No crontab/`@reboot`/`rc.local`.
+- **iPhone launch:** Google Cloud iOS app → Compute Engine → `trading-vm` → Start. Allow ~6 min (`TimeoutStartSec=360`) for IB Gateway login before expecting data.
+- **iPhone stop is safe:** `stop-trading-vm` and the Cloud app "Stop" hit the SAME `…/instances/trading-vm/stop` API — a graceful ACPI shutdown (GCE allows ~90s) → systemd runs `trading-stack.service` `ExecStop=/opt/scripts/stop-trading.sh` (~5s) → clean IB Gateway kill. So app "Stop" cleans up identically to the 22:15 job.
+- **⚠️ NEVER use "Reset" in the Cloud app** — it's a hard power cycle that skips systemd shutdown, so `ExecStop` never runs and IB Gateway is NOT cleaned up. Use "Stop" only.
+- **`/opt/scripts/start-trading.sh`**: reads `/home/aldohlys/config.yml` (`production.ibkr.api_port`→4001, `trading_mode`→'live'); verifies Xvfb on `:1`; launches IB Gateway via IBC — `TWS_MAJOR_VRSN=1037`, `IBC_PATH=/opt/ibc`, `IBC_INI=/opt/ibc/config.ini`, `TWS_PATH=/opt/ibgw`, `TWS_SETTINGS_PATH=/home/aldohlys/Jts`, `APP=GATEWAY`, via `/opt/ibc/scripts/ibcstart.sh 1037 -g --mode=$TRADING_MODE`; polls API port up to 240s; `wait`s on IBC PID. Log: `/var/log/trading-stack.log`.
+- **`/opt/scripts/stop-trading.sh`**: `pkill -f ibcalpha.ibc`; `pkill -f "java.*ibgateway"`; sleep 5.
 
 ## SCP Gotchas
 - `pscp` can't open files locked by other processes (e.g., SQLite DB open in R) — copy to temp first via `cmd //c copy`

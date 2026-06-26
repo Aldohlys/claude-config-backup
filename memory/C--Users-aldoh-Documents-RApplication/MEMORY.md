@@ -125,7 +125,7 @@
 - [Move DONE TODO items to trailing "✅ COMPLETED ITEMS" section](feedback_todo_done_to_completed_section.md)
 
 ## Tooling, Infra & Automation
-- [Google Cloud trading-vm](gcloud-vm.md) — rtrading-basic/us-east1-b, auto-terminate 22:15 UTC; Shiny as `shiny` user; SQLite 3.37.2 no unistr()
+- [Google Cloud trading-vm](gcloud-vm.md) — rtrading-basic/us-east1-b; start/stop = Cloud Scheduler jobs (start PAUSED 2026-06-26, stop 22:15 ON); power-on alone boots full IB-Gateway stack via systemd; iPhone = Google Cloud app Start; Shiny as `shiny` user; SQLite 3.37.2 no unistr()
 - VM runs /analyze (RStudies subset); scanner runs LOCALLY (no scanner_results on VM); targeted deploy = scp LF + rsync
 - [VM has NO option chain/strike cache consumer — /analyze never reads them; don't sync caches to VM](project_vm_no_option_cache_consumer.md)
 - [data/mydb.sql dump: backup_database.R; CRLF full-file diff is NORMAL; pathspec commit](reference_mydb_sql_dump.md)
