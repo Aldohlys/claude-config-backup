@@ -36,6 +36,7 @@
 - [greeksNet contract (5.12.0): deltanotional in TRADE currency + currency col, type-based notional](reference_greeksnet_contract.md) — per-group single-ccy; uPrice is option-only (0 for stock/future→use mktPrice); stored delta: stock=1, future/CFD/TBill=0; CASH row currency=base; convert-before-sum to aggregate
 
 ## Account / TWR / CashFlow
+- [Gonet PnL math + Trade-tab Gonet stats branch](reference_gonet_pnl_and_stats.md) — getGonet: unPnL=TOTAL cash PnL ex-div, Cost=mktValue−unPnL=−Σinit_cost; per-symbol so corp-action TradeNr relabels harmless; stats_all_gonet gated on no-expdate (IBKR Trades lookups collide for Gonet)
 - [readPortfolio() date is Date class, NOT YYYYMMDD int like Trades.TradeDate](feedback_readportfolio_date_type.md)
 - [Account.CashFlow conventions](reference_account_cashflow_conventions.md) — native ccy, FX via AccountWithConversionRate view, synthetic rows for position transfers
 - [2026-04-16 transfer TWR fix](project_account_transfer_cashflow_signs.md) — record in-kind + cash legs; Tdata 5.10.18 chain-links observed dates
@@ -108,6 +109,8 @@
 - [RReporting standalone Rscript tests: filter()→stats::filter (mod:stats masks dplyr); qualify dplyr::filter](feedback_dplyr_filter_masked_standalone.md) — "column not found in filter()" is a harness artifact, not a regression
 - [selectInput crashes on missing selectize-plugin-a11y — default selectize=FALSE](feedback_selectize_plugin_a11y.md)
 - [shinytest2 AppDriver + app$get_logs() for silent client-side bugs](feedback_shinytest2_for_silent_bugs.md)
+- [Headless visual-pass recipe for the routine app (SHINY_PORT=1 + AppDriver screenshot)](reference_routine_app_visual_pass.md) — Gonet loads fine; IBKR accounts HANG headless (live-data fetch); drive render fns on stored snapshot instead
+- [DT idioms: per-row multi-currency cells (currency_format, scalar accuracy→group) + shrink table to content via inline-block + col widths](reference_dt_perrow_currency_and_width.md) — basic_portf_datatable; formatCurrency can't do mixed currencies
 - [Snapshot DT selection at button press, not modal OK](feedback_snapshot_dt_selection_for_modals.md) — input$_rows_selected drifts; caused trade 721 leak
 - [ggplotly() needs layout(autosize=TRUE)+config(responsive=TRUE) to fill container](feedback_ggplotly_autosize.md)
 - [DT: sort currency-formatted cols by hidden base-ccy col + pin TOTAL via orderFixed.pre](reference_dt_basecurrency_sort_pin_row.md) — portf_datatable(), both account branches
