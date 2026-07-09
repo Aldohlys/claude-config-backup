@@ -89,7 +89,7 @@
 - [Daubasses Portfolio](project_daubasses_portfolio.md) — 6 positions, weekly review, `Strategies/Daubasses/`
 
 ## Investing Views
-- [EM/China experience](user_em_china_view.md) — China ETF failures; tradeable-not-investible framework
+- [EM/China experience](user_em_china_view.md) — tradeable-not-investible; onshore/offshore split (SOLD offshore FXC Jul-2026 @94.58 → building onshore A-shares CNYA in tranches); "same tech+financials" hides opposite constituents; captive domestic bid vs foreign flows to US/Korea
 
 ## References
 - [R environment](reference_r_environment.md) — R-4.4.3 `C:\Program Files\R\R-4.4.3\bin`, lib `Documents\RLibrary`; Rscript on PATH
@@ -177,6 +177,10 @@
 - [Map all fetch sites before optimizing](feedback_map_all_fetch_sites_before_optimizing.md) — pipeline perf: inventory ALL call sites up front, don't point-fix one log at a time
 - [Tdata option-fetch internals](reference_tdata_option_fetch_internals.md) — getStrikesInRange(per-expiry) vs getAllStrikes(union→Error200); getIV_DTE DTE>10; getVolMetrics heavy (8 fetches); grids vary by expiry; force_refresh/closed-market
 - [CFTC COT URLs](reference_cftc_cot_urls.md) — WTI petroleum_sf, gold/copper other_lf, DXY deanybtsf, grains ag_lf; Friday for prior-Tue
+- [Tdata vs IBKR MCP](reference_tdata_vs_ibkr_mcp.md) — prefer Tdata for positions/Greeks/IV/Gonet (MCP: invalid IV, no frozen quotes outside RTH, drops combo orders); r-btw is docs-only (no eval) → call tdata_py Python directly via r-miniconda r-reticulate env (getIBKRData → positions w/ Greeks); MCP = zero-setup fallback
+- [IBKR data entitlements](reference_ibkr_data_entitlements.md) — no EBS/IBIS/SBF historical (162/timeout); options delayed-only via reqMarketDataType(4); Yahoo history unreliable for thin SIX/LSE lines (CNYA.SW/FXC.SW) → use US cousin/ASHR; live stock snapshots OK
+- [Gonet CSV bookkeeping](reference_gonet_csv_bookkeeping.md) — GonetTrades(cost)/GonetPos(position)→getGonet; sells=−qty/+cost, buys=+qty/−cost; free shares=bump Pos + 0-cost audit line; VERIFY the user's recurring sign errors; hefty commission → single orders
+- [Correlation: regime + outliers](feedback_correlation_regime_and_outliers.md) — test regime-conditional (ABBN~ESTX50 0.54 calm→0.91 stress) AND outlier-robust (CNYA~SMH 0.46→0.21 ex-shocks, not semi-driven); index hedges = crash insurance; diversification vanishes in a crisis
 - *Moved to global memory:* No approval prompts, Simplicity over complexity, User Trading Framework
 
 ## Database
