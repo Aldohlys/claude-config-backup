@@ -479,5 +479,17 @@
       "C:/Users/aldoh/Documents/NewTrading",
       "C:/Users/aldoh/Downloads"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"Open TODOs in this project to flag to the user (see docs/TODO.md): #78 WeeklyunPnL unrealistic on partial-close positions (ABBN); #79 verify Gonet total market value ~1% vs the bank statement.\"}}'"
+          }
+        ]
+      }
+    ]
   }
 }
