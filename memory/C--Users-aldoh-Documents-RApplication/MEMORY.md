@@ -38,6 +38,9 @@
 
 ## Account / TWR / CashFlow
 - [Gonet PnL math + Trade-tab Gonet stats branch (stats_all_gonet gated on no-expdate)](reference_gonet_pnl_and_stats.md)
+- [Gonet cash = CASH positions w/ realized-FX-on-closed-trades cost basis (Tdata 5.13.0)](project_gonet_cash_positions.md) — CSVs are source; prompt removed; gonet_realized_fx avg-cost lots
+- [Gonet TradeNr is NOT a stable per-instrument key — reused across instruments; key history on symbol](reference_gonet_tradenr_reused.md) — 21 was IE00B67T5G21 then CNYA; 24 is gold
+- ["Live" is a virtual account (no DB table) — per-account-table queries must guard](reference_live_virtual_account_no_table.md) — getAccountLive appends + non-deterministic + today-only
 - [readPortfolio() date is Date class, NOT YYYYMMDD int](feedback_readportfolio_date_type.md)
 - [Account.CashFlow conventions — native ccy, FX via AccountWithConversionRate view](reference_account_cashflow_conventions.md)
 - [2026-04-16 transfer TWR fix — record in-kind + cash legs](project_account_transfer_cashflow_signs.md)
@@ -53,6 +56,7 @@
 
 ## IBKR / TWS
 - [isIBAvailable() is the canonical TWS reachability probe — don't re-implement](reference_isIBAvailable.md)
+- [getGonet foreign-ETF pricing: USD non-US ETFs need ConId or delayed exchange, not SMART](reference_gonet_foreign_etf_pricing.md)
 - [Test IBKR/TWS code against live TWS BEFORE editing; halt if TWS down](feedback_test_tws_first.md)
 - [IB.RequestTimeout caps stuck ib_async requests (60s) — Tdata 5.10.12](project_ib_request_timeout.md)
 - [TWS subscription state populates even when end-event await times out](feedback_tws_subscription_outlives_end_event.md)
@@ -90,6 +94,7 @@
 - [vctrs load-time bomb in RLibrary from tibble/dplyr drift — upgrade vctrs](feedback_vctrs_tibble_dplyr_cascade.md)
 
 ## R Gotchas & Idioms
+- [Don't insert a helper between a function's roxygen description and its @tags — drops its help page](feedback_roxygen_helper_splits_block.md)
 - [any()/all() over NA-bearing vector returns NA → crashes scalar if()](feedback_any_na_crashes_scalar_if.md)
 - [dplyr summarize() args evaluated in order — new col shadows same-named input](feedback_dplyr_summarize_self_reference.md)
 - [Rscript -e multiline segfaults on Windows — use temp script files](feedback_rscript_segfault.md)
