@@ -1,12 +1,11 @@
 # Claude Code Memory - RApplication
-
 ## User Profile & Preferences
 - [Colorblind — use blue/vermillion/amber, not green/red/orange](user_colorblind.md)
 - [Present UI design before coding — text plan + ASCII, wait for approval](feedback_design_before_code.md)
 - [Comments explain shipped code, not the plan — no "Phase N" refs](feedback_comment_describe_shipped_code.md)
 - [Don't embed transient schema-migration logic in committed code](feedback_no_transient_migration_logic_in_code.md)
 - [User edits SQLite config tables directly in DB Browser — don't build in-app editors](feedback_user_edits_db_directly.md)
-
+- [Base ccy CHF, minimize FX risk — fund foreign outflows from the currency already long, not CHF](user_chf_base_minimize_fx.md) — options are FX-light (exposure = MV, not notional); idle cash is the risk
 ## /analyze Command
 - [Always generate HTML report regardless of verdict](feedback_analyze_html.md)
 - [Neutral stance — bare facts, no GO/NO-GO, no editorial adjectives](feedback_analyze_neutral_stance.md)
@@ -15,10 +14,11 @@
 - [Every indicator live-fetched; no n/a cells; no phase short-circuit](feedback_analyze_live_data_fallback.md)
 - [De-gated (TODO #60): provenance LIVE/CACHED/NO DATA/FETCH FAILED](project_analyze_degate.md)
 - [TWS-gated at startup via isIBAvailable(); "FETCH FAILED" if probe fails](project_analyze_tws_gate.md)
-- [/analyze lives in NewTrading/.claude/commands/ → RStudies reports/analyze/main.R](reference_analyze_command_location.md)
-
+- [Vol-of-vol shown as percentile: cross-sectional vs universe, NOT vs own history](project_vov_percentile_is_cross_sectional.md) — lookback 252→504, raw values not comparable across versions; docstring +0.76 persistence is really +0.445; Yang-Zhang/Rogers-Satchell tested & rejected
+- [/analyze lives in NewTrading/.claude/commands/ → RStudies reports/analyze/main.R](reference_analyze_command_location.md) — output name slugged from the RESOLVED symbol; use the `HTML written:` path / ANALYZE_PATH_OUT, never rebuild it
+- [A report of all-FETCH-FAILED cells = one unresolved input, not an outage](feedback_cascade_failures_check_root_input.md)
 ## Risk, Trades & FX
-- [Trades table: signed-delta Risk + EventType + stored Return](project_trades_signed_delta_risk.md)
+- [Trades: signed-delta Risk + EventType + stored Return; multi-leg cost is NET (-sum(Total)), never sum(abs())](project_trades_signed_delta_risk.md) — sum(Risk)=0 unmet on 256/672 closed trades; compute_return abstains as a bare NA, index via extract_field
 - [Strategies.MaxRisk per-strategy budget; caps DISPLAY for all strategies (#75 closed)](project_strategies_maxrisk_cap.md)
 - [Account↔strategy topology + per-trade risk sizing base (size vs ~80.7k sleeve)](reference_account_strategy_topology.md)
 - [Tdata::saveTrades drops+recreates Trades table (overwrite=TRUE) — smoke-test first](reference_savetrades_overwrite.md)
@@ -35,26 +35,31 @@
 - [Activating a currency auto-enrolls FX conversion but NOT interest rates](reference_adding_currency_two_pipelines.md)
 - [greeksNet contract (5.12.0): deltanotional in TRADE currency + currency col](reference_greeksnet_contract.md)
 - [Positions/Trades totals include cash-FX P&L (Convention A) — differ from TWS by design](reference_cash_fx_pnl_in_totals.md)
-
 ## Account / TWR / CashFlow
+- [Position snapshots store UNADJUSTED uPrice — splits fabricate phantom moves in any historical diff](reference_position_snapshot_uprice_unadjusted.md) — also: IV is decimal, vega is per 1pp, dedupe on `heure`
 - [Gonet PnL math + Trade-tab Gonet stats branch (stats_all_gonet gated on no-expdate)](reference_gonet_pnl_and_stats.md)
 - [Gonet cash = CASH positions w/ realized-FX-on-closed-trades cost basis (Tdata 5.13.0)](project_gonet_cash_positions.md) — CSVs are source; prompt removed; gonet_realized_fx avg-cost lots
 - [Gonet TradeNr is NOT a stable per-instrument key — reused across instruments; key history on symbol](reference_gonet_tradenr_reused.md) — 21 was IE00B67T5G21 then CNYA; 24 is gold
 - ["Live" is a virtual account (no DB table) — per-account-table queries must guard](reference_live_virtual_account_no_table.md) — getAccountLive appends + non-deterministic + today-only
 - [readPortfolio() date is Date class, NOT YYYYMMDD int](feedback_readportfolio_date_type.md)
-- [Account.CashFlow conventions — native ccy, FX via AccountWithConversionRate view](reference_account_cashflow_conventions.md)
+- [What's held comes from the portfolio snapshot, NOT Trades.Status; portfolio TradeNr outranks Trades attribution](feedback_open_positions_from_portfolio_not_trade_status.md) — stale 'Ouvert' trades fabricate false alarms; never size a position by summing Trades.Pos
+- [Account.CashFlow conventions — native ccy, FX via AccountWithConversionRate view](reference_account_cashflow_conventions.md) — Cash Flow button in accountUI; cash-flow rows carry NLV=0, which zeroes twr() if picked as the day's snapshot
 - [2026-04-16 transfer TWR fix — record in-kind + cash legs](project_account_transfer_cashflow_signs.md)
 - [Strategy/slice value pitfalls — use unPnL not mktValue; TWR breaks on cumulative](reference_strategy_value_pitfalls.md)
 - [IBKR Activity Statement layout — manual export; official TWR, per-ccy cashflows](reference_ibkr_activity_statement.md)
 - [Portfolio TradeNr=NULL when leg entered after snapshot — Rscript data/fix_tradenr.R](project_tradenr_backfill_stale.md)
-
 ## Scanner & Swing
+- [BOT methodology: P&L is DIRECTIONAL (delta +0.797, vega -0.146); 3 indicator classes; vehicle=outright/vertical/stock; debit/width sets max payoff](project_bot_three_class_framework.md) — 2:1 needs debit ≤33% of width; the one criterion needing no inference
+- [BOT exits: discretion beats EVERY mechanical rule; weekly timeframe adds 3.0 effective dimensions (in S5/S6/BK4)](project_bot_exit_and_timeframe.md) — win-rate-raising rules crush P(>2) from 17.8% to 3.3%
+- [BOT's 9 gates = 3 clusters weighted 6:1:1 (structural); but NO scheme predicts realized P&L on 109 real trades](project_bot_gate_redundancy.md) — vol-expansion proxy invalid (vol CONTRACTED in 65% of BOT trades); atr_pct is the one name-attribute indicator (ICC 0.65)
 - [ScannerUniverse = Tickers IV=YES & price ≤$500; sector names singular](project_scanner_universe.md)
 - [Flow_Score = flow/context composite, NOT raw BOT score](project_scanner_flow_score.md)
 - [Asymmetric trade thesis — "2nd/3rd inning"; 30-60 DTE; VRP=log-ratio](project_asymmetric_trade_thesis.md)
 - [Earnings flag: NextEarnings + EarningsInDays in swing scanner (yfinance)](project_earnings_flag_feature.md)
-
 ## IBKR / TWS
+- [Option liquidity: getOptValue was FROZEN by default (fixed 5.14.3); `spread`=(ask-bid)/mid, NaN means no true mid](reference_option_quote_liquidity.md)
+- [IBKR symbols can contain a space (BRK B) — Name/TradingClass/YahooName all differ](reference_ibkr_symbol_with_space.md) — Name is the canonical key; 46 rows have a different YahooName, 14 a different TradingClass; compute_spread_risk_reward is the one fn that won't auto-resolve it
+- [Live open orders: getOpenOrders(); PreSubmitted+whyHeld='trigger' is a stop's NORMAL state](reference_ibkr_open_orders_semantics.md) — orderId=0 (use permId), DBL_MAX sentinel, Adaptive lives in algoStrategy not orderType, combo legs invert on a SELL
 - [isIBAvailable() is the canonical TWS reachability probe — don't re-implement](reference_isIBAvailable.md)
 - [getGonet foreign-ETF pricing: USD non-US ETFs need ConId or delayed exchange, not SMART](reference_gonet_foreign_etf_pricing.md)
 - [Test IBKR/TWS code against live TWS BEFORE editing; halt if TWS down](feedback_test_tws_first.md)
@@ -68,10 +73,9 @@
 - [lastTradeDateOrContractMonth='YYYYMM' picks by last-trade-date — use full date/conId](feedback_ibkr_lasttradedate_yyyymm.md)
 - [Tickers FUT row: Name=local symbol, TradingClass=options class](reference_tickers_fut_row_convention.md)
 - [chains_manager.py FUT bug fixed Tdata 5.10.16/17](project_chains_manager_fut_bug.md)
-- [Flex Trade section excludes transfers/corp actions — use Monthly Activity Statement](project_flex_query_coverage.md)
-- [Master-level Flex returns identical CSVs per sub-account](project_flex_query_master_level.md)
+- [Flex Query traps — Trade-only Flex omits transfers/corp actions; master-level returns identical per-sub-account CSVs](project_flex_query_gotchas.md)
 - [WSH event-data API needs News Feed entitlement (Error 10276)](project_wsh_news_feed_gotcha.md)
-
+- [IBKR FX conversion mechanics — no USD.EUR pair; qty in base ccy; Converter for sub-25k; Sunday "Inactive" is session hours](reference_ibkr_fx_conversion_mechanics.md) — interest is per-currency, no CHF/EUR netting
 ## Tdata, Python & Build
 - tdata_py CONFIG loads once at import & caches — restart R for config.yml changes; apps need config.yml in CWD
 - Each Shiny app dir needs a hardlink to C:\Users\aldoh\config.yml (fsutil hardlink create)
@@ -79,23 +83,17 @@
 - [tdata_py API return field names — active_contract_details; errors plural](reference_tdata_py_api_returns.md)
 - [Check Welcome Tdata version log line first when "old library"/hang](feedback_check_welcome_log.md)
 - [Tdata lives in 8 install locations; /build covers only 6](project_tdata_install_locations.md)
-- [install.packages() can leave Python files stale on Windows](feedback_install_packages_python_stale.md)
-- [Update CHANGELOG.md before /build — else generic commit message](feedback_changelog_before_build.md)
-- [quick_tests=TRUE for Python-only Tdata changes (full suite hits live IBKR)](feedback_tdata_quick_tests_for_python_only.md)
-- [build_package.R force=TRUE when version bump committed manually](feedback_build_package_force_after_manual.md)
-- [build_package.R does `git add .` — never /build with a dirty tree of others' work](feedback_build_package_git_add_all.md)
+- [Tdata Python runs from the INSTALLED tree, not your edits — CWD picks which of the 8; partial copies break imports](feedback_install_packages_python_stale.md)
+- [build_package.R traps — “All tests passed” prints on a RED suite; blanket `git add .`; CHANGELOG first (generic message persists anyway); --quick-tests silently skips mis-named tests; quick-tests for Python-only Tdata; force=TRUE after a manual bump](reference_build_package_gotchas.md)
 - [Tdata 5.10.26 cache-warning committed (3a7d207) but deploy PENDING](project_tdata_5_10_26_deploy_pending.md)
 - [Tests hitting live tdata_py active binding fail in build CWD — inject module](feedback_tdata_py_binding_test_injection.md)
-- [Leave renv lockfiles alone — never snapshot to silence out-of-sync](feedback_renv_leave_lockfiles_alone.md)
-- [Don't fix renv warning with renv::restore(packages='renv') — corrupts activate.R](feedback_renv_restore_corrupts_activate.md)
-- [renv state safe to track: .Rprofile + renv.lock + renv/{activate.R,settings,.gitignore}](reference_renv_safe_to_track.md)
-- [/build churns renv.lock + activate.R per app; revert after (git checkout --)](feedback_build_renv_churn_revert.md)
-- [Tuser has per-R-version renv trees — verify deploys in windows/R-4.4](reference_tuser_multi_r_renv_trees.md)
+- [renv discipline — never snapshot to clear a warning; what's safe to track; fixing the renv version without corrupting activate.R; revert /build's lockfile churn; Tuser's per-R-version trees](reference_renv_discipline.md)
 - [vctrs load-time bomb in RLibrary from tibble/dplyr drift — upgrade vctrs](feedback_vctrs_tibble_dplyr_cascade.md)
-
 ## R Gotchas & Idioms
+- [sprintf/cat/stopifnot on zero-length args — a test can go GREEN having verified nothing](feedback_zero_length_args_pass_silently.md) — missing expected output is a failure signal, not a formatting quirk
 - [Don't insert a helper between a function's roxygen description and its @tags — drops its help page](feedback_roxygen_helper_splits_block.md)
 - [any()/all() over NA-bearing vector returns NA → crashes scalar if()](feedback_any_na_crashes_scalar_if.md)
+- [max(cumsum(x),na.rm=T) → -Inf; pmin(NA,cap,na.rm=T) → cap](feedback_max_cumsum_na_rm_minus_inf.md) — na.rm on a running total fabricates values
 - [dplyr summarize() args evaluated in order — new col shadows same-named input](feedback_dplyr_summarize_self_reference.md)
 - [Rscript -e multiline segfaults on Windows — use temp script files](feedback_rscript_segfault.md)
 - [display_error_message calls stop() — code after is unreachable](feedback_display_error_message_stops.md)
@@ -109,33 +107,30 @@
 - [Sys.getenv("HOME") on Windows = USERPROFILE, not Documents](feedback_sys_getenv_home_windows.md)
 - [read.csv/type.convert makes all-numeric cols <integer> → bind_rows clash](feedback_readcsv_typeconvert_integer.md)
 - ["Stale" tests are self-consistent date fixtures; real fragility is live-data hangs](feedback_stale_tests_are_live_data_not_dates.md)
-
 ## Shiny
 - [No priority= in observers — buggy ordering; one observer per trigger](feedback_no_shiny_priority.md)
+- [An output in an unopened tabPanel is suspended — free laziness for expensive fetches](reference_shiny_tabpanel_suspends_output.md)
 - [RReporting standalone tests: mod:stats masks dplyr filter — qualify dplyr::filter](feedback_dplyr_filter_masked_standalone.md)
+- [Test a box-module internal via environment(mod$exported_fn); fixture DB via temp R_CONFIG_FILE, not R_DB_PATH](reference_testing_tuser_box_internals.md)
 - [selectInput crashes on missing selectize-plugin-a11y — default selectize=FALSE](feedback_selectize_plugin_a11y.md)
 - [shinytest2 AppDriver + app$get_logs() for silent client-side bugs](feedback_shinytest2_for_silent_bugs.md)
 - [Headless visual-pass recipe; IBKR accounts HANG headless — drive on stored snapshot](reference_routine_app_visual_pass.md)
-- [DT idioms: per-row multi-currency cells + shrink to content via inline-block + widths](reference_dt_perrow_currency_and_width.md)
+- [AppDriver's child process ignores R_CONFIG_FILE — headless click-throughs write to the PRODUCTION DB](feedback_appdriver_ignores_config_env.md)
+- [DT idioms — per-row multi-currency cells, shrink-to-content, sort by hidden base-ccy col, pin TOTAL via orderFixed.pre](reference_dt_idioms.md)
 - [Snapshot DT selection at button press, not modal OK (input$_rows_selected drifts)](feedback_snapshot_dt_selection_for_modals.md)
 - [ggplotly() needs layout(autosize=TRUE)+config(responsive=TRUE) to fill container](feedback_ggplotly_autosize.md)
-- [DT: sort currency-formatted cols by hidden base-ccy col + pin TOTAL via orderFixed.pre](reference_dt_basecurrency_sort_pin_row.md)
 - [fileInput green "Upload complete" is built-in — add showNotification for processing](feedback_shiny_fileinput_upload_complete.md)
 - [plotly mode="lines" connects in ROW order — sort by x before add_trace](feedback_plotly_lines_sort_by_x.md)
 - [Historical-option / IV-history charts live in RPreTrade, NOT RReporting](reference_historical_option_module_in_rpretrade.md)
-
 ## Git Discipline
-- [Re-run git status immediately before commit — pre-staged files ride along](feedback_git_status_before_commit.md)
+- [Committing in a tree holding others' work — use `git commit --only`; split your hunk when separable, disclose when not](feedback_git_status_before_commit.md)
 - [Each app subdir is its OWN git repo with own remote](reference_app_subdirs_are_separate_repos.md)
 - [Unified RApplication repo policy — canonical "should I commit X?"](project_rapplication_repo_policy.md)
 - [.gitignore edits resurface state — re-run git status, inspect new ?? files](feedback_gitignore_edit_resurfaces_state.md)
 - [git add of tracked file in ignored dir exits 1 — use -f or separate](feedback_git_add_ignored_dir.md)
-- [Re-survey state before executing stale TODO (snapshot ≠ ground truth)](feedback_resurvey_stale_todos.md)
-- [Verify "NEVER X" policy assertions — check if reason still applies, surface & ask](feedback_verify_policy_assertions.md)
+- [Verify before acting — re-grep "orphaned" claims before destroying; re-run a stale TODO's survey; check whether a "NEVER X" rule's reason still holds](feedback_verify_before_acting.md)
 - [Unify-the-rule needs full per-repo audit (git ls-files + .gitignore)](feedback_unify_rule_audit_full_surface.md)
-- [Verify sub-agent "orphaned/unused" claims with fresh Grep before destructive ops](feedback_verify_audit_claims.md)
 - [Move DONE TODO items to trailing "✅ COMPLETED ITEMS" section](feedback_todo_done_to_completed_section.md)
-
 ## Tooling, Infra & Automation
 - [Google Cloud trading-vm — rtrading-basic/us-east1-b; power-on boots IB-Gateway stack](gcloud-vm.md)
 - VM runs /analyze (RStudies subset); scanner runs LOCALLY; targeted deploy = scp LF + rsync
@@ -152,12 +147,14 @@
 - [Don't pipe background Bash through tail — stream raw, tail file later](feedback_no_tail_on_background_bash.md)
 - [Diagnose hung background build via side channels (tasklist/find/logs/git/renv)](feedback_diagnose_hung_background_build.md)
 - [python -u when piping through tee — else log empty until exit](feedback_python_unbuffered_with_tee.md)
-- [PowerShell: $bt=[char]96 for literal backticks in strings](feedback_powershell_backtick_quoting.md)
-- [PowerShell here-string leaks @ into git messages in Bash tool — use -F tempfile](feedback_powershell_herestring_in_bash_tool.md)
+- [Shell quoting traps — Bash heredocs halve backslashes (use Write); `@'...'@` is PowerShell-only; $bt=[char]96 for literal backticks](feedback_shell_quoting_traps.md)
 - [Don't write scratch scripts to C:\Users\aldoh\ — use project subdir](feedback_no_scratch_in_home.md)
 - [Memory slug convention: filename ≡ name: ≡ [[link]], all snake_case](feedback_memory_slug_convention.md)
+- [Window-differenced metrics must be normalised to today's size, per leg — validate by stable-subset parity](feedback_normalize_window_metrics_to_current_size.md) — TODO #78: a partial close read as -13 439 CHF; a position increase flipped a loss into a reported gain
+- [Validate a derived metric: noise floor under a null + rank persistence](feedback_validate_metric_noise_floor_and_persistence.md) — a constant verdict is the tell; test before recommending a fix
 - [Economic events: Equals Money calendar works with WebFetch (ForexFactory 403)](reference_events_calendar.md)
 - [iOS Mail opens HTML in QuickLook — JS doesn't fire; test via real Safari over HTTP](feedback_ios_mail_quicklook_no_js.md)
 - [Offline PWA pattern for iPhone — manifest+sw.js; bump CACHE key](reference_pwa_offline_pattern.md)
 - [BSM Calculator design conventions — shared inputs above tabs; Taylor PnL Risks tab](project_bs_calculator_design.md)
 - [RPreTrade Position Analysis IV/skew projection model](project_position_analysis_iv_skew_conventions.md)
+

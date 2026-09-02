@@ -15,7 +15,8 @@ NewTrading (`Aldohlys/NewTrading`, branch `master`, see [[project_newtrading_rem
 - Generated/regenerable: `*.html` (analyze_/macro/scanner reports), `*.json`, `*.mp4` (Transcripts audio ~297MB), `*.parquet`, `*surface.log`, `*.stdout`, `__pycache__/`, `*.pyc`
 - Data dirs: `quotes/ logs/ chains/ strikes/ Reports/reports/ Archive/ Téléchargements/`
 - `Discussions/` — personal correspondence, deliberately kept off GitHub
-- Office lock/temp files `~$*`, `~WRL*`, `~BROMIUM/`, `desktop.ini`, `*.tmp`
+- Office lock/temp files `~$*`, `~WRL*`, `.~lock.*#`, `~BROMIUM/`, `desktop.ini`, `*.tmp`
+  - `~$*` is the **MS Office** pattern only. LibreOffice writes `.~lock.<name>#`, which it does NOT match — added 2026-08-31 (975ed0c) after a scan xlsx opened in LO left an untracked lock file.
 - `.claude/`
 - **5 large third-party textbooks (>15MB)** excluded by explicit path to avoid permanent history bloat: McMillan "Options as a Strategic Investment" (×2 editions), Hull 4th, Murphy "Technical Analysis", "In Gold We Trust 2022". They remain on disk, re-downloadable. Smaller third-party PDFs (Natenberg, Sinclair, Lang, Hull 9th) ARE tracked.
 

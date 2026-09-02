@@ -20,14 +20,33 @@ After TODO #38 Phase 1-4 (shipped 2026-05-18 for BOT only), the Trades table has
 - Close row 1: `-(sum of prior Risk for the TradeNr)` — always auto-computed, never user-entered.
 - Companion rows in multi-leg blocks (rows 2+): always 0.
 - Invariant: `sum(Risk over TradeNr)` = current live trade risk. Closed trades = 0.
+  **Aspirational, not enforced on history:** measured 2026-08-27, **256 of 672**
+  fully-closed trades have `sum(Risk) != 0`. Only `modify_trade` warns
+  (`check_trade_risk_invariant`). Don't treat the invariant as a usable
+  precondition when reading legacy trades — MaxOutlay reads the running peak,
+  not the sum, so display is unaffected.
 
 **Resolvers in `RReporting/app/R/compute_functions.R`:**
 - `is_options_block(rows)` — Strike/Right primary, Instrument-string regex fallback for legacy NULL-Strike rows
 - `compute_risk_delta_BOT(existing_rows, new_rows)` — signed delta resolver, returns NA for non-options
 - `compute_close_risk(existing_rows)` — `-sum(prior Risk)`
-- `compute_max_outlay(rows)` — `max(cumsum(Risk[order(TradeDate)]))`
+- `compute_max_outlay(rows)` — `max(cumsum(Risk[order(TradeDate)]))`; delegates to
+  `compute_max_outlay_vec(risk, trade_date)`, the vector twin for use inside
+  `summarize()`. Both return `NA_real_` if ANY delta is missing (empty rows -> 0).
+  Never let a raw `max(cumsum(...), na.rm = TRUE)` back in — see
+  [[feedback_max_cumsum_na_rm_minus_inf]].
 - `compute_return_at_close(rows)` — `sum(PnL) / compute_max_outlay(rows)`
 - `replay_trade_risks_BOT(rows)` — full-history Risk reconstruction; handles legacy rows where Adjusts had Risk=0; balances Close rows regardless of underlying. Used by close_trade and Phase 3 backfill.
+
+**`compute_return()` return contract (Tuser `core/core.R`) — indexing trap:** it
+answers with a metrics list (`$return`, `$yield`, `$premium_ratio`, `$time_ratio`)
+only when it CAN compute one. Every abstain path — no Risk, no PnL, Risk `NA`,
+Risk negative — returns a **bare `NA`**, on which `$` and `[[` both raise
+"$ operator is invalid for atomic vectors". Never index the result directly:
+use the exported `extract_field(x, field)` (`vapply(metrics, extract_field,
+numeric(1), field = "return")`). The abstain is logged at INFO
+("Risk is NA" / "Risk is negative, must be positive") — those INFO lines in the
+app log are the tell that a crash is one `$` away.
 
 **Writers in `RReporting/app/R/trade_operations.R`:**
 - `insert_new_trade` writes EventType="Open" + Return=NA.
@@ -56,3 +75,21 @@ After TODO #38 Phase 1-4 (shipped 2026-05-18 for BOT only), the Trades table has
 - `scripts/backfill_risk_return_BOT.R` — Phase 3 historical backfill
 - `scripts/smoke_test_savetrades.R` — round-trip safety check (see [[reference_savetrades_overwrite]])
 - TODO #38, TODO #67 (Stop column dependency), TODO #68 (Trades table cleanup)
+
+## Computing a trade's COST from its legs: net, never gross (2026-09-01)
+
+For any multi-leg trade, cost = **signed** sum of `Total` over opening rows
+(`-sum(Total)` for a debit), **never** `sum(abs(Total))`. Summing absolute
+values counts both sides of a spread and roughly doubles it.
+
+Cost of getting this wrong, measured on BOT: gross said "median premium 558,
+only 39% within the 400 budget, 26% over 1000". The truth is **net debit median
+293, 77% within 400, 55% within 300, 8% over 1000** - i.e. sizing discipline
+looked broken when it was fine. Individual cases: GLD 423/428 vertical gross
+1,634 -> **net 217**; BRK B 520/525 gross 1,168 -> **net 239**; QQQ gross 1,714
+-> net 176; SMH gross 2,529 -> net 276.
+
+The error also inverts design conclusions: a proposed universe filter of
+"typical ATM option must cost <= 400" would have excluded GLD, BRK B, QQQ and
+SMH - the very names a vertical makes affordable. See
+[[project_bot_three_class_framework]].

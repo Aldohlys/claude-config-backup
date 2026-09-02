@@ -1,27 +1,72 @@
 ---
 name: feedback_install_packages_python_stale
-description: On Windows, install.packages() of a Tdata source tarball reports DONE and bumps packageVersion() but may leave inst/python/*.py files unchanged if a stale R/Python process holds them. Always verify by grep, or remove.packages() first.
-type: feedback
-originSessionId: 967d9aec-f0cc-4ee7-a35d-cd2e96f70722
+description: "Tdata's Python is only ever run from the INSTALLED tree, never the working copy — editing inst/python changes nothing until deployed, which install tree is used depends on CWD, and a plain install.packages() can silently fail to overwrite the .py files"
+metadata: 
+  node_type: memory
+  type: feedback
+  originSessionId: f5cc75fc-7625-4c6e-bd01-646cb965032a
+  modified: 2026-08-27T04:13:36.338Z
 ---
-On Windows, when reinstalling a Tdata source tarball with `install.packages('Tdata_X.Y.Z.tar.gz', repos=NULL, type='source')`:
 
-- The install can report `* DONE (Tdata)` and `packageVersion('Tdata')` returns the new version
-- BUT files under `<lib>/Tdata/python/tdata_py/*.py` can be **unchanged** if another process holds a file lock (e.g. a hung Rscript, an open Shiny session, an IDE keeping the Python module imported via reticulate)
-- The R-side code (DESCRIPTION, R/, Meta/) does get updated; only the unmanaged Python tree silently fails to overwrite
+Tdata ships Python under `inst/python/` for reticulate. Three separate ways that
+tree gets out of step with what you think you are running.
 
-**Symptom:** `packageVersion()` lies. Patches you "installed" don't take effect. Grep finds the OLD content in the installed Python file.
+## 1. Editing the working tree does nothing until you deploy
 
-**Why:** 2026-04-21 session — installed Tdata 5.10.5 twice, both reported DONE, `packageVersion()` returned 5.10.5, but `account.py` mtime stayed at the previous install's timestamp and `grep "reqAccountUpdatesAsync"` found nothing in the installed file. Only `remove.packages('Tdata')` followed by a fresh `install.packages()` actually replaced the Python files.
+`reticulate` imports from `system.file("python", package = "Tdata")` — the
+**installed** package, not `RApplication/Tdata/inst/python/`. Editing the source
+and immediately testing runs the OLD code.
 
-**How to apply:** When deploying a Tdata patch that touches `inst/python/`:
+2026-08-27: after patching `spread.py` to accept `market_data_type`, the test
+failed with `argument inutilisé (market_data_type = 1)` — the source had it, the
+install did not. For a quick edit-test loop, copy the module into the resolved
+install path before Python starts (a fresh Rscript process, so the copy must
+happen before the first `tdata_py` access), then `/build` properly once it works.
 
-1. Prefer `remove.packages('Tdata')` then `install.packages(tarball)` over a plain reinstall
-2. Verify the patched file directly:
+## 2. Which install tree you get depends on CWD
+
+There are 8 install locations ([[project_tdata_install_locations]]) and
+`system.file()` resolves against `.libPaths()`, which the CWD's `.Rprofile`/renv
+sets. The same script gave:
+
+- from `RApplication/` → `.../renv/cache/.../Tdata-9fd37c52/windows/R-4.4/.../Tdata/python/tdata_py`
+- from the scratchpad → `C:/Users/aldoh/Documents/RLibrary/Tdata/python/tdata_py`
+
+Run identical tests from the **same** directory, or they silently exercise
+different code. A scratchpad CWD also loses `config.yml`, producing
+`WARNING: Config file not found` and `Database not found at data/mydb.db`, which
+makes the run fail for an unrelated-looking reason.
+
+## 3. Install trees can be stale in *part*
+
+Copying two patched files into an install tree produced
+`ImportError: cannot import name 'ParquetQuotesStorage' from
+'tdata_py.parquet_storage'` — that tree's `parquet_storage.py` predated the
+class. A partial copy yields a **mixed** tree that is broken in a new way. Copy
+the whole module (`list.files(src, pattern = "[.]py$")`) rather than the files
+you touched.
+
+## 4. install.packages() can report DONE and not replace the .py files
+
+The install prints `* DONE (Tdata)` and `packageVersion('Tdata')` returns the new
+version, **but** `<lib>/Tdata/python/tdata_py/*.py` can be unchanged if another
+process holds a lock (a hung Rscript, an open Shiny session, an IDE holding the
+module via reticulate). R-side files (DESCRIPTION, R/, Meta/) do update; only the
+unmanaged Python tree silently fails. 2026-04-21: installed 5.10.5 twice, both
+DONE, both times `account.py` kept the old mtime and the new identifier was
+absent.
+
+**How to apply** when deploying a patch that touches `inst/python/`:
+
+1. Prefer `remove.packages('Tdata')` then `install.packages(tarball)` over a
+   plain reinstall.
+2. Verify the installed file directly — don't trust `packageVersion()`:
    ```bash
    grep "<known new identifier>" "<lib>/Tdata/python/tdata_py/<file>.py"
    ```
-   Don't trust `packageVersion()` alone for Python-side patches
-3. If a hung Rscript holds the lock, kill it first (`tasklist //FI "IMAGENAME eq Rscript.exe"`, then `taskkill /F /PID <pid>`)
+   After a `/build`, check the tree that is actually active for the app
+   ([[reference_renv_discipline]] §5).
+3. If a hung Rscript holds the lock, kill it
+   (`tasklist //FI "IMAGENAME eq Rscript.exe"`, then `taskkill /F /PID <pid>`).
 
-This is specifically for Tdata because it ships Python under `inst/python/` for reticulate; pure-R packages aren't affected.
+Pure-R packages aren't affected.

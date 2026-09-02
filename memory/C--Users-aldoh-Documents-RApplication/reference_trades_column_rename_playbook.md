@@ -17,4 +17,4 @@ Renaming a `Trades`/`TestTrades` column is an all-or-nothing flag-day: deployed 
 6. **Then rebuild/deploy Tdata** (`/build Tdata auto`) — until then deployed Tdata ↔ DB are inconsistent and apps break.
 7. **Verify beyond unit tests:** `symf.R` stats functions (`stats_one_position`/`stats_one`/`stats_all`) have no unit tests — smoke-test them on real open trades via `devtools::load_all(Tdata)` (NOT `library(Tdata)`, which loads the deployed/old version) + `box::use(symbol/logic/symf)`. The portfolio↔trade symbol-branch join in `stats_one_position` must be gated `filter(type=="Stock")` (report carries `type`).
 
-See [[project_trades_symbol_underlying_model]] and docs/TRADES_REFACTORING_PLAN.md. Pairs with [[feedback_build_package_git_add_all]] (concurrent work + /build) and [[feedback_dplyr_filter_masked_standalone]].
+See [[project_trades_symbol_underlying_model]] and docs/TRADES_REFACTORING_PLAN.md. Pairs with [[reference_build_package_gotchas]] (concurrent work + /build) and [[feedback_dplyr_filter_masked_standalone]].

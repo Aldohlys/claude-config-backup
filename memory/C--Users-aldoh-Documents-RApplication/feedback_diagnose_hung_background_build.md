@@ -44,4 +44,4 @@ either waited indefinitely or killed prematurely.
   `C:/Users/aldoh/Documents/RApplication/logs/t-<YYYYMMDD>.log`.
 - If you see `getHistoricalBars` or `getOptValue` as the last log line,
   it's the asyncio-uninterruptible pattern — kill and retry with
-  `quick_tests=TRUE` (see `feedback_tdata_quick_tests_for_python_only.md`).
+  `quick_tests=TRUE` (see `reference_build_package_gotchas.md`).

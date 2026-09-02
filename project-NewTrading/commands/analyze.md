@@ -7,7 +7,9 @@ Thin wrapper. The actual computation lives in the RStudies repo at
 **INSTRUCTIONS FOR CLAUDE:**
 
 1. Parse `$ARGUMENTS` as `TICKER DIRECTION [flags]`.
-   - `TICKER` (required): symbol, e.g. `UPS`, `JPM`, `SMH`.
+   - `TICKER` (required): symbol, e.g. `UPS`, `JPM`, `SMH`. Punctuated
+     class shares (`BRK.B`, `BRK-B`, `BRKB`) resolve to the canonical
+     `Tickers.Name` (`BRK B`); an unknown symbol stops with an error.
    - `DIRECTION` (required): `long` or `short`.
    - Flags (optional): `--no-html`, `--no-vol-funnel`.
 2. Run the R pipeline. The exact invocation depends on host:
@@ -31,8 +33,10 @@ Thin wrapper. The actual computation lives in the RStudies repo at
    Source-of-truth lives at `C:/Users/aldoh/Documents/RApplication/scripts/analyze.sh`;
    deploy with `scripts/push-analyze-to-vm.ps1`. Wrapper exit codes:
    `0`=ok, `1`=usage, `2`=gateway-down, `3`=R-failure.
-3. Read the generated HTML file at
-   `C:/Users/aldoh/Documents/NewTrading/reports/analyze_<TICKER>_<YYYYMMDD>.html`
+3. Read the generated HTML file. main.R prints its path as
+   `HTML written: <path>` -- use that, do not rebuild it from `<TICKER>`.
+   The name is slugged from the RESOLVED symbol, so `BRK.B` writes
+   `C:/Users/aldoh/Documents/NewTrading/reports/analyze_BRK_B_<YYYYMMDD>.html`
    and surface its key tables in the chat:
    - Phase A/B/C/D/E results (PASS / SKIP / NO SIGNAL / STALE).
    - Phase C funnel grid + tally.

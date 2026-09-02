@@ -1,4 +1,7 @@
 {
+  "permissions": {
+    "defaultMode": "auto"
+  },
   "hooks": {
     "Notification": [
       {
@@ -25,7 +28,5 @@
   "skipDangerousModePermissionPrompt": true,
   "theme": "light-daltonized",
   "skipAutoPermissionPrompt": true,
-  "permissions": {
-    "defaultMode": "auto"
-  }
+  "agentPushNotifEnabled": true
 }
