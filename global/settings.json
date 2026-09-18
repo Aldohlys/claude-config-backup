@@ -27,6 +27,7 @@
   },
   "skipDangerousModePermissionPrompt": true,
   "theme": "light-daltonized",
+  "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
-  "agentPushNotifEnabled": true
+  "remoteControlAtStartup": true
 }

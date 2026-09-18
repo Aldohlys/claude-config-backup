@@ -19,13 +19,28 @@ Discovered 2026-05-27 while refreshing `positioning.R` from raw CFTC after the S
 | WTI Crude (legacy format) | `https://www.cftc.gov/dea/futures/deanymesf.htm` | 067651 | Non-Commercial |
 | Gold, Copper, other metals | `https://www.cftc.gov/dea/futures/other_lf.htm` | Gold 088691, Copper 085692 | Managed Money |
 | Corn, Soybeans, Wheat | `https://www.cftc.gov/dea/futures/ag_lf.htm` | Corn 002602, Soy 005602, SRW 001602 | Managed Money |
-| DXY (US Dollar Index) | `https://www.cftc.gov/dea/futures/deanybtsf.htm` (ICE Futures U.S.) | 098662 | Leveraged Funds + Asset Manager |
+| DXY (US Dollar Index) | `https://www.cftc.gov/dea/futures/financial_lf.htm` (TFF) | 098662 | Leveraged Funds + Asset Manager |
 | Major currency pairs (EUR, JPY, GBP etc) | `https://www.cftc.gov/dea/futures/financial_lf.htm` (TFF) | varies | Leveraged Funds + Asset Manager |
 
 ## Wrong URLs to skip (cost cycles this session)
 
 - `deacmesf.htm` — CME-only, **does NOT include NYMEX/COMEX/ICE contracts**. WTI is NOT here.
-- `financial_lf.htm` for DXY — covers CME financials (currencies, equities, rates) but **does NOT include ICE Futures U.S. contracts** like DXY.
+- ~~`financial_lf.htm` for DXY~~ — **this claim was WRONG, corrected 2026-09-03.** `financial_lf.htm` (TFF long format) *does* carry `USD INDEX - ICE FUTURES U.S. Code-098662`. Use it for the Lev-Funds + Asset-Manager split. `deanybtsf.htm` also has DXY but only in **legacy** Non-Commercial/Commercial form — a different metric, not comparable to the Lev+AM series the entries use.
+
+## Historical archive (for multi-year percentile context)
+
+Annual zips, one row per contract per week, parse directly with pandas:
+
+- Disaggregated futures-only (WTI, gold, copper, grains): `https://www.cftc.gov/files/dea/history/fut_disagg_txt_<YYYY>.zip` → `f_year.txt`
+- Traders in Financial Futures (DXY, VIX, rates, equity index): `https://www.cftc.gov/files/dea/history/fut_fin_txt_<YYYY>.zip` → `FinFutYY.txt` (note the different inner filename)
+
+Columns needed: `Report_Date_as_YYYY-MM-DD`, `CFTC_Contract_Market_Code` (string, strip whitespace), `M_Money_Positions_Long_All` / `_Short_All`; TFF uses `Asset_Mgr_` / `Lev_Money_` prefixes. 2021-2026 = 295 weekly observations per contract, enough for a 5-year percentile.
+
+This is what makes `extreme` flags reproducible without the Saxo narrative — see the refresh rule in `positioning.R`. It also cross-checks the weekly change column: the 2026-08-25 corn +136k one-week jump looked like a parse artifact and was confirmed genuine against the archive.
+
+## Column order in the disaggregated short report (petroleum_sf.htm etc.)
+
+11 position columns: Producer L, Producer S, Swap L, Swap S, Swap Spread, **MM L, MM S**, MM Spread, Other L, Other S, Other Spread. Validate a parse by checking that the long-side columns (including spreading once) sum exactly to Open Interest.
 
 ## Report cadence
 
@@ -37,10 +52,7 @@ Discovered 2026-05-27 while refreshing `positioning.R` from raw CFTC after the S
 
 The user's `positioning.R` historically followed Ole Hansen's Saxo digest, which adds narrative context — "15-month high", "fresh longs vs short covering", "multi-decade stockpile highs". The raw CFTC numbers alone don't tell you whether 98k MM net long crude is "extreme" — you need multi-year percentile context.
 
-**When refreshing from CFTC raw alone:**
-- Set `extreme = FALSE` by default unless you can establish multi-year context.
-- Note in the entry that the refresh was raw CFTC, not Saxo narrative.
-- The user can lift `extreme = TRUE` flags after reading Ole's digest.
+**When refreshing from CFTC raw alone (updated 2026-09-03):** the historical archive above supplies the multi-year context, so the old "default everything to FALSE" workaround is obsolete. Compute the 5-year percentile of the net series and set `extreme = TRUE` at >=90th (crowded long) or <=10th (crowded short). Record the percentile in the note. The Saxo digest is now optional colour, not the source of the flag.
 
 ## How to apply
 

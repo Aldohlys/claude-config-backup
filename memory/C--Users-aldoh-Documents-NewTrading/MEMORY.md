@@ -42,6 +42,8 @@
 
 ## Regime System (macro_context/scenarios.R)
 - 3 regimes, 12 sigmoid signals + weekly COT + CPI/PPI. No BOT predictive power (2026-03-19) — kept for sector-flow scoring. [Detail](project_regime_backtest.md)
+- COT positioning now AUTO-GENERATED weekly ([positioning.R automation](project_positioning_r_automation_todo.md) CLOSED) — `refresh_cot.R` + Saturday task + staleness banner; actor detail in `Reports/cot_actors_latest.csv`
+- [COT trader categories](reference_cot_trader_categories.md) — legacy=disagg mapping, Commercial folds spreading, large spec ≠ managed money; [cotsignal API rejected](reference_cotsignal_api_rejected.md)
 
 ## Git Repos
 - RApplication `Aldohlys/RApplication` (master) — DB, scripts, SQL dump. RStudies `Aldohlys/RStudies` (main) — reports. Tdata `Aldohlys/Tdata` (stable/prod) — R/Python IBKR TWS pkg
@@ -64,7 +66,7 @@
 - [XLF screen](project_xlf_breakout_screen_20260608.md) — C GREEN, financials=spread; [XLV screen](project_xlv_breakout_screen_20260608.md) CLOSED; [Refiner screen](project_refiner_bot_screen_20260606.md) DK/DINO pending
 - [Swing scanner redesign](project_swing_scanner_redesign.md) three-axis; [two-timescales](project_swing_scanner_two_timescales_todo.md) v6; [methodology](project_scanner_methodology_todo.md) RS overlay+patterns; [BOT R:R calib](project_rr_calibration_result.md) R:R_min=0.5
 - [build_package renv-prune bug](project_build_package_renv_prune_todo.md) deploy via R CMD INSTALL; [shared config.yml #58](project_shared_config_yml_todo.md); [track .claude/commands](project_track_claude_commands_todo.md); [NewTrading remote](project_newtrading_remote_todo.md)
-- [Condition-based alerts](project_alerts_condition_based_todo.md) vs live IBKR; [positioning.R automation](project_positioning_r_automation_todo.md) CFTC auto-pull
+- [Condition-based alerts](project_alerts_condition_based_todo.md) vs live IBKR
 
 ## Refs — Execution & Trade Management
 - [Execution ladder](feedback_trade_execution.md) (target/acceptable/red-line/hard-no, leg-level mid); [Buy STP LMT: LMT≥STP](reference_buy_stop_limit_direction.md); [Vert exit 80%](reference_vertical_spread_exit_80pct.md) (last 20% needs 0 DTE); [Exit winners at pre-set limit](feedback_hard_to_exit_winners.md) (90%=success)

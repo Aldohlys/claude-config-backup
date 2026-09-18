@@ -2,9 +2,11 @@
 ## User Profile & Preferences
 - [Colorblind — use blue/vermillion/amber, not green/red/orange](user_colorblind.md)
 - [Present UI design before coding — text plan + ASCII, wait for approval](feedback_design_before_code.md)
+- [No evaluative framing — attribute an idea factually, say which target it covers; not "clean"/"better"](feedback_no_evaluative_framing.md) — user-level rule in ~/.claude/CLAUDE.md
 - [Comments explain shipped code, not the plan — no "Phase N" refs](feedback_comment_describe_shipped_code.md)
 - [Don't embed transient schema-migration logic in committed code](feedback_no_transient_migration_logic_in_code.md)
 - [User edits SQLite config tables directly in DB Browser — don't build in-app editors](feedback_user_edits_db_directly.md)
+- [DB schema change → re-run regression suites vs a recorded baseline and add regression tests](feedback_schema_change_regression_tests.md) — exact column-list tests, fixture tables, writers with/without the column, preview-vs-write paths
 - [Base ccy CHF, minimize FX risk — fund foreign outflows from the currency already long, not CHF](user_chf_base_minimize_fx.md) — options are FX-light (exposure = MV, not notional); idle cash is the risk
 ## /analyze Command
 - [Always generate HTML report regardless of verdict](feedback_analyze_html.md)
@@ -18,7 +20,7 @@
 - [/analyze lives in NewTrading/.claude/commands/ → RStudies reports/analyze/main.R](reference_analyze_command_location.md) — output name slugged from the RESOLVED symbol; use the `HTML written:` path / ANALYZE_PATH_OUT, never rebuild it
 - [A report of all-FETCH-FAILED cells = one unresolved input, not an outage](feedback_cascade_failures_check_root_input.md)
 ## Risk, Trades & FX
-- [Trades: signed-delta Risk + EventType + stored Return; multi-leg cost is NET (-sum(Total)), never sum(abs())](project_trades_signed_delta_risk.md) — sum(Risk)=0 unmet on 256/672 closed trades; compute_return abstains as a bare NA, index via extract_field
+- [Trades: signed-delta Risk + EventType + stored Return; multi-leg cost is NET (-sum(Total)), never sum(abs())](project_trades_signed_delta_risk.md) — invariant restored 2026-09-15 on all 503 trades with a Close row (56 close-less remain, #68); Return sits on ONE row; compute_return abstains as a bare NA, index via extract_field
 - [Strategies.MaxRisk per-strategy budget; caps DISPLAY for all strategies (#75 closed)](project_strategies_maxrisk_cap.md)
 - [Account↔strategy topology + per-trade risk sizing base (size vs ~80.7k sleeve)](reference_account_strategy_topology.md)
 - [Tdata::saveTrades drops+recreates Trades table (overwrite=TRUE) — smoke-test first](reference_savetrades_overwrite.md)
@@ -40,10 +42,10 @@
 - [Gonet PnL math + Trade-tab Gonet stats branch (stats_all_gonet gated on no-expdate)](reference_gonet_pnl_and_stats.md)
 - [Gonet cash = CASH positions w/ realized-FX-on-closed-trades cost basis (Tdata 5.13.0)](project_gonet_cash_positions.md) — CSVs are source; prompt removed; gonet_realized_fx avg-cost lots
 - [Gonet TradeNr is NOT a stable per-instrument key — reused across instruments; key history on symbol](reference_gonet_tradenr_reused.md) — 21 was IE00B67T5G21 then CNYA; 24 is gold
-- ["Live" is a virtual account (no DB table) — per-account-table queries must guard](reference_live_virtual_account_no_table.md) — getAccountLive appends + non-deterministic + today-only
+- ["Live" is a virtual account (no DB table) — per-account-table queries must guard](reference_live_virtual_account_no_table.md) — getAccountLive rewritten in Tdata 5.18.0 (writes Currency, last real snapshot, idempotent); still today-only, and it WRITES so test on a DB copy
 - [readPortfolio() date is Date class, NOT YYYYMMDD int](feedback_readportfolio_date_type.md)
 - [What's held comes from the portfolio snapshot, NOT Trades.Status; portfolio TradeNr outranks Trades attribution](feedback_open_positions_from_portfolio_not_trade_status.md) — stale 'Ouvert' trades fabricate false alarms; never size a position by summing Trades.Pos
-- [Account.CashFlow conventions — native ccy, FX via AccountWithConversionRate view](reference_account_cashflow_conventions.md) — Cash Flow button in accountUI; cash-flow rows carry NLV=0, which zeroes twr() if picked as the day's snapshot
+- [Account.CashFlow conventions — native ccy, FX via AccountWithConversionRate view](reference_account_cashflow_conventions.md) — inter-account transfer ALREADY SHIPPED via the Cash Flow button in accountUI (verified); cash-flow rows carry NLV=0, which zeroes twr() if picked as the day's snapshot
 - [2026-04-16 transfer TWR fix — record in-kind + cash legs](project_account_transfer_cashflow_signs.md)
 - [Strategy/slice value pitfalls — use unPnL not mktValue; TWR breaks on cumulative](reference_strategy_value_pitfalls.md)
 - [IBKR Activity Statement layout — manual export; official TWR, per-ccy cashflows](reference_ibkr_activity_statement.md)
@@ -52,14 +54,20 @@
 - [BOT methodology: P&L is DIRECTIONAL (delta +0.797, vega -0.146); 3 indicator classes; vehicle=outright/vertical/stock; debit/width sets max payoff](project_bot_three_class_framework.md) — 2:1 needs debit ≤33% of width; the one criterion needing no inference
 - [BOT exits: discretion beats EVERY mechanical rule; weekly timeframe adds 3.0 effective dimensions (in S5/S6/BK4)](project_bot_exit_and_timeframe.md) — win-rate-raising rules crush P(>2) from 17.8% to 3.3%
 - [BOT's 9 gates = 3 clusters weighted 6:1:1 (structural); but NO scheme predicts realized P&L on 109 real trades](project_bot_gate_redundancy.md) — vol-expansion proxy invalid (vol CONTRACTED in 65% of BOT trades); atr_pct is the one name-attribute indicator (ICC 0.65)
+- [BOT scanner S3 is INDUSTRY-relative (SMH not XLK) via the CSV bench column](project_bot_industry_benchmarks.md) — swapping a bench shifts a group by one constant, only moving the pass/fail line; TLT was benched against itself
+- [em10_lo/em10_hi signed expected-move band in PRICE; C*ATR*sqrt(N) is a RESCALING of atr_now](project_bot_expected_move_band.md) — Spearman exactly 1.0; N=5 is the losing horizon (32% WR); gold skews 1.93
+- [tradable_universe CSV is the BOT config surface — refresh_atr silently overwrites hand-set book_BOT](reference_bot_tradable_universe_csv.md) — new columns survive the round-trip; ADV floor 85
 - [ScannerUniverse = Tickers IV=YES & price ≤$500; sector names singular](project_scanner_universe.md)
 - [Flow_Score = flow/context composite, NOT raw BOT score](project_scanner_flow_score.md)
 - [Asymmetric trade thesis — "2nd/3rd inning"; 30-60 DTE; VRP=log-ratio](project_asymmetric_trade_thesis.md)
 - [Earnings flag: NextEarnings + EarningsInDays in swing scanner (yfinance)](project_earnings_flag_feature.md)
 ## IBKR / TWS
+- [GOLD is no longer Barrick (now Gold.com Inc; Barrick is B); Yahoo OI needs the MONTHLY expiry](reference_yahoo_ticker_and_oi_traps.md) — CTRA/NGD 404 on Yahoo but exist at IBKR; tk.options[:3] picks near weeklies and reads 88 where the real OI is 33 554
 - [Option liquidity: getOptValue was FROZEN by default (fixed 5.14.3); `spread`=(ask-bid)/mid, NaN means no true mid](reference_option_quote_liquidity.md)
 - [IBKR symbols can contain a space (BRK B) — Name/TradingClass/YahooName all differ](reference_ibkr_symbol_with_space.md) — Name is the canonical key; 46 rows have a different YahooName, 14 a different TradingClass; compute_spread_risk_reward is the one fn that won't auto-resolve it
+- [IBKR quotes LSE stocks in PENCE with currency 'GBP' — order price 100x the stored position; and never clamp a risk metric to 0](reference_ibkr_minor_unit_quotes.md) — CRST wrote Risk=0 on a live position; rescale against the snapshot mktPrice, refuse what will not reconcile
 - [Live open orders: getOpenOrders(); PreSubmitted+whyHeld='trigger' is a stop's NORMAL state](reference_ibkr_open_orders_semantics.md) — orderId=0 (use permId), DBL_MAX sentinel, Adaptive lives in algoStrategy not orderType, combo legs invert on a SELL
+- [Stocks: frozen(reqType 2) == live to the cent; the stale one is the Prices DB; ~12 s per getStockPrice()](reference_stock_quote_frozen_vs_live_and_cost.md) — the frozen trap is option-bid/ask-specific, don't generalise it
 - [isIBAvailable() is the canonical TWS reachability probe — don't re-implement](reference_isIBAvailable.md)
 - [getGonet foreign-ETF pricing: USD non-US ETFs need ConId or delayed exchange, not SMART](reference_gonet_foreign_etf_pricing.md)
 - [Test IBKR/TWS code against live TWS BEFORE editing; halt if TWS down](feedback_test_tws_first.md)
@@ -84,10 +92,9 @@
 - [Check Welcome Tdata version log line first when "old library"/hang](feedback_check_welcome_log.md)
 - [Tdata lives in 8 install locations; /build covers only 6](project_tdata_install_locations.md)
 - [Tdata Python runs from the INSTALLED tree, not your edits — CWD picks which of the 8; partial copies break imports](feedback_install_packages_python_stale.md)
-- [build_package.R traps — “All tests passed” prints on a RED suite; blanket `git add .`; CHANGELOG first (generic message persists anyway); --quick-tests silently skips mis-named tests; quick-tests for Python-only Tdata; force=TRUE after a manual bump](reference_build_package_gotchas.md)
-- [Tdata 5.10.26 cache-warning committed (3a7d207) but deploy PENDING](project_tdata_5_10_26_deploy_pending.md)
+- [build_package.R traps — “All tests passed” prints on a RED suite; blanket `git add .`; CHANGELOG first (generic message persists anyway); --quick-tests silently skips mis-named tests; a cascade runs only QUICK tests downstream; the Tdata suite skips 27 Python tests unless get_tdata_py() runs first](reference_build_package_gotchas.md); failed devtools::build() now restores DESCRIPTION (base_dir arg to test on a throwaway pkg); failing document() still doesn't stop the build (#84)
 - [Tests hitting live tdata_py active binding fail in build CWD — inject module](feedback_tdata_py_binding_test_injection.md)
-- [renv discipline — never snapshot to clear a warning; what's safe to track; fixing the renv version without corrupting activate.R; revert /build's lockfile churn; Tuser's per-R-version trees](reference_renv_discipline.md)
+- [renv discipline — never snapshot to clear a warning; what's safe to track; fixing the renv version without corrupting activate.R; /build renv::record()s only the built package since 2026-09-15 (no churn to revert); Tuser's per-R-version trees](reference_renv_discipline.md)
 - [vctrs load-time bomb in RLibrary from tibble/dplyr drift — upgrade vctrs](feedback_vctrs_tibble_dplyr_cascade.md)
 ## R Gotchas & Idioms
 - [sprintf/cat/stopifnot on zero-length args — a test can go GREEN having verified nothing](feedback_zero_length_args_pass_silently.md) — missing expected output is a failure signal, not a formatting quirk
@@ -96,6 +103,7 @@
 - [max(cumsum(x),na.rm=T) → -Inf; pmin(NA,cap,na.rm=T) → cap](feedback_max_cumsum_na_rm_minus_inf.md) — na.rm on a running total fabricates values
 - [dplyr summarize() args evaluated in order — new col shadows same-named input](feedback_dplyr_summarize_self_reference.md)
 - [Rscript -e multiline segfaults on Windows — use temp script files](feedback_rscript_segfault.md)
+- [Child Rscript re-reads Renviron.site and overrides inherited R_DB_PATH — redirect with R_ENVIRON (forward slashes); system2(env=) ignored on Windows](reference_child_rscript_env_override.md)
 - [display_error_message calls stop() — code after is unreachable](feedback_display_error_message_stops.md)
 - [return() inside tryCatch({}) body exits ENCLOSING function — use last expr/stop()](feedback_r_return_inside_trycatch.md)
 - [with_mocked_bindings can't mock active bindings — swap via local_mock_tdata_py()](feedback_mock_active_bindings.md)
@@ -106,8 +114,12 @@
 - [Use .libPaths()[1], don't hardcode RLibrary path](feedback_libpaths_not_hardcoded.md)
 - [Sys.getenv("HOME") on Windows = USERPROFILE, not Documents](feedback_sys_getenv_home_windows.md)
 - [read.csv/type.convert makes all-numeric cols <integer> → bind_rows clash](feedback_readcsv_typeconvert_integer.md)
+- [read.dcf()[1, "Version"] is a NAMED scalar — jsonlite/renv::record() write it as a JSON object; unname(), and test with the real input, not a literal](feedback_named_vector_to_json.md)
+- [getDTE() reads a plain Date start as MIDNIGHT, not 16:00 — date-only DTE ~0.67 day too long; use dte_at_close()](reference_getdte_date_midnight.md) — Tuser analysis screens fixed 2026-09-15; exchange/sec_type still not passed (#18)
 - ["Stale" tests are self-consistent date fixtures; real fragility is live-data hangs](feedback_stale_tests_are_live_data_not_dates.md)
 ## Shiny
+- [A reactive keyed only on symbol() fetches once and freezes — check the computation, not just the label](feedback_reactive_keyed_only_on_symbol_goes_stale.md) — stale spot silently corrupted the Breakout R/R table
+- [shiny::testServer drives box modules and whole apps without shinytest2](reference_testserver_shiny_wiring.md) — flushReact after a reactiveVal write; update*Input never reaches input$; module ids need the namespace prefix; RReporting whole app: setwd(app)+source, session$elapse past debounce, unset r_factor logs an EMPTY 'Error in … output' (silent req)
 - [No priority= in observers — buggy ordering; one observer per trigger](feedback_no_shiny_priority.md)
 - [An output in an unopened tabPanel is suspended — free laziness for expensive fetches](reference_shiny_tabpanel_suspends_output.md)
 - [RReporting standalone tests: mod:stats masks dplyr filter — qualify dplyr::filter](feedback_dplyr_filter_masked_standalone.md)
@@ -124,11 +136,12 @@
 - [Historical-option / IV-history charts live in RPreTrade, NOT RReporting](reference_historical_option_module_in_rpretrade.md)
 ## Git Discipline
 - [Committing in a tree holding others' work — use `git commit --only`; split your hunk when separable, disclose when not](feedback_git_status_before_commit.md)
+- [Baseline a regression by stashing in place — a worktree lacks every gitignored file, so its test counts differ for free](feedback_regression_baseline_stash_not_worktree.md)
 - [Each app subdir is its OWN git repo with own remote](reference_app_subdirs_are_separate_repos.md)
 - [Unified RApplication repo policy — canonical "should I commit X?"](project_rapplication_repo_policy.md)
 - [.gitignore edits resurface state — re-run git status, inspect new ?? files](feedback_gitignore_edit_resurfaces_state.md)
 - [git add of tracked file in ignored dir exits 1 — use -f or separate](feedback_git_add_ignored_dir.md)
-- [Verify before acting — re-grep "orphaned" claims before destroying; re-run a stale TODO's survey; check whether a "NEVER X" rule's reason still holds](feedback_verify_before_acting.md)
+- [Verify before acting — re-grep "orphaned" claims before destroying; re-run a stale TODO's survey; check whether a "NEVER X" rule's reason still holds; check whether a TODO's residual was already closed by a spawned item](feedback_verify_before_acting.md) — #38 sat at HIGH for 3 months on work #75 had already done; 2026-09-15: #16 plan predated the module's buttons, #18's '16:00' claim was false, #54/#60 already met by logs/reports
 - [Unify-the-rule needs full per-repo audit (git ls-files + .gitignore)](feedback_unify_rule_audit_full_surface.md)
 - [Move DONE TODO items to trailing "✅ COMPLETED ITEMS" section](feedback_todo_done_to_completed_section.md)
 ## Tooling, Infra & Automation
@@ -143,14 +156,17 @@
 - [Claude config backup + /save & /sync commands (Aldohlys/claude-config-backup)](reference_claude_config_backup.md)
 - Windows Task Scheduler: .bat + cmd //c; fsutil hardlink > mklink /H; StartWhenAvailable in XML
 - [Register schtasks from XML: PowerShell tool + XML must be UTF-16](reference_schtasks_xml_registration.md)
+- [Launchers are 00_*.bat (2026-09-15); scheduled tasks call .bat paths — renaming breaks them; repo DailyPortfolioUpdate.xml is NOT the registered 10/17/22h schedule](reference_launcher_bats_and_scheduled_tasks.md) — fix with Set-ScheduledTask -Action only; long 'hung' runs = PC sleep (Kernel-Power 506/507); surface collector logs to logs/collect_option_surface.log
 - [daily_portfolio_update subprocesses contend with parent DB writes — busy_timeout (5.10.30)](reference_daily_update_subprocess_db_contention.md)
 - [Don't pipe background Bash through tail — stream raw, tail file later](feedback_no_tail_on_background_bash.md)
 - [Diagnose hung background build via side channels (tasklist/find/logs/git/renv)](feedback_diagnose_hung_background_build.md)
 - [python -u when piping through tee — else log empty until exit](feedback_python_unbuffered_with_tee.md)
-- [Shell quoting traps — Bash heredocs halve backslashes (use Write); `@'...'@` is PowerShell-only; $bt=[char]96 for literal backticks](feedback_shell_quoting_traps.md)
+- [Shell quoting traps — backslashes are lost in Bash-tool heredocs AND in plain sed/perl arguments (use Edit/Write); `@'...'@` is PowerShell-only; $bt=[char]96 for literal backticks](feedback_shell_quoting_traps.md); cmd started from Git Bash resolves GNU sort/findstr first — full paths in .bat
+- [Patching a CRLF source file with Python: open newline='' BOTH sides and translate search strings](feedback_preserve_crlf_when_patching.md) — else a 5-line edit becomes a whole-file diff; check git diff --stat after every scripted patch
 - [Don't write scratch scripts to C:\Users\aldoh\ — use project subdir](feedback_no_scratch_in_home.md)
 - [Memory slug convention: filename ≡ name: ≡ [[link]], all snake_case](feedback_memory_slug_convention.md)
 - [Window-differenced metrics must be normalised to today's size, per leg — validate by stable-subset parity](feedback_normalize_window_metrics_to_current_size.md) — TODO #78: a partial close read as -13 439 CHF; a position increase flipped a loss into a reported gain
+- [Shortening a lookback to clear a threshold fits the REGIME, not the name — check whether every peer moves the same way](feedback_shortened_lookback_fits_regime.md) — all 10 gold names rose monotonically 5y→2y→1y; only a corporate event justifies a per-name window
 - [Validate a derived metric: noise floor under a null + rank persistence](feedback_validate_metric_noise_floor_and_persistence.md) — a constant verdict is the tell; test before recommending a fix
 - [Economic events: Equals Money calendar works with WebFetch (ForexFactory 403)](reference_events_calendar.md)
 - [iOS Mail opens HTML in QuickLook — JS doesn't fire; test via real Safari over HTTP](feedback_ios_mail_quicklook_no_js.md)

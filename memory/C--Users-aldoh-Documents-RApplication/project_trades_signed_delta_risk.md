@@ -1,6 +1,6 @@
 ---
 name: project_trades_signed_delta_risk
-description: Trades table Risk is now a signed-delta per row; closure auto-balances to 0 and stores Return on the close row. BOT v1 shipped 2026-05-18; OFI/WHEEL/BPT/CS/Sharpe2/Perso still on old per-row scheme until Phase 5.
+description: Trades table Risk is a signed delta per row; closure balances sum(Risk) to 0 and stores Return on one close row. BOT resolver since 2026-05, generic resolver for OFI/WHEEL/BPT/CS/Sharpe2/Perso since Phase 5; the 2026-09-15 backfill left 0 broken trades among those with a Close row (56 close-less remain, TODO #68).
 metadata: 
   node_type: memory
   type: project
@@ -20,11 +20,17 @@ After TODO #38 Phase 1-4 (shipped 2026-05-18 for BOT only), the Trades table has
 - Close row 1: `-(sum of prior Risk for the TradeNr)` — always auto-computed, never user-entered.
 - Companion rows in multi-leg blocks (rows 2+): always 0.
 - Invariant: `sum(Risk over TradeNr)` = current live trade risk. Closed trades = 0.
-  **Aspirational, not enforced on history:** measured 2026-08-27, **256 of 672**
-  fully-closed trades have `sum(Risk) != 0`. Only `modify_trade` warns
-  (`check_trade_risk_invariant`). Don't treat the invariant as a usable
-  precondition when reading legacy trades — MaxOutlay reads the running peak,
-  not the sum, so display is unaffected.
+  **Aspirational, not enforced on history:** re-measured 2026-09-03, **256 of 674**
+  fully-closed trades have `sum(Risk) != 0` — by strategy: OFI 67/184, WHEEL 31/41,
+  BPT 30/66, Sharpe2 26/36, LTO 23/31, Perso 21/62, CS 17/19, CAL 8/13, Gonet 6/15.
+  Only `modify_trade` warns (`check_trade_risk_invariant`). Don't treat the
+  invariant as a usable precondition when reading legacy trades — MaxOutlay reads
+  the running peak, not the sum, so display is unaffected.
+
+  The cause is that **Phase 5 was going-forward only**: only BOT was ever
+  backfilled. As of 2026-09-03 that backfill *is* TODO #38 — the item was rescoped
+  to exactly this and dropped from HIGH to MEDIUM, its two former residuals having
+  been closed by #75 back in June. See [[feedback_verify_before_acting]] §4.
 
 **Resolvers in `RReporting/app/R/compute_functions.R`:**
 - `is_options_block(rows)` — Strike/Right primary, Instrument-string regex fallback for legacy NULL-Strike rows
@@ -72,7 +78,7 @@ app log are the tell that a crash is one `$` away.
 - `tests/fixtures/risk_BOT/` — 6 worked-example fixtures with expected per-row Risk + Return
 - `RReporting/tests/test_risk_resolvers.R` — 50 unit tests
 - `scripts/migrate_event_type.R` — Phase 1 schema migration
-- `scripts/backfill_risk_return_BOT.R` — Phase 3 historical backfill
+- `scripts/backfill_risk_return_closed.R` — historical backfill for all strategies (2026-09-15; the Phase 3 BOT script `backfill_risk_return_BOT.R` was never committed)
 - `scripts/smoke_test_savetrades.R` — round-trip safety check (see [[reference_savetrades_overwrite]])
 - TODO #38, TODO #67 (Stop column dependency), TODO #68 (Trades table cleanup)
 
@@ -93,3 +99,13 @@ The error also inverts design conclusions: a proposed universe filter of
 "typical ATM option must cost <= 400" would have excluded GLD, BRK B, QQQ and
 SMH - the very names a vertical makes affordable. See
 [[project_bot_three_class_framework]].
+
+## UPDATE 2026-09-15 — historical invariant restored for trades with a Close row (TODO #38 closed)
+
+`scripts/backfill_risk_return_closed.R` repaired the 199 closed trades (all rows 'Fermé' plus a Close row) whose sum(Risk) != 0. Stored Open/Adjust Risk kept as entered; first row of the LAST Close block = -(sum of the other rows), companions 0; Return = sum(PnL) / MaxOutlay on that row only, NA when MaxOutlay <= 0. Trade 51 kept Return NA (`--skip-return=51`: Open Risk -407 then Adjust +411 gives MaxOutlay 4). One transaction after an online backup, `logs/mydb_pre_backfill_risk_return_20260915_095828.db`.
+
+- Now: 503 trades with a Close row, **0** with sum(Risk) != 0. 197 still have no Return because MaxOutlay <= 0, mostly legacy credit trades (OFI, Gonet) stored with negative Open Risk.
+- Still broken: 56 all-'Fermé' trades with NO Close row (20 without a Strategy), moved to TODO #68. Treat the invariant as a precondition only for trades that have a Close row.
+- RReporting reads a trade's FIRST non-NA Return across its rows (`reactives.R`, `first(Return[!is.na(Return)])`), so Return must sit on exactly one row.
+- `scripts/backfill_risk_return_BOT.R` cited above was never committed and no longer exists; only its CSV logs remain.
+- Legacy non-BOT Risk signs are unreliable: check MaxOutlay before trusting a Return derived from pre-2026-06 rows.

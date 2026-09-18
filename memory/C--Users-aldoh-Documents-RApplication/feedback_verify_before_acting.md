@@ -1,6 +1,6 @@
 ---
 name: feedback_verify_before_acting
-description: "Three forms of the same discipline — re-verify a sub-agent's 'orphaned/unused' claim before destroying anything, re-run the survey behind a stale TODO before executing it, and check whether a 'NEVER do X' policy's reason still applies instead of silently deferring"
+description: "Four forms of the same discipline — re-verify an 'orphaned/unused' claim before destroying anything, re-run the survey behind a stale TODO, check whether a 'NEVER do X' policy's reason still holds, and check whether a TODO's stated residual was already closed by a spawned item"
 metadata: 
   node_type: memory
   type: feedback
@@ -8,9 +8,10 @@ metadata:
   modified: 2026-08-27T02:23:35.661Z
 ---
 
-Merged 2026-08-27 from three separate memories. Same shape each time: **a
-confident-looking claim (from a sub-agent, a recorded inventory, or a written
-policy) is a hypothesis, not ground truth.** Re-derive it before you act on it.
+Merged 2026-08-27 from three separate memories; a fourth added 2026-09-03. Same
+shape each time: **a confident-looking claim (from a sub-agent, a recorded
+inventory, a written policy, or a TODO's own Status line) is a hypothesis, not
+ground truth.** Re-derive it before you act on it.
 
 ## 1. Re-grep "orphaned / unused / write-only" before destroying anything
 
@@ -75,3 +76,51 @@ Never just nod and skip the work the rule is blocking — that's how policies ou
 their justification. Distinct from asserting *code* facts without checking; this is
 about deferring to *policy* facts without checking. See
 [[project_rapplication_repo_policy]], [[feedback_git_status_before_commit]].
+
+## 4. Check whether a TODO's residual was already closed by a spawned item
+
+A TODO's `Status` / `Priority` line is maintained by hand and is not updated when
+the work migrates into a **spawned** TODO that then closes on its own. Before
+picking up a long-lived item — especially a high-priority one — read its residual
+against `docs/TODO_COMPLETED.md` and against the DB, not just the entry itself.
+
+**Why:** 2026-09-03, #38 "Revisit Risk Data Management" was the *only* HIGH item
+in the file. Both residuals keeping it there had in fact been resolved by **#75**
+on 2026-06-15 — three months earlier: the `modify_trade` signed-delta invariant
+(#75 item 1, where keeping Risk editable + warning was chosen over locking the
+field) and the MaxRisk editor UI (#75 item 3, resolved as "edit in DB Browser").
+Working #38 as written would have re-done decided work. Meanwhile the *real*
+remaining scope was something the residual never mentioned: Phase 5 was
+going-forward only, so 256 of 674 closed trades still fail `sum(Risk) = 0`.
+
+**How to apply:**
+- Grep `TODO_COMPLETED.md` for the item number and for its spawned children before
+  starting; a "Spawned TODOs" list at the bottom of an entry is the tell.
+- Re-measure the claim against live data where it is measurable (one SQL query
+  settled both what was done and what was left).
+- Rewrite the entry to the work that actually remains and re-rate it, rather than
+  leaving a stale priority to keep mis-ranking the backlog. Note in the entry
+  which residuals closed where, so the next reader does not repeat the check.
+
+Same failure mode as a stale memory: [[feedback_todo_done_to_completed_section]]
+pointed at a COMPLETED section that no longer existed, and
+[[reference_live_virtual_account_no_table]] described `getAccountLive()` behaviour
+that had been rewritten. Records rot; re-verify the ones you are about to act on.
+
+## UPDATE 2026-09-15 — an old TODO's plan and "current state" age with the code
+
+- **#16** (plan from 2025-12) said to remove `accountUI$input()`; by now `input()` also held the Update and Cash Flow buttons and the module served two Tuser apps. Followed literally it would have removed the buttons and broken both apps — read the module in full before designing.
+- **#18** said date-only DTE "defaults to 16:00"; the code reads midnight (~10% error a week out), so its "current behaviour is reasonable" premise was false. See [[reference_getdte_date_midnight]].
+- **#54 and #60** were effectively done: 81 logged scheduled runs and 52 real `/analyze` reports already satisfied their done-when lists. Closing them needed evidence from logs and outputs, not new runs.
+- **#53**'s premise ("the time limit failed to kill a hang") dissolved once the long runs were matched to PC sleep.
+
+**How to apply:** before implementing or re-prioritising an old TODO, check its "current state" claims against the code, and look for logs or generated reports that already answer its done-when criteria.
+
+## UPDATE 2026-09-15 (b) — scanning for dead code without false positives
+
+The TODO #74 pass (49 functions removed) worked by token-scanning every `.R`/`.py`/`.Rmd`/script/slash-command file in RApplication and NewTrading for names referenced nowhere but their own definition. What made it trustworthy:
+- **Re-scan after each removal** — every pass orphaned more helpers (`get_swiss_bond_yields`, then `.d2`/`.nd1`, then `.d1`); stop only when a scan finds nothing new.
+- **Skip `.Rproj.user`** when checking whether a deleted file is still referenced: RStudio's editor history names every file ever opened and produced a dozen false "references".
+- **Scripts without an entry point may be console tools, not dead code** — `complete_cache_reset.py` and `RReporting/scripts/validation_functions.R` had no callers by design; the first also turned out to be unimportable. Ask before deleting a whole utility script.
+- **String-built calls** (`do.call`, `match.fun`, `get(paste...)`, `getattr`) defeat a token scan — grep for them near each candidate.
+- Check the emptied-file deletions and the second-wave orphans with the user's "unreferenced, keep exports" rule, and keep templates/archive folders out.

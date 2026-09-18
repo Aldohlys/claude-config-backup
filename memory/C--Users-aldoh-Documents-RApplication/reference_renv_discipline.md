@@ -1,6 +1,6 @@
 ---
 name: reference_renv_discipline
-description: "Everything about renv across the 6 app renvs — leave lockfiles alone (never snapshot to clear a warning), what's safe to track in git, how to align the renv version without corrupting activate.R, reverting /build's snapshot churn, and Tuser's per-R-version library trees."
+description: "Everything about renv across the 6 app renvs — leave lockfiles alone (never snapshot to clear a warning), what's safe to track in git, how to align the renv version without corrupting activate.R, /build recording only the built package since 2026-09-15 (the old snapshot churn), and Tuser's per-R-version library trees."
 metadata: 
   node_type: memory
   type: reference
@@ -92,7 +92,7 @@ used the new version's template without substituting `..md5..` / `..version..`.
 - **Verify** per app: `cd <app> && Rscript -e 'cat(as.character(packageVersion("renv")))'`
   — target version, no mismatch and no `..md5..` warning.
 
-## 4. Revert /build's renv churn
+## 4. Revert /build's renv churn (HISTORY — superseded 2026-09-15: /build no longer snapshots, see UPDATE at the end)
 
 `build_package.R` runs `renv::snapshot()` inside **every** dependent app repo on
 deploy. Observed 2026-06-26 building Tdata 5.12.0:
@@ -126,3 +126,11 @@ When verifying `/build` actually deployed, check the `windows/R-4.4` tree
 mislead — it once returned Tdata 2.4.5 while the real install was 5.12.0. The
 other apps and the system library `C:/Users/aldoh/Documents/RLibrary` are
 single-tree. See [[reference_build_package_gotchas]], [[project_tdata_install_locations]].
+
+## UPDATE 2026-09-15 — /build no longer snapshots; §4 is history
+
+`build_package.R` (RApplication `1de04ad`, `d952521`) dropped both `renv::snapshot(force = TRUE)` calls, the per-app one and the one on the package's own `renv.lock`. After `install.packages()` into an app library, `deploy_package()` runs `renv::record()` for the built package only (`Source: Local`, `RemoteType: local`, `RemoteUrl` = tarball). A deploy now changes exactly that package's lockfile entry, which is correct and should be committed; there is no churn to revert. Verified on the Tbasics 1.6.4 → Tdata 5.19.1 cascade.
+
+- Trap met on the way: `read.dcf()[1, "Version"]` is a NAMED character, and `renv::record()` wrote it as `"Version": {"Version": "1.6.4"}`. Fixed with `unname()`; lockfiles repaired and committed in all six apps. See [[feedback_named_vector_to_json]].
+- `renv::status()` still reports `Tdata [x.y.z: Local != unknown]`: the installed DESCRIPTION carries no Remote fields (TODO #64).
+- After a /build, a lockfile diff should be one or two package entries. Anything wider is drift from somewhere else, not from the build.

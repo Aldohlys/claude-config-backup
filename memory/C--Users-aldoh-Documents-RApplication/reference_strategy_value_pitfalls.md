@@ -25,10 +25,16 @@ Two consequences:
 - For series that legitimately grow >100% (small base → large value), label_percent renders e.g. "8086%". Genuine math, just unreadable. If you want raw-magnitude display, divide-by-100 before plotting.
 - **For cumulative-PnL series** (NLV = `unPnL_open + cum_realized_in_window`) that start at or near zero or cross zero, both `twr()` and the percent formula `metrics/first(metrics)-1` produce nonsense — denominator is small/negative. Volatility breaks too because daily-return is computed as `NLV/lag(NLV)-1`.
 
-**Strategy-level TWR has no clean meaning** without a positive "starting capital" baseline. See [TODO #69](#TODO-69) (per-strategy capital allocation) for the planned fix. Until then, workarounds in `Tuser/account/view/strategyAccountUI.R`: divide-by-100 for TWR/Vol display + R-scaled percent mode for NetLiquidation.
+**Strategy-level TWR has no clean meaning** without a positive "starting capital" baseline. See [TODO #69](#TODO-69) (per-strategy capital allocation) for the planned fix. Until then the strategy view does not offer TWR or Volatility at all (removed 2026-09-15, see the UPDATE below).
 
 ### 3. R risk-factor (`r_factor`) is a UI-only numericInput
 
 The "R value" per-trade risk unit is **not** in config.yml, the `Param` DB table, or any data file. It lives in `RReporting/app/ui.R:95` as a `numericInput("r_factor", "R value:", 200)`, defaulting to **200** (user mental model says 300). Each session sets its own; the same numericInput pattern is now also in `Tuser/account/view/strategyAccountUI.R` (default 300).
 
 **How to apply:** any new "value-per-strategy" or "value-per-slice" feature should use `unPnL` not `mktValue`; expect TWR/Vol to be meaningless without an explicit baseline; for R-scaling the divisor comes from a per-app numericInput, not config. The clean architectural fix is the StrategyCapital table — see [TODO #69](#TODO-69) before re-deriving any of this from scratch.
+
+## UPDATE 2026-09-15 — workarounds replaced
+
+The divide-by-100 TWR/Vol display hack is gone: TimeWeightedReturn and Volatility30Days were **removed from the strategy view's Metric choices** (user decision) until TODO #69 gives strategies a capital baseline. Seen in the app: BOT TWR plotted down to -15 000 % while its cumulative PnL rose to 12 000 CHF. `strategyf::compute_strategy_evolution()` still computes both columns; nothing displays them.
+
+The R value now applies in value mode too: with an R value, NetLiquidation / UnrealizedPnL / RealizedPnL are divided by R (axis "20 R"); an empty field keeps base-currency labels. The rule is `strategy_plot_scale()` in `strategyAccountUI.R`, tested by `Tuser/tests/test_strategy_r_axis.R`.

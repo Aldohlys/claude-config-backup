@@ -82,3 +82,15 @@ $matchCond = ($keys | ForEach-Object { "s.$bt$_$bt = t.$bt$_$bt" }) -join ' AND 
 Referenced indirectly in `docs/LESSONS_LEARNED.md` under the 2026-04-24 DB sync
 section. Related: [[feedback_git_status_before_commit]],
 [[feedback_rscript_segfault]].
+
+## UPDATE 2026-09-15 — plain Bash-tool commands lose backslashes too, not only heredocs
+
+Fixing a string literal that had become a raw line break (it should have been the two characters backslash + n) in `build_package.R`: a `perl -0pi -e` substitution and a line-addressed `sed -i '363{N;s/.../}'` both ran without error and changed nothing, because the backslashes in their patterns never reached the program. The Edit tool fixed it in one call.
+
+**How to apply:** when the search or replacement text contains a backslash, use the Edit tool (or a script written with the Write tool). Don't retry with more escaping, and check the result with `cat -A` or a re-read rather than trusting a zero exit code.
+
+## UPDATE 2026-09-15 — a cmd started from the Bash tool finds Git's Unix tools first
+
+A `.bat` run with `cmd /c` from the Bash tool (or from Python launched there) inherits Git Bash's PATH: `cmd /c "where sort"` lists Git's `usr/bin/sort.exe` before Windows' `System32/sort.exe`. GNU sort reads `/R` as a file name, so `collect_option_surface.bat`'s R-version detection came back empty in a test, while the scheduled task (plain Windows PATH) had worked for months.
+
+**How to apply:** call system tools in `.bat` files by full path (`%SystemRoot%` + `System32` + `sort.exe` / `findstr.exe`); when a `.bat` misbehaves only in a test launched from Bash, run `cmd /c "where <tool>"` before changing its logic.

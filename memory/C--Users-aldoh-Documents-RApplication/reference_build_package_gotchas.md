@@ -146,3 +146,15 @@ failures were `test-ticker.R:24/25` (`addTicker("XOM")` returns NULL because
 "Ticker XOM already exists in DB" — leftover state from an earlier aborted run,
 self-healing since the suite's own `removeTicker` cleans up at the end). Classic
 test-isolation flake, unrelated to the build.
+
+## UPDATE 2026-09-15
+
+- §5's remark about `renv::snapshot(..., force = TRUE)` and reverting lockfile churn is obsolete: the deploy records only the built package ([[reference_renv_discipline]], UPDATE 2026-09-15).
+- A cascade build (Tbasics → Tdata) runs only QUICK tests on the downstream package (51 tests for Tdata 5.19.1). If the downstream package has its own changes, run its full suite yourself first.
+- A full Tdata `devtools::test()` from a plain Rscript skipped 27 tests as "Python not available", because `tdata_py` initialises lazily and nothing had touched it yet. Calling `get_tdata_py()` right after `devtools::load_all()` gave 922 pass / 8 skip. Compare the SKIP count with the last build, not just FAIL ([[project_tdata_py_lazy_init_startup]]).
+
+## UPDATE 2026-09-15 (b) — failure handling and testing the script itself
+
+- **A failed `devtools::build()` no longer burns a version** (RApplication `1a5a4fd`, TODO #40 item 2): `build_package()` keeps the exact bytes of DESCRIPTION taken before the bump and writes them back on build failure. Tests already ran before the bump, so a red suite never bumped.
+- **`base_dir` argument** (default the RApplication root) lets the script be exercised on a throwaway git package in a temp folder, with `testthat::with_mocked_bindings(build = ..., .package = "devtools")` making the build fail or succeed — no real repo, remote or deploy touched. Use `deploy = FALSE, skip_tests = TRUE, cascade = FALSE`.
+- **Still unhandled (TODO #84):** a failing `devtools::document()` does not stop the build — its `return(FALSE)` sits inside the tryCatch error handler and only leaves the handler; the version-update block has the same pattern.
