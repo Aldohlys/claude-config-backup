@@ -51,6 +51,7 @@
 - [IBKR Activity Statement layout — manual export; official TWR, per-ccy cashflows](reference_ibkr_activity_statement.md)
 - [Portfolio TradeNr=NULL when leg entered after snapshot — Rscript data/fix_tradenr.R](project_tradenr_backfill_stale.md)
 ## Scanner & Swing
+- [BOT tooling = 3 tools on 3 cadences; spec is docs/BOT_TOOLS_DESIGN.md (field-by-field)](reference_bot_three_tool_architecture.md) — gates.R is the ONE gate implementation; weekly resample needs 5y of daily; TODO #88 leaves 2 criteria inert
 - [BOT methodology: P&L is DIRECTIONAL (delta +0.797, vega -0.146); 3 indicator classes; vehicle=outright/vertical/stock; debit/width sets max payoff](project_bot_three_class_framework.md) — 2:1 needs debit ≤33% of width; the one criterion needing no inference
 - [BOT exits: discretion beats EVERY mechanical rule; weekly timeframe adds 3.0 effective dimensions (in S5/S6/BK4)](project_bot_exit_and_timeframe.md) — win-rate-raising rules crush P(>2) from 17.8% to 3.3%
 - [BOT's 9 gates = 3 clusters weighted 6:1:1 (structural); but NO scheme predicts realized P&L on 109 real trades](project_bot_gate_redundancy.md) — vol-expansion proxy invalid (vol CONTRACTED in 65% of BOT trades); atr_pct is the one name-attribute indicator (ICC 0.65)
@@ -167,6 +168,7 @@
 - [Memory slug convention: filename ≡ name: ≡ [[link]], all snake_case](feedback_memory_slug_convention.md)
 - [Window-differenced metrics must be normalised to today's size, per leg — validate by stable-subset parity](feedback_normalize_window_metrics_to_current_size.md) — TODO #78: a partial close read as -13 439 CHF; a position increase flipped a loss into a reported gain
 - [Shortening a lookback to clear a threshold fits the REGIME, not the name — check whether every peer moves the same way](feedback_shortened_lookback_fits_regime.md) — all 10 gold names rose monotonically 5y→2y→1y; only a corporate event justifies a per-name window
+- [A reward:risk ratio can be anti-correlated with the setup it selects — check a sort key against the thesis](feedback_ratio_metric_anticorrelated_with_its_own_thesis.md) — asym vs trend Spearman −0.335; unbounded ratios let one near-zero denominator rule the order
 - [Validate a derived metric: noise floor under a null + rank persistence](feedback_validate_metric_noise_floor_and_persistence.md) — a constant verdict is the tell; test before recommending a fix
 - [Economic events: Equals Money calendar works with WebFetch (ForexFactory 403)](reference_events_calendar.md)
 - [iOS Mail opens HTML in QuickLook — JS doesn't fire; test via real Safari over HTTP](feedback_ios_mail_quicklook_no_js.md)

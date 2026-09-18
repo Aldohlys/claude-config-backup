@@ -81,3 +81,16 @@ default 20%), which therefore **requires Tdata >= 5.14.3**. Note
 positional with no auto-resolution — see [[reference_ibkr_symbol_with_space]].
 The runtime parquet cache it writes lands in the launch CWD as `quotes/`, now
 gitignored in every repo that can produce one.
+
+## Which function to call from R (cost three wrong guesses, 2026-09-18)
+
+`getOptValue` is a **Python** function in `tdata_py`, not an R export. `Tdata::getOptValue()` does not exist — it fails with *impossible de trouver la fonction*, which a `tryCatch` will happily swallow into a plausible-looking "no true mid".
+
+| want | call |
+|---|---|
+| bid/ask/mid/delta for given strikes | **`Tdata::getOptMarketData(sym, right, strikes, expiration, force_refresh=)`** — the R wrapper; adds `mid` |
+| the ATM bid-ask % for the vehicle rule | **`live_sources.R::resolve_option_spread(ticker, spot, target_dte, tws_ok)`** — prices only ATM + the 30Δ wings, force-refreshes |
+| vertical enumeration | `reticulate::import("tdata_py.spread")$compute_spread_risk_reward(...)` |
+| raw Python | `Tdata:::tdata_py$getOptValue(...)`, `$getStrikesInRange(...)`, `$getExpirationDates(...)` |
+
+`resolve_option_spread()` returns the `live_sources.R` envelope, **not** the `surface_fact` convention used in `analyze/structures.R`: read `$value` for the payload, `$reason` for the cause and `$status` for LIVE / CACHED / NO DATA / FETCH FAILED. Reading `$surface_fact` silently discards the reason.
