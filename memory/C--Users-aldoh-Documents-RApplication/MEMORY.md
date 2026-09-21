@@ -168,6 +168,7 @@
 - [Memory slug convention: filename ≡ name: ≡ [[link]], all snake_case](feedback_memory_slug_convention.md)
 - [Window-differenced metrics must be normalised to today's size, per leg — validate by stable-subset parity](feedback_normalize_window_metrics_to_current_size.md) — TODO #78: a partial close read as -13 439 CHF; a position increase flipped a loss into a reported gain
 - [Shortening a lookback to clear a threshold fits the REGIME, not the name — check whether every peer moves the same way](feedback_shortened_lookback_fits_regime.md) — all 10 gold names rose monotonically 5y→2y→1y; only a corporate event justifies a per-name window
+- [A tercile/percentile criterion excludes a fixed fraction by construction; its cut point moves with the population](feedback_relative_criterion_excludes_a_fixed_fraction.md) — gap_share removed 28% of the universe at a boundary 0.18 below the measured one
 - [A reward:risk ratio can be anti-correlated with the setup it selects — check a sort key against the thesis](feedback_ratio_metric_anticorrelated_with_its_own_thesis.md) — asym vs trend Spearman −0.335; unbounded ratios let one near-zero denominator rule the order
 - [Validate a derived metric: noise floor under a null + rank persistence](feedback_validate_metric_noise_floor_and_persistence.md) — a constant verdict is the tell; test before recommending a fix
 - [Economic events: Equals Money calendar works with WebFetch (ForexFactory 403)](reference_events_calendar.md)

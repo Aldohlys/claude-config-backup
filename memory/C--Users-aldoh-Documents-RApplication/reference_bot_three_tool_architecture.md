@@ -48,3 +48,16 @@ rank, VRP, skew) appears anywhere — see [[project_bot_three_class_framework]].
 Open questions that make two criteria inert and the daily sort backwards:
 **TODO #88**. See [[feedback_ratio_metric_anticorrelated_with_its_own_thesis]].
 Evidence base is TODO #82 (measurement record, scripts lost).
+
+## Running them (measured 2026-09-18)
+
+| | per ticker | 347 tickers |
+|---|---|---|
+| `bot_monthly` with the live option probe | ~43 s | **~4.2 h** |
+| `bot_monthly --no-tws` | 4 s | **~23 min** |
+
+The TWS probe is ~**90% of the runtime**, and outside 09:30–16:00 New York it returns nothing usable — so a post-close run pays 10x for NULL columns. **`--no-tws` gives identical `BOT_Eligible`**: membership is `atr_band` + `gap_share` tercile + `adv_pass` + the opportunity count, none of which touch bid-ask. The probe only fills `AtmBidAskPct` and `BOT_VehicleHint`. So: run `--no-tws` for membership any time, and a TWS pass in market hours for the vehicle hint.
+
+**Killing it mid-run loses everything** — phase 3 writes to `Tickers` only after all tickers are computed, because the terciles are cross-sectional. Phase 1 now `saveRDS`es to `tempdir()/bot_monthly_phase1.rds` so a fetch is not lost to an assembly bug (which happened twice). `bot_daily` is ~5–8 min for 69 names and needs no TWS at all.
+
+First production run: **335 rows computed, 169 eligible**; excluded 93 `gap_share`, 42 `atr_band`, 22 `adv`, 9 `no_data`, and **0** `no_opportunity`. `bot_daily` now reads those 169 from `Tickers.BOT_Eligible` instead of falling back to the 69 `book_BOT` rows.

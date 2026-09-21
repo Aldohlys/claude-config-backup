@@ -33,3 +33,23 @@ stopifnot(!is.null(last), nrow(last) == 1)
 And treat **missing expected output as a failure signal**, not a formatting
 quirk - if a loop was meant to print one line per case and printed none, the
 loop did not do what you think. Do not trust "exit 0 + final OK line".
+
+## The same trap in list assembly: a NULL field kills the whole data frame
+
+Hit again 2026-09-18 in `bot_monthly`. A function returned a short list on its failure path:
+
+```r
+if (no_data) return(c(base, list(status = "FAILED", notes = "no price history")))
+# ... the success path returns 20 more fields
+```
+
+The row builder then read `r$atr_band` on that short row, got **NULL**, and
+`as.data.frame()` rejected the **entire** list of 335 rows:
+
+```
+les arguments impliquent des nombres de lignes differentes : 1, 0
+```
+
+Three real tickers triggered it (`STOCK` is not a symbol, `MCL=F` fails at Yahoo, `NG` returns non-leading NAs), and it fired **after** a 23-minute fetch of all 347. Unlike the sprintf case this one is loud — but it is the same root: a zero-length value flows instead of failing, and it surfaces far from where it was produced.
+
+**How to apply:** give every early return the full field set, or coerce on read with NULL-safe accessors (`.s()` for character, `.i()` for integer, alongside the usual numeric one). And cache an expensive fetch before assembling it — assembly is where this class of bug lands, and it should not cost the fetch.
