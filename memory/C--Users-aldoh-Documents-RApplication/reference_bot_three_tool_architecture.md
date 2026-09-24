@@ -61,3 +61,28 @@ The TWS probe is ~**90% of the runtime**, and outside 09:30–16:00 New York it 
 **Killing it mid-run loses everything** — phase 3 writes to `Tickers` only after all tickers are computed, because the terciles are cross-sectional. Phase 1 now `saveRDS`es to `tempdir()/bot_monthly_phase1.rds` so a fetch is not lost to an assembly bug (which happened twice). `bot_daily` is ~5–8 min for 69 names and needs no TWS at all.
 
 First production run: **335 rows computed, 169 eligible**; excluded 93 `gap_share`, 42 `atr_band`, 22 `adv`, 9 `no_data`, and **0** `no_opportunity`. `bot_daily` now reads those 169 from `Tickers.BOT_Eligible` instead of falling back to the 69 `book_BOT` rows.
+
+## UPDATE 2026-09-21 — three corrections, one of them to this file's own explanation
+
+- **`bot_name` no longer exists.** It was retired into **`/analyze`**, which was
+  already pricing all three vehicles and only lacked the accept test. The three
+  cadences are now `run_bot_monthly.bat` / `run_bot_daily.bat` / `run_analyze.bat`
+  (all in `NewTrading/scripts`). `run_flow_scanner.bat` is a *different strategy*
+  and sits outside them. `bot_scan_universe.py` retired too; its F1/F2 entry
+  factors were ported into `bot_daily` and cross-validated on 59 names first.
+- **`gap_share` is no longer a membership criterion** (TODO 88.4). Membership is
+  now `atr_band` + `adv_pass` + opportunity count. It gated the risk of gapping
+  *through* a stop, but over 169 daily rows `GapShare` does not predict that:
+  Spearman **0.073** against `gap_vs_stop`, while the stop distance itself is
+  **−0.889**. `bot_daily` tests it per trade and vetoes with `gap_through_stop`.
+- **The "outside market hours the probe returns nothing usable" claim above was
+  wrong.** `AtmBidAskPct` and `BOT_VehicleHint` were NULL on all 352 rows in
+  *every* run, TWS up or down, because `bot_monthly` unwrapped the result with
+  `q$value %||% NULL` and that file's `%||%` is scalar-only (`length(a) != 1`
+  falls through to `b`) applied to an 8-element list. The row logged
+  `bid-ask: LIVE` because the fetch had genuinely succeeded. Fixed 2026-09-21;
+  AAPL then read 2.7%, NVDA 1.0, GLD 2.3, SMH 4.1, JPM 4.9.
+- **All four gate copies are now one.** `compute_breakdown` (/analyze) and
+  `score_breakout` (swing_scanner) keep their formatting and scoring but take
+  pass/fail from `eval_gates()`. That also fixed a latent NA path: `S3 <- rs > 0`
+  was NA when `rs` was NA, making `setup_score` itself NA.

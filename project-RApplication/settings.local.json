@@ -484,7 +484,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"Open TODOs in this project to flag to the user (see docs/TODO.md): #78 WeeklyunPnL unrealistic on partial-close positions (ABBN); #79 verify Gonet total market value ~1% vs the bank statement.\"}}'"
+            "command": "python \"C:/Users/aldoh/Documents/RApplication/scripts/session_todos.py\" 2>/dev/null || true",
+            "timeout": 10,
+            "statusMessage": "Reading open TODOs"
           }
         ]
       }

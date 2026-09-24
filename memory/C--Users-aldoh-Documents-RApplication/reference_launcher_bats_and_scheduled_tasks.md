@@ -26,3 +26,28 @@ Related: [[reference_schtasks_xml_registration]], [[reference_daily_update_subpr
 - **Check sleep before calling a scheduled run hung.** In `logs/daily_portfolio_update.log` (81 runs, 2026-07-28 → 09-15) the runs of 222 and 248 minutes, and evening runs that finished hours later, sat exactly on Windows sleep/wake events: `Get-WinEvent -FilterHashtable @{LogName='System'; StartTime=...; EndTime=...}` filtered to providers Microsoft-Windows-Kernel-Power / Power-Troubleshooter, ids 506/507 (also 1, 42, 107). Tasks run on wake (StartWhenAvailable, no WakeToRun). The 30-minute ExecutionTimeLimit did not kill those runs — probably time asleep does not count (not verified). No genuine hang was found (TODO #53 lowered to LOW; #54 closed).
 - **CollectOptionSurface** (daily 18:00, `scripts/collect_option_surface.bat`) exits 1 when TWS is not reachable. Since 2026-09-15 the `.bat` appends each run to `logs/collect_option_surface.log` (start/finish markers with the exit code, Rscript path, symbol list, R output). The OptionSurface table had only 24 capture days from 06-10 to 09-04, none after (TODO #50).
 - The daily update log also shows quick Step 3 failures on evening runs (`No value returned from IB!`, TWS likely closed at 22:00) and Gonet/Live errors on 08-27 and 09-04 (TODO #87).
+
+## UPDATE 2026-09-21 — every task writes one line to logs/activity.log
+
+`logs/activity.log` is the cross-task record: `date;task;start;end;duration_min;status;detail`,
+appended by **`scripts/log_activity.ps1`** (via a `.bat` front end). Read it with
+`Rscript scripts/activity_report.R [--days N] [--task NAME]` — runs, failures,
+median vs latest duration with a drift ratio, and repeat offenders.
+
+- **All 26 launchers log themselves**, so it works however they are started:
+  scheduler, the Tkinter launcher, a shortcut, or by hand.
+- **`scripts/run_task.bat <name> <cmd> [args]`** wraps the five scheduled tasks
+  that call Rscript/python directly (`CheckAlerts`, `RefreshCOT`,
+  `RefreshInterestRates`, `UpdateHistoricalOptions`, `BOT_Momentum_Monitor`) —
+  all repointed through it. They could **not** simply be aimed at the existing
+  `.bat` launchers: several end in `pause`, which hangs an unattended run.
+- `RPreTrade.bat` → `00_pretrade.bat` (renamed outside this work).
+
+Tasks now registered under `\RApplication\`: BackupDatabase, BotDaily (17:10
+Mon-Fri), BOT_Momentum_Monitor, CheckAlerts, CollectOptionSurface,
+DailyPortfolioUpdate, RefreshCOT, RefreshInterestRates, RunScanner (was pointing
+at a deleted `Desktop\run_scanner.bat`; now `NewTrading\scripts\run_flow_scanner.bat`),
+UpdateHistoricalOptions.
+
+See [[feedback_batch_arg_and_exitcode_traps]] for the four cmd traps this wiring
+had to survive — each found by testing, none by reading.

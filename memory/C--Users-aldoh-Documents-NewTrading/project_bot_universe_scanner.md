@@ -24,3 +24,15 @@ are a SECOND step. Two static exclusions were tried and both were wrong — see
 untradable on premium, that is a step-2 finding, not a universe exclusion.
 
 Related: [[project-bot-book-design]], [[reference-rstudies-indicators-source]]
+
+**BOT daily workbook (2026-09-23).** `NewTrading/scripts/bot_daily_to_xlsx.py` turns `Reports/bot_daily_<date>.csv` into `Trades/bot_daily_<date>.xlsx`, styled like the old bot_scan workbooks. Sheet "BOT daily" has a tier column, rows shaded by tier, a frozen header plus tier/date/name columns, and an autofilter. Sheet "legend" has the tier rules and counts, plus column definitions parsed from `RApplication/docs/BOT_TOOLS_DESIGN.md` §3. `run_bot_daily.bat` calls it after the R step (the task run and the manual run; the manual run opens the XLSX).
+
+Tiers are the user's choice, "trend first", and are highlighting, not ranking:
+- BOT: tradable, trend ≥ 4/6, asym ≥ 1.5
+- BOT-: tradable, trend ≥ 4/6, asym 1–1.5
+- COUNTER-TREND (blue): trend ≤ 3/6, asym ≥ 2
+- WATCH: asym ≥ 1
+- LOW: the rest of the tradable rows
+- VETO: tradable = 0
+
+**Why:** high-asym rows are mostly pullbacks (trend 0–1/6), not BOT continuation. Rows keep the CSV reading order. `--all` rebuilds every CSV.
