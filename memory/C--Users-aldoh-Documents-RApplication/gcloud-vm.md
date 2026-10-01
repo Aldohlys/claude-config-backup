@@ -100,3 +100,26 @@ metadata:
 1. Check `/srv/shiny-server/rjournal/` — how it links to the app
 2. Fix permissions — app runs as `shiny` user but DB owned by `aldohlys`
 3. Test Shiny app in browser
+
+## Sync of 2026-09-30 (VM idle since June) — what it took
+- Order: start VM → push DB (sqlite backup copy, scp to /home/aldoh, `mv` over the VM DB after
+  a backup) → `git pull --ff-only` Tlogger/Tbasics/Tdata on the VM → push-rstudies-to-vm.ps1
+  (its Read-Host prompt blocks non-interactive runs: run a copy with `$answer = "y"`) →
+  `renv::restore(exclude = T*)` in RStudies + install T* from source → system-Python deps.
+- renv restores from the lockfile's CRAN **source** (Posit binary repo option ignored):
+  ~50 min on e2-small. `fs` needs `apt install libuv1-dev`, else fs, sass, bslib, shiny,
+  rmarkdown, DescTools, shinycssloaders all fail.
+- reticulate uses **/usr/bin/python3** (RETICULATE_PYTHON in Renviron.site), not
+  trading-venv: Tdata's Python deps (pandas, yfinance, pyarrow, scipy) go there with `pip --user`.
+- **Tdata reads RStudies/config.yml first (CWD)**, not /home/aldohlys/config.yml: its production
+  block lacked ibkr.api_port → port 7496 → isIBAvailable FALSE. Fixed for good by
+  scripts/vm_merge_rstudies_config.py, run by the push script after rsync (commit 0c48e66).
+- IB Gateway login: stored IbPassword in /opt/ibc/config.ini was stale ("AUTH_RESULT indicates
+  wrong password" in /home/aldohlys/Jts/launcher.log; failure count in loginFailFrequency.txt —
+  stop the service to avoid lockout). After "Passed pwd authentication" it sends an IB Key
+  CHALLENGE (180 s); the user approves in IBKR Mobile, then "Port 4001 active, API ready".
+  The VM then holds the live IBKR session — desktop TWS and VM exclude each other.
+- VM git remotes embed a GitHub PAT in plaintext (flagged to the user for revocation).
+- Claude's remote `sudo`/writes via gcloud ssh are blocked by the permission classifier:
+  upload scripts to /tmp with scp, hand the user the `gcloud compute ssh --command=` line;
+  read-only diagnostics via ssh work.

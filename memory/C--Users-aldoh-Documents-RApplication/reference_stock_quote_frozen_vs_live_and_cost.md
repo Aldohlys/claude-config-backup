@@ -41,3 +41,11 @@ RPreTrade now pays the 12 s on every debounced symbol change: its sidebar
 Current Price is fetched live, and `symbol_manager.R`'s old "only refresh if the
 stored row is more than a day old" tolerance — which accepted yesterday's close
 as current across Tabs 1-3 — is gone.
+
+## /analyze with TWS down prices everything off the stale Prices row (2026-09-24)
+
+XOP: /analyze spot 167.82 (Prices table fallback) vs Yahoo daily bar 182.65,
+an 8.8% gap; Phase D computed its structural targets from that spot, so a short
+target printed "above spot". With TWS up the same run read 185.06. The BOT_daily
+section in /analyze now warns when bar vs spot differs by > 2% and says the spot
+came from the Prices table. The cause (Prices lagging) is not fixed.

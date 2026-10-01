@@ -16,3 +16,7 @@ metadata:
 **NewTrading now HAS a GitHub remote** (`origin` → `github.com/Aldohlys/NewTrading.git`, branch `master` tracks `origin/master`) — verified 2026-06-23. (Earlier this repo was local-only with no remote; that's no longer true.) Still don't push it unasked, but pushing is now possible. `NewTrading/.claude/` is **gitignored** in this repo, so its commands (`/analyze`, `/transcribe`), `settings.local.json`, and `wheel_analysis.md` are NOT versioned here — they live only in `claude-config-backup` under `project-NewTrading/`. See [[reference_app_subdirs_are_separate_repos]].
 
 `Transcripts/` pipeline files (`Run-Transcribe.ps1`, procedure doc) were untracked until 2026-06-02; only `run_transcribe.bat` was tracked. Reference docs: `Transcripts/bigpicture_transcript_procedure.md`. Mobile/QuickLook gotcha for HTML attachments: [[feedback_ios_mail_quicklook_no_js]] (unrelated but same NewTrading area).
+
+UPDATE 2026-09-24: NewTrading was pushed on the user's explicit request
+(commits d5365f3..c40e886). `Documentation/BPT-Master/` (paid course, 4.9 GB of
+videos/PDFs, files > 100 MB) is now in NewTrading's `.gitignore` - never commit it.

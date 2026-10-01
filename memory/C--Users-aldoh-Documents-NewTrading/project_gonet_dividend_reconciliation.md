@@ -1,17 +1,38 @@
 ---
 name: project_gonet_dividend_reconciliation
-description: "Gonet dividend history loaded through 22.09.2026 — open TODOs: register L'Oreal as nominatif, query the OR per-share difference, and the withholding-relief filings"
+description: "Gonet dividend history loaded through 22.09.2026 — email to Gonet drafted 2026-09-29 (OR effective-rate + FR 25% vs 12.8% + OR nominatif); awaiting reply; FR 2024 reclaim deadline 31.12.2026"
 metadata: 
   node_type: memory
   type: project
   originSessionId: bcd2f874-bc6c-429b-a57e-f3de0e852923
-  modified: 2026-09-22T07:58:43.090Z
+  modified: 2026-09-27T18:26:02.603Z
 ---
+
+## Status 2026-09-29 — email drafted, not yet confirmed sent
+
+`Reports/gonet_email_dividendes_FR_20260929.md` (French). Sections: (1) OR effective withholding
+varies on declared DPS; ask custodian gross / FR rate / supplement + the EUR 4.11 Indemnisation;
+(2) Swiss-resident individual → 12.8%, not 25%; per-line excess over 12.8%, 2021–26 / paid ≥2024:
+TotalEnergies 492.98 / 271.19, Air Liquide 352.14 / 203.43, L'Oréal 181.52 / 102.21, LVMH
+120.82 / 25.62, GTT 92.71 / 92.71 → total EUR 1,240.17 / 695.16; ask relief at source (5000) +
+reclaims (5000/5001) and confirm deadline (believed 31 Dec of 2nd year after payment → 2024
+payments by 31.12.2026, unverified); (3) OR not registered — ask why, conditions, start date.
+Follow up on Gonet's reply before year-end because of the 2024 deadline.
+
+Evidence established this session:
+- OR shares sit under trading ISIN FR0000120321, not a loyalty code → never registered (held since
+  Dec 2021). See [[reference_loreal_loyalty_bonus]].
+- TotalEnergies (FR0000120271) and GTT (FR0011726835): no loyalty premium; Gonet DPS = declared
+  on every payment, flat 25% on declared gross. So the ragged OR rate is L'Oréal-specific — makes
+  a pooled loyalty premium in the custodian's omnibus more likely than a 12.8/25% client mix.
+- Gonet app shows OR avg cost EUR 391.41 vs ledger 406.35 (60 @ 13.12.2021, 30 sold 19.08.2024 @
+  378.73); unexplained, not in the email (cosmetic — no CH capital-gains tax).
+- Theoretical net = entitled rate, not bank's applied rate: [[feedback_theoretical_wht_is_entitlement]].
 
 ## TODO — raise with Gonet
 
 **1. Register the L'Oréal holding as nominatif.** The 30 OR.PA shares (TradeNr 6) at Gonet are held
-au porteur and earn no loyalty premium. Air Liquide at the same bank IS registered — it pays two
+au porteur (confirmed by ISIN, see above) and earn no loyalty premium. Air Liquide at the same bank IS registered — it pays two
 credits every May in a 1:10 ratio (EUR 3.70 + EUR 0.37/sh in 2026), the Air Liquide 10% premium,
 both withheld at 25%. So Gonet supports nominatif administré and the user already uses it; this is
 a form at the bank, not a custody move. Worth ~EUR 21.60 gross a year at the current size, first
@@ -20,8 +41,8 @@ registration means shares leaving the broker for two years — that assumed the 
 IBKR, and it sits at Gonet. Mechanics: [[reference_loreal_loyalty_bonus]].
 
 **2. Ask why Gonet's L'Oréal per-share figure exceeds the declared dividend.** Unexplained, small,
-in the user's favour. Gonet's stated gross is what the 25% withholding is computed on, which is why
-comparing against the declared DPS produces a fake ragged rate.
+in the user's favour on DPS but the effective rate on the declared dividend is NOT constant (user,
+2026-09-27) — do not call it a "fake" ragged rate.
 
 | Pay date | Gonet stated DPS | L'Oréal declared | Diff | Extra received net |
 |---|---|---|---|---|
@@ -31,7 +52,12 @@ comparing against the declared DPS produces a fake ragged rate.
 | 07.05.2025 | 7.11877 | 7.00 | +1.70% | EUR 2.67 |
 | 04.05.2026 | 7.30702 | 7.20 | +1.49% | EUR 2.41 |
 
-Exact in 2022, divergent from 2023, no constant factor. Booked separately against the same 2022
+Exact in 2022, divergent from 2023, no constant factor. **Reframed 2026-09-27 (user):** the
+real issue is the non-constant EFFECTIVE withholding on the declared dividend — 25.00 / 24.55 /
+23.29 / 23.73 / 23.88% (2022→2026). Gonet gross = net credited / 0.75 to the cent every year, so
+the odd DPS looks like a gross-up of a varying net, not a separate supplement. Candidate causes
+(indistinguishable from our data): omnibus blend of 12.8%/25% documented holders, or pro-rata
+pooled loyalty premium. Asked Gonet for custodian gross, FR rate withheld, supplement detail. Booked separately against the same 2022
 dividend: an `Indemnisation` of EUR 4.11 value-dated 29.04.2022. Ask what the supplement is and
 whether other French lines carry the same treatment.
 

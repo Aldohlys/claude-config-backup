@@ -1,6 +1,6 @@
 ---
 name: reference_bot_three_tool_architecture
-description: BOT tooling is three tools on three cadences (BOT_monthly / BOT_daily / BOT_name) specified field-by-field in docs/BOT_TOOLS_DESIGN.md; shared engines live in RStudies/reports/shared
+description: BOT tooling = bot_monthly / bot_daily / analyze, spec in docs/BOT_TOOLS_DESIGN.md; per-name read shared in reports/shared/bot_read.R; membership = ADV only; zones descriptive (no edge, #94); sort on asym_em; 12-column default sheet
 metadata: 
   node_type: memory
   type: reference
@@ -86,3 +86,38 @@ First production run: **335 rows computed, 169 eligible**; excluded 93 `gap_shar
   `score_breakout` (swing_scanner) keep their formatting and scoring but take
   pass/fail from `eval_gates()`. That also fixed a latent NA path: `S3 <- rs > 0`
   was NA when `rs` was NA, making `setup_score` itself NA.
+
+## UPDATE 2026-09-24 — TODO #88, #93, #94 closed or advanced; the sheet changed shape
+
+- **Membership is `ADV_Pass` alone** (plus data checks). `atr_band` (88.2) and the
+  opportunity count (88.1: no gate-firing definition separates names; nine-gate
+  counts are Poisson, dispersion 1.17) left the ladder. `scripts/rederive_bot_eligible.sql`
+  was run: 274 eligible / 52 adv / 9 no_data.
+- **The per-name read is `reports/shared/bot_read.R::bot_read_row()`**, used by
+  `bot_daily` AND `/analyze` (section after Phase D). Prefixed names (`bot_`,
+  `BOT_`, `.br_`) because /analyze defines its own top-level `.pct`.
+  `bot_read_ticker_rows()` gives named symbols their Tickers YahooName / bands.
+- **Short rows are mirrored on the trade's axis** (`res_*` = target side, `sup_*`
+  = stop side, distances >= 0). Until 2026-09-24 short rows silently carried a
+  long's target/stop/asym.
+- **Zones are descriptive, not validated** (#94, `RStudies/bot_zones_reaction_trial.R`):
+  price reacts at the nearest zone no more than at a placebo band (lift ~0, SE
+  0.008), and a long entered inside a zone does as well as outside (-0.003,
+  SE 0.009). The in-zone veto is gone -> `zone_state` column; `tradable` =
+  `gap_through_stop` only. Finer ZigZag thresholds (88.6) add zones, no edge.
+- **Sort key = `asym_em`** = min(target dist, EM10 move) / max(stop dist, 1 ATR).
+  Raw `asym` stays a column. Default CSV = 12 columns (`BOT_READ_DEFAULT`),
+  `--detail` = all 88. See [[feedback_bot_edge_is_asymmetry_not_win_rate]].
+- `rs_state` is `n/a` everywhere: no benchmark is wired (#93.4 open). S3 is NA
+  (not FALSE) when rs20 is missing.
+- The Excel view is `NewTrading/scripts/bot_daily_to_xlsx.py` (called by
+  `run_bot_daily.bat`): tiers on `asym_em`, legend read from the spec, blue /
+  amber / vermillion palette, `--out-dir` to write away from `Trades/`.
+- Full-universe `bot_daily --direction both` (274 names) takes ~15-20 min.
+
+## UPDATE 2026-09-29 — one level engine, calendars, benchmark
+- **/analyze Phase D uses `level_read()`** (`analyze/structures.R::.level_targets()`), capped at the expected move over the sessions to the primary expiry (≈21 for 30 DTE) instead of BOT_daily's 10; `compute_structural_target()` is no longer used by /analyze (still in `setup_chain_rr.R` for the swing scanner). TODO 93 closed.
+- **Options-session gating**: `reports/shared/market_calendar.R` (qlcal) — /analyze skips Phase A / funnel / option part of D when the name's options market is closed; BOT_monthly keeps last month's AtmBidAskPct. `bar_lag` counts the listing's business days.
+- **S3 benchmark** = `Tickers.BOT_Bench` (hand-maintained Yahoo symbol). NOT in BOT_monthly's SCHEMA on purpose: its UPDATE writes every SCHEMA column and would null it.
+- Zones (same-type and flipped) have no measured reaction edge (#94, #95); kept as chart reading.
+

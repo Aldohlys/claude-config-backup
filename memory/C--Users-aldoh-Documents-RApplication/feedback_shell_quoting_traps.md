@@ -94,3 +94,14 @@ Fixing a string literal that had become a raw line break (it should have been th
 A `.bat` run with `cmd /c` from the Bash tool (or from Python launched there) inherits Git Bash's PATH: `cmd /c "where sort"` lists Git's `usr/bin/sort.exe` before Windows' `System32/sort.exe`. GNU sort reads `/R` as a file name, so `collect_option_surface.bat`'s R-version detection came back empty in a test, while the scheduled task (plain Windows PATH) had worked for months.
 
 **How to apply:** call system tools in `.bat` files by full path (`%SystemRoot%` + `System32` + `sort.exe` / `findstr.exe`); when a `.bat` misbehaves only in a test launched from Bash, run `cmd /c "where <tool>"` before changing its logic.
+
+## UPDATE 2026-09-24 — long heredocs holding R/Python source can fail outright
+
+Twice in one session, a Bash-tool command of the form `cat > f << 'EOF' ... EOF`
+(and `python - << 'PYEOF'`) carrying ~100+ lines of R source with apostrophes in
+comments and strings died with `unexpected EOF while looking for matching `''`,
+and **nothing was written**. Short heredocs in the same session worked.
+
+**How to apply:** for any patch script or source longer than a few lines, write
+it with the Write tool to the scratchpad and run `python <file>`. Check the
+target with `git diff --stat` afterwards — a failed heredoc leaves no trace.

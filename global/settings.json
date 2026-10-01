@@ -29,5 +29,38 @@
   "theme": "light-daltonized",
   "remoteControlAtStartup": true,
   "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "autoMode": {
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None configured",
+      "**Cloud provider(s)**: None configured",
+      "**Repository visibility**: not queryable here (gh capability failure) — assume private per shipped-default fallback, since the repo name/host give no public signal",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: None configured — repo convention keeps `config.yml`, `.Renviron`/`Renviron.site`, and files matching `key.json`, `*.secret`, `*.key` out of git (per .gitignore and CLAUDE.md)",
+      "**Default / protected branches**: not queryable here (gh capability failure); default branch also unknown locally (origin/HEAD unset)",
+      "**CI/CD deploy targets**: None configured",
+      "**Network posture**: None configured",
+      "**Host containment**: None configured — assume Claude Code runs on an ordinary developer machine with open internet",
+      "**Source control**: github.com/Aldohlys/RApplication (this repo's sole remote) only — no additional orgs configured",
+      "**Trusted internal domains**: None configured",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: None configured",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: `config.yml`, `.Renviron`/`Renviron.site`, IBKR credentials/API keys, and files matching `key.json`, `*.secret`, `*.key` — never commit these; database at `R_DB_PATH` (`data/mydb.db`) holds live trading/account data (tables like U1804173, U25343478, DU5221795, Gonet) and trade CSVs under NewTrading — treat as personal financial data, share only with the repo owner",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development (R-based financial trading system — options trading analysis, portfolio management, trade execution)",
+      "**Trusted repo**: github.com/Aldohlys/RApplication (this repo, working directory) and its origin remote only — visibility unverified, treat as possibly private but unconfirmed; do not port content from the other repos found under the home directory (NewTrading, claude-config-backup) without confirmation, as those are unvetted candidates only",
+      "**Org-specific CLiS**: None configured",
+      "routine under Tuser/ prefix: box modules repository — the CLAUDE.md designates Tuser/ as the sole location for box module development; this is a repo-internal convention, not a trust elevation for external actions"
+    ],
+    "soft_deny": [
+      "$defaults",
+      "Bash(sqlite3:*) direct writes/deletes against the trading database file at R_DB_PATH (data/mydb.db) in this repo — routine reads are fine, but destructive statements (DROP, DELETE, UPDATE without WHERE) against the live Trades table warrant confirmation per CLAUDE.md's own 'never test against live Trades table' rule"
+    ]
+  }
 }

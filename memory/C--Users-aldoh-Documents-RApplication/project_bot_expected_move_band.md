@@ -1,12 +1,30 @@
 ---
 name: project_bot_expected_move_band
-description: "em10_lo/em10_hi signed expected-move band in PRICE; C*ATR*sqrt(N) with constant C is a monotone rescaling of atr_now (Spearman exactly 1.0), and N=5 is the losing horizon"
+description: "em10 = 90th pct of SIGNED 10-session moves, chosen because it lands on the WINNERS' travel (0.91), not a typical move; C*ATR*sqrt(N) alone is a rescaling of atr_now; N=5 is the losing horizon"
 metadata: 
   node_type: memory
   type: project
   originSessionId: 6df3dc0a-4099-43b9-b384-ce0952b42b01
   modified: 2026-09-03T18:56:45.495Z
 ---
+
+## Current state (2026-09-30) — read this first
+
+Since spec v3.23 (2026-09-29) `em10_hi/lo = atr_pct * sqrt(10) * Tickers.ATR_MoveCoefHi/Lo`,
+coefficients written by BOT_monthly with `atr_expected_move(conf = 0.80)` = the **10th / 90th
+percentile of SIGNED** standardised 10-session moves (not the c20/c80 of the original below).
+Stored `ATR_MoveCoefHi`: median **0.96**, IQR 0.91-1.03 (326 names).
+
+**Why the 90th percentile (user asked "it's an unlikely event, why?"; now spec §3.7 notes, v3.31):**
+em10 is a target CAP and the unit of `res_pct_of_em10`, not a forecast. It is set where the
+WINNING trades go (winners 2.87 ATR = 0.91 in ATR*sqrt(10) units at N=10; losers = the median of
+|move|, 0.42-0.48). For a symmetric distribution the signed p90 = the |move| p80, which is why
+"~p80" in the table below and 0.96 agree. So `res_pct_of_em10 = 100` = "a winner-sized move",
+~10% of arbitrary windows. It is a distance ratio, NOT sessions-to-target; under sqrt-time,
+sessions to the same quantile ~ 10 * (pct/100)^2. Never call it a "typical" move (fixed in v3.31).
+The old "ATR_MoveCoefHi typically 1.1-1.6" was percentiles of |move| — a different quantity.
+
+## Original design (2026-09-03)
 
 Shipped 2026-09-03. Columns `em10_lo` / `em10_hi` in `bot_scan_universe.py`, placed next to
 `px` because they size a strike. Reported, not gated.

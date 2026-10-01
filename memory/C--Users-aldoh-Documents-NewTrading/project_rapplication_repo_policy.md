@@ -11,7 +11,7 @@ Unified policy across all 7 R apps under RApplication (RApplication root + Tuser
 - `renv.lock`
 - `.Rprofile`
 - `renv/activate.R`, `renv/settings.json` (if present), `renv/.gitignore`
-- `data/mydb.sql` (RApplication only — DB dump for sync to VM)
+- `data/mydb.sql` (RApplication only — DB dump for sync to VM). Via **Git LFS** since 2026-10-02 (55848a3; dump hit 116 MB > GitHub 100 MB limit). Any clone (VM) needs `git lfs install` + `git lfs pull`, else it gets a ~130-byte pointer file. Each committed version = full LFS object (quota). **Weekly rule (user, 2026-10-02, 87e3e7d):** nightly BackupDatabase task exports daily but `backup_database.R commit` commits only if last dump commit >= 7 days old, else prints a message; `commit --force` overrides. Local `.git/hooks/pre-commit` (unversioned) rejects any commit containing data/mydb.sql unless BACKUP_DB_COMMIT=1 (set by the script) - so `data/mydb.sql` shows as modified most days; never stage it by hand.
 
 **Ignored everywhere (gitignore):**
 - `quotes/` — runtime parquet quote caches (parallel to `chains/`/`strikes/` cache infrastructure managed by tdata_py.parquet_storage and TODO #27 janitor)

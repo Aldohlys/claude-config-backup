@@ -49,3 +49,12 @@ The IBKR MCP `get_option_data` returns **contract structure only**, no OI, volum
 would need a `get_price_snapshot` per strike, so it is not a practical OI source.
 
 Related: [[reference_ibkr_symbol_with_space]], [[reference_bot_tradable_universe_csv]].
+
+## FXC here is FXC.SW, not the CurrencyShares Canadian dollar ETF (2026-09-24)
+
+`Tickers.FXC` has `YahooName = FXC.SW`: **iShares China Large Cap UCITS**, USD,
+listed on SIX, held in Gonet (TradeNr 20). It is the deliberate `China stocks`
+sector ETF in `ScannerUniverse` (`Tdata/R/ticker.R` etf_patterns lists `^FXC$`).
+I called it a mapping error from the bare symbol and was wrong. **Before judging
+any ticker, read its `Tickers.YahooName`.** Only real difference from FXI (same
+FTSE China 50 index, US-listed): SIX closes 17:30 CET vs the ADRs' 22:00.

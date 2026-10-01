@@ -46,3 +46,10 @@ reported it before widening the sample; don't.
 
 Same family as [[feedback_ratio_metric_anticorrelated_with_its_own_thesis]] and
 [[feedback_validate_metric_noise_floor_and_persistence]].
+
+## Second instance, 2026-09-24 — the in-zone veto (TODO #94)
+
+The veto claimed "entering while price stands inside a zone is worse". Tested on
+that outcome (long at t: +1.5 ATR before -1.5 ATR within 20 sessions, 284 names,
+name-clustered SE): inside any zone 0.533 vs outside 0.536 (-0.003, SE 0.009),
+while the veto removed 46% of candidate entries. Demoted to a `zone_state` flag.

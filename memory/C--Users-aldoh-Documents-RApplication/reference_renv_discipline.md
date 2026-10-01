@@ -134,3 +134,10 @@ single-tree. See [[reference_build_package_gotchas]], [[project_tdata_install_lo
 - Trap met on the way: `read.dcf()[1, "Version"]` is a NAMED character, and `renv::record()` wrote it as `"Version": {"Version": "1.6.4"}`. Fixed with `unname()`; lockfiles repaired and committed in all six apps. See [[feedback_named_vector_to_json]].
 - `renv::status()` still reports `Tdata [x.y.z: Local != unknown]`: the installed DESCRIPTION carries no Remote fields (TODO #64).
 - After a /build, a lockfile diff should be one or two package entries. Anything wider is drift from somewhere else, not from the build.
+
+## UPDATE 2026-09-29 — `renv::snapshot(packages = ...)` REWRITES the lockfile with only those packages
+
+Adding `qlcal` to RStudies, `renv::snapshot(packages = c("qlcal", "BH"), prompt = FALSE)` wrote a lockfile holding **just those two** entries — 5213 lines deleted. `git checkout -- renv.lock` restored it; `renv::record(list(qlcal = "qlcal@0.1.3", BH = "BH@1.90.0-1"))` then added exactly the two records (+10 lines).
+
+**How to apply:** to add a new dependency's entry, `renv::install()` then **`renv::record()`** with explicit versions, and check `git diff --stat renv.lock` — it should be a handful of added lines. Never `renv::snapshot(packages = ...)`.
+
