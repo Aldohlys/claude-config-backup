@@ -24,7 +24,7 @@ In production since 2026-09-29 (RStudies 9d851a2, RApplication ecb6d28).
   The user looked for "Group" in DB Browser — say the real column name up front.
 - Consumers: swing scanner gate/RS rank/sector_pts and /analyze Phase B (`get_groups()`,
   `get_group_anchors()`, … in `shared/universe.R`, which `stopifnot`s on the columns).
-  macro_context still uses `get_sector*()`.
+  macro_context: rules/mismatches still use `get_sector*()`; the BOT sector map (section 10) is keyed on groups since 2026-10-05, each group read as the equal-weight index of its members (`group_map()`, drivers in `GROUP_DRIVERS` keyed by group name: a review that renames a group stops the map until drivers are added).
 - **Macro rules had been dead for 6 of 10 families:** SECTOR_MACRO_RULES keys (`PreciousMetals`,
   `Financials`…) never matched the Sector labels (`Precious Metals`, `Financial`…).
   `SECTOR_RULE_KEY` maps them; groups use their majority Sector's rules.
@@ -38,3 +38,4 @@ See [[project_scanner_universe]], [[project_bot_industry_benchmarks]].
 
 - **Hand review applied 2026-10-02** (`logs/cluster_review_20261001.sql`, local: logs/ is gitignored; TODO 71 records it): 55 groups "Theme - Group" + Ungrouped, 336 names, manual anchors (SOXX, BNK=BNK.PA, IAK, IHF, IXC, IBUY, PEJ, BOAT, XLI, COPX). User's rule: a name whose mean ρ with its group is < 0.30 goes to Ungrouped under its Sector; a move that lowers ρ by ≥ 0.02 is reverted. Never run cluster_universe.py --write as is: hysteresis does not protect these edits (dry run, then apply by hand).
 - **Cluster review page** = claude.ai artifact UzXv2LdAjpcX1YeEYVU9jw, opened by `NewTrading/scripts/run_cluster_review.bat` (launcher). Saved reviews live in its db: `reviews/cluster_review` (v1, applied) and `reviews/cluster_review_v2` (current); read with ArtifactData. Page source + data build in the session scratchpad (`cluster_review.tpl.html`, groups_v2.json from ScannerUniverse, biz.json Yahoo summaries) — rebuild from the DB if lost.
+- **Anchors are labels only since 2026-10-05:** every consumer reads a group through its members — see [[project_groups_read_through_members]].

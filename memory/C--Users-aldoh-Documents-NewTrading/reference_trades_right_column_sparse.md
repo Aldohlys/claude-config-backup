@@ -1,6 +1,6 @@
 ---
 name: reference_trades_right_column_sparse
-description: "mydb.db Trades migrated French->English cols + Underlying/Right empty for BOT — parse ticker AND vehicle from the Instrument string"
+description: "mydb.db Trades French->English cols; Status values still French; use Symbol (Underlying NULL); Right populated since backfill (2026-10)"
 metadata: 
   node_type: memory
   type: reference
@@ -9,7 +9,9 @@ metadata:
 
 **Schema migrated French→English (seen 2026-06-24):** Trades columns are now `Underlying` (was `Ssjacent`), `Status` (was `Statut`), `Notes` (was `Remarques`), `Price` (was `Prix`), `Commission` (was `Comm.`). `Status` VALUES are still French: `'Fermé'` (closed), `'Ouvert'` (open), `'Ajusté'` (adjusted) → filter `Status LIKE 'Ferm%'`. Full col list: TradeNr, Account, TradeDate, DateTime, TimeZoneSource, Strategy, Instrument, Symbol, Pos, Price, Commission, Total, `Exp.Date`, Risk, Reward, PnL, Status, Currency, Notes, Strike, Right, EventType, Return, Underlying, Stop.
 
-**`Underlying` AND `Right` are EMPTY for BOT rows** — not just sparse on old ones. For BOT closed legs: `Underlying` blank (only futures like `GCM5` populated); `Right` = 182 empty / 141 C / 19 P. So BOTH the ticker and the call/put rights must be parsed from the **`Instrument`** string. (The older sparse-`Right` note from 2026-06-08 was the precursor; the migration made `Underlying` unusable too.)
+**Update 2026-10-07:** `Symbol` is populated (ticker; 1 empty row in 2,469) and `Right` is backfilled for BOT (324 C / 57 P / 15 empty = futures/stock). `Underlying` is still NULL in 2,430 rows — use `Symbol` + `Right`, not `Underlying`. `bot_momentum_monitor.py` broke on `Ssjacent` 2026-10-07 for this reason (fixed). The Instrument-parse recipe below remains the fallback for old/odd rows.
+
+**(2026-06-24 state) `Underlying` AND `Right` were EMPTY for BOT rows** — not just sparse on old ones. For BOT closed legs: `Underlying` blank (only futures like `GCM5` populated); `Right` = 182 empty / 141 C / 19 P. So BOTH the ticker and the call/put rights must be parsed from the **`Instrument`** string. (The older sparse-`Right` note from 2026-06-08 was the precursor; the migration made `Underlying` unusable too.)
 
 **How to apply (parse from `Instrument`):**
 - Ticker = first whitespace token if it matches `^[A-Z]{1,5}\b` (e.g. `AMGN 16JUN23 225 C`, `SPY Vertical Spread 410/420 -1C/1C` → `SPY`). Combos like `+1 Call @158 +1 Put @155` have no ticker → skip.

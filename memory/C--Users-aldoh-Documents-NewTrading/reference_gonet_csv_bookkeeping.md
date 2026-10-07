@@ -46,6 +46,15 @@ Two traps, both hit in the 2026-09-22 session:
    five years of history as balance deltas instead forces the baselines negative, which is the
    model rejecting the method, not a number to accept.
 
+Post-baseline flows with no stock (FX conversions, quarterly Frais admin. / Comm. mandat) get their
+own unattached TradeNr dated after 10.07.2026 (31 = FX 23.09.2026, 32 = Q3 fees): balance delta only,
+init_cost = -init_position, cut_off unchanged. New buys use the value date; price = net cash / shares.
+
+After a ledger update, also repair the DB. getGonet only fixes future runs: every Gonet snapshot and Account row written since the BOOKING date still carries the old cash and holdings. Add the new lines (price at snapshot time), set ledger cash, and recompute the Account rows ([[reference_gonet_account_history]], 2026-10-05 example). A new holding needs a Tickers row BEFORE the next run ([[reference_tdata_getvalue_batch_all_or_nothing]]). Bank avg cost excludes commission; the ledger's init_price/init_cost includes it, so unPnL differs from the statement by the commission (DSPF 194.35, SDZ 202.05).
+
+Price routing (Tdata 5.20.11): delayed data if Tickers.Exchange OR GonetPos `exchange` is
+LSEETF/EBS/ALLFUNDS. DSPF must stay SMART in Tickers (EBS contract returns NaN) and EBS in GonetPos.
+
 Free-share attributions (Air Liquide loyalty ~1:10): zero cash cost, so bump GonetPos and add a
 zero-cost line `TradeNr;date;sym;ibkr;<n>;0;0;CCY`. avgCost drops as the free shares dilute basis.
 

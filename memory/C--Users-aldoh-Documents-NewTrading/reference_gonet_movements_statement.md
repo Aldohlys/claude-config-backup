@@ -70,3 +70,9 @@ comparing with the declared DPS produces a ragged fake rate (the earlier "23.3-2
 Reconciliation output: `Reports/gonet_dividend_reconciliation_20260922.csv`. Ledger mechanics:
 [[reference_gonet_csv_bookkeeping]]. Open bank queries:
 [[project_gonet_dividend_reconciliation]].
+
+Positions export (second file of the same download, `document_<ts>.xlsx`, ~same timestamp): sheets
+`Overview` (market value by asset class × currency), `Liquidités` (cash balance per IBAN — the
+reconciliation target for `gonet_cash_balances`), then one sheet per asset class (`Actions`,
+`Fonds obligataires`, `Ressources naturelles`, `Placements immobiliers`) with ISIN, quantity, avg cost,
+market price. Use it to check GonetPos share counts and ledger cash after each update.

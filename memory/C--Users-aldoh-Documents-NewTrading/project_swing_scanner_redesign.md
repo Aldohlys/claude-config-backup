@@ -4,6 +4,8 @@ description: Locked spec for swing_scanner rewrite around "buy cheap options, se
 type: project
 originSessionId: 53dab338-46f2-4aba-b466-d9cda0aa1007
 ---
+
+**SUPERSEDED 2026-10-05: scanner retired, see [[project-swing-scanner-retired]]. Kept for history.**
 Redesign locked 2026-04-27 after JPM rotation miss diagnosis. The scanner's overarching purpose is reframed: **identify names where option demand is about to arrive, so the trader can buy options cheap and sell them when expensive-but-still-buyable.** This is a liquidity-provider/front-running edge, validated by the 39 BOT winners in the Trades table (winners explicitly priced exits "attractive for buyer" — see JNJ 19DEC25 200C, DOW 17APR26 35C, URA 30JAN26 55C remarques).
 
 **Why:** The previous scanner scored long/short swing setups, treating sector gate as binary and ignoring option-market state. Result: JPM (Financial RS −2.9) surfaced as TOP PICK while Tech led the tape, and the call spread structurally limited headroom regardless of direction. The reframe forces every row to answer three coupled questions: directional pull, option cheapness, and room to sell into incoming flow.

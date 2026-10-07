@@ -1,136 +1,82 @@
 # NewTrading Project Memory
 
-## Project Purpose
-- Trading strategy discussion & advisory, NOT code dev; Claude = options/stocks/futures advisor. Also SQLite trading-DB analysis.
+## Purpose / User
+- Trading advisory (options/stocks/futures) + SQLite DB analysis, not code dev. Swing trader, 10-15 trades, breakout + vol selling, IBKR.
+- [Irish UCITS](user_prefers_irish_ucits.md) not US funds; [Framework confidence](user_framework_confidence_map.md) pricing high, sector/technical qualitative; [EM/China](user_em_china_view.md) tradeable-not-investible, FXC sold → CNYA
 
-## User Profile
-- Swing trader, monthly income; 10-15 active trades; breakout + vol selling; broker IBKR. Past BOT/OFI/LTO analysis in DB.
-- [Prefers Irish UCITS](user_prefers_irish_ucits.md) — buys UCITS versions, not US-domiciled funds/ETFs; compare vs UCITS peers
-- [Framework confidence map](user_framework_confidence_map.md) — pricing mechanical (high conf); sector/technical qualitative
+## IBKR Accounts (base CHF, U1804173)
+- [FX exposure](ibkr_fx_exposure.md) Nt Lqdtn USD 0–+6k band, hedge market value; [KRW route](reference_krw_conversion_route.md) KRW→USD→CHF
+- [U25 FX hedge](project_u25_fx_hedge_policy.md) own-ccy funding 90-110%; [U25 margin cushion](reference_u25_margin_cushion.md) size from EL/NLV not BP
+- [Transfers need CashFlow in BOTH accounts](reference_internal_transfer_cashflows.md); [Data-integrity check](reference_data_integrity_check.md) Sat 09:00, add check per bug class
+- [FX table outliers](reference_fx_table_outliers.md) GBP/JPY double inversion, 5% guard; [Dividend import](reference_ibkr_dividend_import.md) statement CSV, net PAID; [Import UI placement](feedback_import_ui_placement.md) Tuser Trade tab + RReporting
 
-## IBKR Account Structure
-- Base CHF; multi-ccy USD/EUR/CHF/JPY; account U1804173
-- [FX exposure](ibkr_fx_exposure.md) — net-exposure (Nt Lqdtn + FX Portfolio), FXCONV vs IDEALPRO, hedge policy (keep Nt Lqdtn USD 0–+6k CHF band, hedge market value not delta)
-- [KRW conversion route](reference_krw_conversion_route.md) — no direct KRW/CHF at IBKR; go KRW → USD → CHF in two legs; per-ccy borrow rates (KRW ~7.5% vs JPY ~2.2%)
-- [U25343478 FX hedge policy](project_u25_fx_hedge_policy.md) — fund each foreign holding in its own ccy at MARKET value; rebalance outside 90-110% coverage band; borrow rates; KRW exception
-- [U25343478 margin cushion](reference_u25_margin_cushion.md) — illiquid foreign small caps get ~85% requirement; cushion = EL/NLV, IBKR alerts <10%, no margin calls; size from cushion NOT Buying Power
-- [Internal transfers need CashFlow in BOTH accounts](reference_internal_transfer_cashflows.md) — missing JPY 245k U25→U1804173 (2026-06-12) turned +2.8% TWR into −2.2%; reconcile vs IBKR statement CSV
-- [Weekly data-integrity check](reference_data_integrity_check.md) — scripts/check_data_integrity.R, task DataIntegrity Sat 09:00; add a check per new bug class; --all/--db audit; emails via ALERT_EMAIL_PASSWORD in Renviron.site (hard link to R etc/)
-- [FX table one-day outliers](reference_fx_table_outliers.md) — ConvertToCHF GBP/JPY bad rates (IBKR branch of getIBKRActiveCurrencyValues: double inversion + divide; fixed 5.20.9 + 5% jump guard); corrupted U25 SMV; recompute from same-run snapshot
-- [IBKR dividend import](reference_ibkr_dividend_import.md) — TWS has no cash ledger; Import dividends button in Tuser Trade tab + RReporting New Trades (IBKR statement CSV); net PAID only, EventType Dividend Pos 0; saveTrades guards dividend rows
-- [Import UI placement](feedback_import_ui_placement.md) — imports go in Tuser routine Trade tab (under History header) AND RReporting New Trades; logic = Tdata plan/apply pair; preview → confirm
+## BOT Strategy
+- Ref: `Strategies/Breakouts/BOT_Comprehensive_Checklist.md` + `BOT_Quick_Reference.md`; Greeks/LEAPs `Greeks_ratios_and_LEAPS.md`
+- [P&L greeks 116 trades](project_bot_pnl_greeks_decomposition.md) spot R² .89, theta = losers; [Book design 93 trades](project_bot_book_design.md) USD 300 cap, ATR barbell, 2-4wk; [Universe + scanner](project_bot_universe_scanner.md) bot_daily CSV → xlsx
+- [indicators.R = source of truth](reference_rstudies_indicators_source.md); momentum monitor `bot_momentum_monitor.py` (+ .md doc, 17:00 task); [Alert e-mail window](reference_alerts_email_date_window.md) AlertDate next weekday or never sent; [EMA50 trend gate](project_ma50_ema_switch.md)
+- [Timeframe missions](reference_timeframe_missions_bot.md); [Gate 4 static-median flaw](reference_gate4_static_median_flaw.md); [Trading-plan review](project_bot_trading_plan_review.md) LONG/SHORT split
+- Reports: `bot_analysis.md`, `bot_breakout_analysis_2026.md`, `breakout_5y_results.csv`, `backtest_results.md`, `strategy_performance_report.md`
 
-## Key Topics
-- Greeks/LEAPs: vega/gamma ratios, put-sell vs buy-call (IVP), Delta vs P(ITM), fwd-price delta — `Greeks_ratios_and_LEAPS.md`
-- BOT/planning: BS target grids, BPT validation — `Strategies/Breakouts/BOT_Comprehensive_Checklist.md`
-
-## BOT Strategy (2026-03-26, revalidated 2026-08-27)
-- Full ref (4 gates, S/BK scoring, regime, vehicle, exit, MR classifier): `Strategies/Breakouts/BOT_Comprehensive_Checklist.md` + `BOT_Quick_Reference.md` (bot_strategy_checklist.md was deleted)
-- [Book design on 93 trades](project_bot_book_design.md) — USD 300 cap, ATR barbell confirmed, hold 2-4wk, F1/F2 entry factors, VRP rejected, MFE/MAE
-- [Universe + scanner](project_bot_universe_scanner.md) — one merged CSV; bot_scan_universe.py retired → bot_daily CSV + `scripts/bot_daily_to_xlsx.py` → Trades/bot_daily_<date>.xlsx (tiers trend-first, legend from design doc)
-- [indicators.R is the source of truth](reference_rstudies_indicators_source.md) — scoring.R no longer exists
-- Momentum monitor `bot_momentum_monitor.py` (16h task, manual in Task Scheduler)
-- [MA50→EMA switch](project_ma50_ema_switch.md) — trend gate now EMA50 (0223a0c); breadth/regime/backtests stay SMA
-- [Timeframe missions](reference_timeframe_missions_bot.md) — macro=permission/size, weekly=room, daily=thesis+clock, intraday=trigger; capped by option life → time stop (Step 4, 6918d55)
-- [Gate 4 static-median flaw](reference_gate4_static_median_flaw.md) — atr_med5y can't see a vol-regime change; GDX vs GDXJ + GIS worked cases; input to gate simplification
-- [Trading-plan review](project_bot_trading_plan_review.md) — 2026-06-15 DONE: split LONG (`bot_strategy_trading_plan.md`)/SHORT (`bot_short_strategy_trading_plan.md`); pending EMA50 + short backtests
-
-## Generated Reports
-- `BOT_Comprehensive_Checklist.md` — BOT ref; `bot_analysis.md` — 2025 deep dive; `bot_breakout_analysis_2026.md` — DOW screener, TGT plan
-- `breakout_5y_results.csv` (594 sig+fwd) / `breakout_backtest_5y.py`; `bear_market_check.py` — regime; `strategy_performance_report.md`; `backtest_results.md` — regime 2026-03-19
-
-## RStudies Reports (RApplication/RStudies/reports/)
-- macro_context: VIX/rates/DXY/sector/breadth/regime → HTML+DB; VIX≥25 banner. swing_scanner: 2-gate (technical+optionality), vol profile → HTML; Trade/Watch + LONG/SHORT badges. shared: cache.R, HTML helpers, ScannerUniverse (universe.R)
-- Repo `Aldohlys/RStudies` (main); output `NewTrading/reports/`; `Desktop\run_scanner.bat`; scheduled `\RApplication\RunScanner` daily 09:00 CET
-
-- [Intermarket layer in macro_context](project_intermarket_macro_scenarios.md) — global movie, 11 scenario fingerprints, panels, BOT sector map (466c213, runs inside main.R; evening runs show previous close); [Scenario age rule](feedback_scenario_persistence.md) — new=caution, building, mature=may vanish; 2026-10-02 e8f686b: oil→USD→10Y petrodollar chain (own block, any rank), SCHEDULED_EVENTS elections (manual dates)
-
-## Scanner Scoring (swing_scanner; scoring.R gone — see reference_rstudies_indicators_source.md)
-- v5: 10 criteria→composite; TRADE≥7/WATCH 5-6/SKIP<5; optionality gate (IV30<40+IVP<60+VRP<0+Contango); room>1 ATR; \$500 long-only. Redesign: [project_swing_scanner_redesign](project_swing_scanner_redesign.md)
-
-## Regime System (macro_context/scenarios.R)
-- 3 regimes, 12 sigmoid signals + weekly COT + CPI/PPI. No BOT predictive power (2026-03-19) — kept for sector-flow scoring. [Detail](project_regime_backtest.md)
-- COT positioning now AUTO-GENERATED weekly ([positioning.R automation](project_positioning_r_automation_todo.md) CLOSED) — `refresh_cot.R` + Saturday task + staleness banner; actor detail in `Reports/cot_actors_latest.csv`
-- [COT trader categories](reference_cot_trader_categories.md) — legacy=disagg mapping, Commercial folds spreading, large spec ≠ managed money; [cotsignal API rejected](reference_cotsignal_api_rejected.md)
+## RStudies Reports (repo Aldohlys/RStudies main → NewTrading/reports/, task RunScanner 09:00)
+- macro_context (VIX/rates/DXY/breadth/regime); shared cache.R, universe.R
+- [Intermarket layer](project_intermarket_macro_scenarios.md) 11 scenarios, panels, sector map, COT section 11; open #2 stress ladder/#5/#7/#9/#12; [Scenario age rule](feedback_scenario_persistence.md); [China onshore/offshore](reference_china_index_onshore_offshore.md) ^HSCE + 000001.SS, no CSI 300 on Yahoo
+- [Layout](feedback_macro_context_layout.md) last-session strip top of 00, sections collapsible (00/09 open), panels collapsed, window label first; [Yahoo STOXX50E close mismatch](reference_yahoo_stoxx50e_close_mismatch.md) 10-02 +1.02% vs 1.21%
+- [Ceresna 5 tenets](reference_ceresna_macro_tenets.md) present/value(warning)/liquidity 2-way/consensus/actors; advisory excluded; proposals #1-25 in wherestrade_20261091_summary.md (addendum #13-25); MO 10-02 vs scanner in macro_outlook_20261002_summary.md
+- [BOT group benchmark + grp_rank](project_bot_group_benchmark.md) S3 vs anchor/peer median; rotation +0.30 ATR
+- [Swing scanner retired 10-05](project_swing_scanner_retired.md) group rank → BOT grp_rank; [old redesign](project_swing_scanner_redesign.md) history only
+- Regime: 3 regimes, 12 signals, no BOT predictive power ([detail](project_regime_backtest.md)); COT auto via refresh_cot.R, commit positioning.R by hand ([closed](project_positioning_r_automation_todo.md)); [COT categories](reference_cot_trader_categories.md); [COTSignal API](reference_cotsignal_api_rejected.md) view rebuilt from CFTC (section 11, cot_positioning_latest.csv); API = cross-check only
 
 ## Git Repos
-- RApplication `Aldohlys/RApplication` (master) — DB, scripts, SQL dump. RPreTrade was checked out on `refactor/server-modularization-hybrid` on 2026-09-23 (Tdata renv bumps land there). RStudies `Aldohlys/RStudies` (main) — reports. Tdata `Aldohlys/Tdata` (stable/prod) — R/Python IBKR TWS pkg
-- Tuser [`Aldohlys/Tuser` is its OWN repo](reference_tuser_repo.md) (master) — nested in RApplication\Tuser, not a submodule; git status in RApplication misses it; uses CHANGELOG.md not change.log
-- NewTrading `Aldohlys/NewTrading` (master) — this workspace; remote 2026-06-09 ([detail](project_newtrading_remote_todo.md)); [tracking policy](project_newtrading_repo_policy.md) — tracks docx/odt/xlsx/pdf/csv, ignores html/json/mp4/Discussions+textbooks
+- RApplication (master) DB/scripts; RPreTrade on `refactor/server-modularization-hybrid`; Tdata (stable/prod); [Tuser own repo](reference_tuser_repo.md) CHANGELOG.md
+- NewTrading (master) [remote](project_newtrading_remote_todo.md), [tracking policy](project_newtrading_repo_policy.md) docx/xlsx/pdf/csv yes, html/json no
 
 ## Macro / Portfolio
-- [AI equity-supply wave](project_ai_equity_supply_wave_watch.md) — 2026 mega-issuance = froth not funding crisis; trigger SpaceX day+1 vs \$135
-- [Portfolio Review 2026-03-20](project_portfolio_review_20260320.md) — snapshot, CRST plan, QQQ; [CRST Distress](project_crst_distress.md) — profit warning, covenant risk, July interim
-- [Sandoz SDZ coverage](project_sandoz_coverage.md) — biosimilars = 114% of growth, EU generics = funding block, 2030 plan already priced (~15x EV/EBITDA); report in `Trades/`
-- [Galderma GALD coverage](project_galderma_coverage.md) — Nemluvio = all the growth, ~29x FY26E EBITDA, Q1-2027 guidance reset is the dated risk; GALD-vs-SDZ comparison (md + docx) in `Trades/`
-- [Dominicé DSPF](project_dspf_coverage.md) — ~30% agio, 2/3 of 5y return = agio; tax-free div + CHF 1.16 taxable value → CHF income hold, not price bet; enter at next raise
-- [NB EMD Hard Ccy vs VEMT](project_nb_emd_hard_currency_coverage.md) — IE00B99K4563: +1.5pt/yr vs VEMT since 2019 but beta 1.17, DD -32.5%; USD/CHF dominates; yfinance 0P0000YYAS/VDET.L
-- [Carrefour long](project_carrefour_position.md) — 200sh, last add €16.17, target €21; [CA.PA deactivated](project_carrefour_thin_options.md) — thin chain removed; EU single-stocks need liquidity proof
-- [ESTX50 hedge roll](project_estx50_hedge_roll_20260601.md) — Dec-26 5700/4600 live (US hedges closed); held 2026-09-21, no roll; 2026-11-13 decision is SIZE (2-3 lots Jun-27 or close the line), 6.5%-OTM-at-live-spot rule
-- [Gonet hedge report 2026-09-30](project_gonet_hedge_report_20260930.md) — −10% stress = −7.5%, ESTX50 ≈ −10.7%, spread covers 7-8%; midterm Dec add-lot rejected; TLT put rejected (rich, small risk → cut DTLA); GLD Mar-27 350/310 open vs sell coins
-- [Daubasses Portfolio](project_daubasses_portfolio.md) — 6 positions, weekly review, `Strategies/Daubasses/`
-- [EM/China](user_em_china_view.md) — tradeable-not-investible; onshore/offshore split (SOLD FXC @94.58 → building CNYA); captive domestic bid vs foreign flows
+- [AI equity-supply wave](project_ai_equity_supply_wave_watch.md) SpaceX trigger \$135; [Portfolio review 03-20](project_portfolio_review_20260320.md); [CRST distress](project_crst_distress.md)
+- [Sandoz](project_sandoz_coverage.md) ~15x EV/EBITDA priced; [Galderma](project_galderma_coverage.md) Nemluvio, Q1-27 reset; [DSPF](project_dspf_coverage.md) agio, enter at raise
+- [NB EMD vs VEMT](project_nb_emd_hard_currency_coverage.md); [Carrefour](project_carrefour_position.md) target €21; [CA.PA thin chain](project_carrefour_thin_options.md)
+- [ESTX50 hedge](project_estx50_hedge_roll_20260601.md) Dec-26 5700/4600, 11-13 size decision; [Gonet hedge 09-30](project_gonet_hedge_report_20260930.md) GLD Mar-27 350/310; [Daubasses](project_daubasses_portfolio.md)
 
 ## Open Work Programs
-- [Claude API integration](project_claude_api_integration_todo.md) — SDK: summarize Journal, classify trades, extract Daubasses PDFs; /claude-api, Batches
-- [Vol ATR band guardrails](project_vol_atr_band_guardrails_todo.md) — clamp xmoveUI horizon→20 + conf→90; effective-n + tail-support guard in atr_move.R
-- [Vol module refactor](project_vol_module_refactor.md) — ATR expected-move lens; Phase 1 DONE (v5.10.21), P2-5 pending
-- [/analyze prefer-monthly](project_analyze_prefer_monthly_expiry.md) uncommitted; [on VM](project_analyze_on_vm_deployment.md) pending env/restore/smoke; [improvements](project_analyze_improvements_20260527.md) cheap_score/spread-EV/BS-grid; [spread-module fetch](project_analyze_spread_module_fetch_todo.md) once-per-expiry; [OI cap OTM](project_oi_cap_otm_filter.md); [R port](project_analyze_r_port.md) 4 gaps
-- [XLF screen](project_xlf_breakout_screen_20260608.md) — C GREEN, financials=spread; [XLV screen](project_xlv_breakout_screen_20260608.md) CLOSED; [Refiner screen](project_refiner_bot_screen_20260606.md) DK/DINO pending
-- [Swing scanner redesign](project_swing_scanner_redesign.md) three-axis; [two-timescales](project_swing_scanner_two_timescales_todo.md) v6; [methodology](project_scanner_methodology_todo.md) RS overlay+patterns; [BOT R:R calib](project_rr_calibration_result.md) R:R_min=0.5
-- [build_package renv-prune bug](project_build_package_renv_prune_todo.md) deploy via R CMD INSTALL; [shared config.yml #58](project_shared_config_yml_todo.md); [track .claude/commands](project_track_claude_commands_todo.md); [NewTrading remote](project_newtrading_remote_todo.md)
-- [Condition-based alerts](project_alerts_condition_based_todo.md) vs live IBKR
+- [Claude API](project_claude_api_integration_todo.md); [Vol ATR guardrails](project_vol_atr_band_guardrails_todo.md); [Vol refactor](project_vol_module_refactor.md) P2-5 pending
+- /analyze: [prefer-monthly](project_analyze_prefer_monthly_expiry.md), [VM](project_analyze_on_vm_deployment.md), [improvements](project_analyze_improvements_20260527.md), [spread fetch](project_analyze_spread_module_fetch_todo.md), [OI cap](project_oi_cap_otm_filter.md), [R port](project_analyze_r_port.md)
+- Screens: [XLF](project_xlf_breakout_screen_20260608.md), [XLV](project_xlv_breakout_screen_20260608.md) closed, [Refiners](project_refiner_bot_screen_20260606.md) DK/DINO
+- [methodology](project_scanner_methodology_todo.md); [R:R calib](project_rr_calibration_result.md) 0.5
+- [renv-prune bug](project_build_package_renv_prune_todo.md); [config.yml #58](project_shared_config_yml_todo.md); [track commands](project_track_claude_commands_todo.md); [Condition alerts](project_alerts_condition_based_todo.md) + [e-mail window](reference_alerts_email_date_window.md)
 
-## Refs — Execution & Trade Management
-- [Execution ladder](feedback_trade_execution.md) (target/acceptable/red-line/hard-no, leg-level mid); [Buy STP LMT: LMT≥STP](reference_buy_stop_limit_direction.md); [Vert exit 80%](reference_vertical_spread_exit_80pct.md) (last 20% needs 0 DTE); [Exit winners at pre-set limit](feedback_hard_to_exit_winners.md) (90%=success)
-- [Don't switch frameworks mid-trade](feedback_dont_switch_frameworks_midtrade.md); [Don't add to losers](feedback_losing_trade_decisions.md) (path-vs-direction); [Hedge wing-sale into vol spike](feedback_hedge_wing_sale_timing.md); [Re-check strike at live spot](feedback_recheck_strike_at_execution_spot.md) if >~1%; [Pyramid per-lot R/R](feedback_pyramid_per_lot_rr_audit.md)
-
-## Refs — Risk & Sizing
-- [Hedge: size before strike](feedback_hedge_size_before_strike.md) — coverage ratio first; token lot = worst option; size it or close it
-- [Size % of book first](feedback_size_risk_before_flagging_materiality.md) (-30% on 4%=~-1%); [Portfolio DD ≠ index move](feedback_portfolio_drawdown_vs_index_move.md); [Net Greeks first on spreads](feedback_spread_greeks_monitoring.md); [Verticals discard vol edge](feedback_structure_selection_vs_vol_thesis.md) (≥2 vol comps→flag)
-- [Directional dashboard minimum](feedback_directional_dashboard_minimum.md) (drop IV/smile); [Correlation regime+outliers](feedback_correlation_regime_and_outliers.md) (hedges=crash insurance); [Counterparty/positioning lens](feedback_counterparty_positioning_lens.md) (execution→exit, positioning→entry)
+## Refs — Execution & Risk
+- [Execution ladder](feedback_trade_execution.md); [STP LMT ≥ STP](reference_buy_stop_limit_direction.md); [Vert exit 80%](reference_vertical_spread_exit_80pct.md); [Exit at pre-set limit](feedback_hard_to_exit_winners.md)
+- [No framework switch mid-trade](feedback_dont_switch_frameworks_midtrade.md); [Don't add to losers](feedback_losing_trade_decisions.md); [Wing-sale into vol spike](feedback_hedge_wing_sale_timing.md); [Re-check strike at spot](feedback_recheck_strike_at_execution_spot.md); [Pyramid per-lot R/R](feedback_pyramid_per_lot_rr_audit.md)
+- [Hedge: size before strike](feedback_hedge_size_before_strike.md); [Size % of book first](feedback_size_risk_before_flagging_materiality.md); [Portfolio DD ≠ index](feedback_portfolio_drawdown_vs_index_move.md); [Net Greeks first](feedback_spread_greeks_monitoring.md); [Verticals discard vol edge](feedback_structure_selection_vs_vol_thesis.md)
+- [Directional dashboard](feedback_directional_dashboard_minimum.md); [Correlation regime](feedback_correlation_regime_and_outliers.md); [Positioning lens](feedback_counterparty_positioning_lens.md)
 
 ## Refs — Strategy Concepts
-- [Breakout IV direction](feedback_breakout_iv_direction.md) — no earnings-style crush; puts +, momentum calls +, index calls flat/-; vol_offset=0 = sticky-strike
-- [Price-action R:R gate](feedback_price_action_rr_gate.md) — swing levels + OPTION payoff at target BEFORE trusting rr_meas (it has no clock); [First-touch barrier test](reference_first_touch_barrier_test.md) — method + AR/SLB/SCCO calib; [Name continuation character](reference_bot_name_continuation_character.md) — SLB/EQT mean-revert, SCCO continues
-- [JHEQX/JPM collar rule](reference_jheqx_collar_structure.md) — puts fixed -5%/-20%, call solved zero-cost (~+3.5-5.5%), quarter-end expiry; SPY replication on 100sh
-- [Classify breakout vs MR first](feedback_classify_breakout_vs_meanreversion.md); [No MR framing](feedback_no_mean_reversion_framing.md) (breakout/continuation+vol selling only); [ATR→move multiples](reference_atr_move_multiples.md) (1.5×/4×, √N); [ATR band limits](reference_atr_empirical_band_limits.md) (trust 70-80%, distrust ≥90%); [Box spread cash parking](reference_box_spread_cash_parking.md) (SPX/XSP not SPY; FX-hedge→home rate CIP)
+- [Breakout IV direction](feedback_breakout_iv_direction.md); [Price-action R:R gate](feedback_price_action_rr_gate.md); [First-touch barrier](reference_first_touch_barrier_test.md); [Continuation character](reference_bot_name_continuation_character.md) SLB/EQT revert
+- [JHEQX collar](reference_jheqx_collar_structure.md); [Classify BO vs MR](feedback_classify_breakout_vs_meanreversion.md); [No MR framing](feedback_no_mean_reversion_framing.md); [ATR multiples](reference_atr_move_multiples.md); [ATR band limits](reference_atr_empirical_band_limits.md); [Box spread](reference_box_spread_cash_parking.md)
 
-## Refs — Instruments & Market Mechanics
-- [CL opts mult=1000](reference_cl_options_multiplier.md) (MCL 100/ES 50/GC 100); [OESX/EUREX](reference_oesx_eurex_option_mechanics.md) (ESTX50 ×10 EUR/pt, Dec liquid, IV null→BS); [SMI/OSMI](reference_smi_osmi_option_mechanics.md) (CHF 10/pt, European cash-settled, thin far strikes; single-stock=American); [WTI cal-spread bands](reference_wti_calendar_spread_calibration.md); [Futures expiry-week](reference_futures_expiry_week_dynamics.md) (use first non-expiring); [Verify futures month](feedback_verify_futures_contract_month.md) (not =F front); [Index-rebalance volume signature](reference_index_rebalance_volume_signature.md) (10-20x vol + flat close, prints session BEFORE effective date, decays next day)
-- [CFD cash=synth perpetual](reference_cfd_cash_synthetic_perpetual.md); [Futures daily MTM](reference_futures_daily_mtm.md); [TWS term structure](reference_tws_futures_term_structure.md); [TWS no candle-close trigger](reference_tws_candle_close_trigger.md); [Closed-market marks stale](reference_closed_market_option_marks_stale.md); [Ex-div mechanical drop](reference_exdiv_mechanical_drop_diagnostic.md); [HV30 window artifact](reference_hv30_window_artifact.md)
-- [AR = NGL/LPG exporter + hedge book](reference_ar_antero_name_structure.md) — 1/3 revenue seaborne LPG not Henry Hub; hedges decouple realised from spot; single-basin Marcellus post-HG
-- [DXY=DX-Y.NYB](reference_dxy_yahoo.md); [SMH comp](reference_smh_composition_2026.md) (NVDA 20%→8%); [REMX comp](reference_remx_composition.md) (~30-40% lithium; pure-RE MP/LYC/REXC); [Uranium tickers](reference_uranium_tickers.md) (metal U.UN/SRUUF USD; URA = miners); [XOP thin weeklies](reference_xop_thin_chain.md) (use monthly); [Check OI by expiry](feedback_check_oi_by_expiry_for_outright.md)
+## Refs — Instruments
+- [CL mult 1000](reference_cl_options_multiplier.md); [OESX](reference_oesx_eurex_option_mechanics.md); [OSMI](reference_smi_osmi_option_mechanics.md); [WTI cal bands](reference_wti_calendar_spread_calibration.md); [Expiry week](reference_futures_expiry_week_dynamics.md); [Verify futures month](feedback_verify_futures_contract_month.md); [Rebalance volume](reference_index_rebalance_volume_signature.md)
+- [CFD perpetual](reference_cfd_cash_synthetic_perpetual.md); [Futures MTM](reference_futures_daily_mtm.md); [TWS term structure](reference_tws_futures_term_structure.md); [No candle-close trigger](reference_tws_candle_close_trigger.md); [Closed-market marks](reference_closed_market_option_marks_stale.md); [Ex-div drop](reference_exdiv_mechanical_drop_diagnostic.md); [HV30 artifact](reference_hv30_window_artifact.md)
+- [AR structure](reference_ar_antero_name_structure.md); [DXY](reference_dxy_yahoo.md); [SMH](reference_smh_composition_2026.md); [REMX](reference_remx_composition.md); [Uranium tickers](reference_uranium_tickers.md); [XOP thin](reference_xop_thin_chain.md); [OI by expiry](feedback_check_oi_by_expiry_for_outright.md)
 
 ## Refs — /analyze
-- [Data-only/neutral](feedback_analyze_data_only.md) ([nuance](feedback_data_only_doesnt_strip_synthesis.md)); [Run-all A→E + live fallback](feedback_analyze_live_data_fallback.md) (OI genericTickList=101); [Vehicle rule](feedback_analyze_vehicle_rule.md) (<\$150&IVP<60 outright / >\$150|IVP>60 spread / <\$10 stock); [Off-universe→yfinance](feedback_analyze_off_universe_fallback.md)
-- [Lot=full structure \$300 cap](feedback_analyze_lot_definition.md); [Two expiries ~30 & ~50-60 DTE](feedback_analyze_two_expiries.md); [SKIP=fade signal](feedback_analyze_skip_as_fade_signal.md); [TWS-down degraded](reference_analyze_tws_down_degraded.md); [Redesign 2026-05-12](project_analyze_redesign_2026_05.md); [Sector RS defs](reference_sector_rs_definition.md); [Audit direction-blindness for shorts](feedback_audit_direction_blindness_when_adding_shorts.md)
+- [Data-only](feedback_analyze_data_only.md) ([nuance](feedback_data_only_doesnt_strip_synthesis.md)); [Live fallback](feedback_analyze_live_data_fallback.md); [Vehicle rule](feedback_analyze_vehicle_rule.md); [Off-universe](feedback_analyze_off_universe_fallback.md); [Lot \$300](feedback_analyze_lot_definition.md)
+- [Two expiries](feedback_analyze_two_expiries.md); [SKIP=fade](feedback_analyze_skip_as_fade_signal.md); [TWS-down](reference_analyze_tws_down_degraded.md); [Redesign](project_analyze_redesign_2026_05.md); [Sector RS](reference_sector_rs_definition.md); [Short direction audit](feedback_audit_direction_blindness_when_adding_shorts.md)
 
 ## Refs — Tdata / IBKR Data
-- [Tdata vs IBKR MCP](reference_tdata_vs_ibkr_mcp.md) (prefer Tdata via r-reticulate; MCP fallback); [Entitlements](reference_ibkr_data_entitlements.md) (no EBS/IBIS/SBF hist; delayed reqMarketDataType(4); thin→US cousin); [Option-fetch internals](reference_tdata_option_fetch_internals.md); [Spread module](reference_tdata_spread_module.md); [force_refresh=True](feedback_tdata_force_refresh.md); [Rebuild→restart R](feedback_tdata_rebuild_restart_r.md); [Install topology](reference_tdata_install_topology.md)
-- [getStoredMetrics has NO age check](reference_getstoredmetrics_no_freshness.md) — newest Prices row however old (SMH 84d stale, 638 vs 557); verify datetime, else getStockPrice(close=TRUE)
-- [tdata_py = active binding](reference_tdata_py_active_binding.md) — use `Tdata::tdata_py`, never `reticulate::import("tdata_py")` (skips sys.path init)
-- [IR utils getLastRate(ccy,DTE)](reference_tdata_interest_rate_utils.md); [IR refresh system](reference_tdata_ir_refresh_system.md); [VRP two forms](reference_tdata_vrp_formula.md); [Vol pctile helpers](reference_tdata_vol_percentile_helpers.md); [Solve IV when null](feedback_iv_solve_when_tws_returns_null.md); [U1804173.IV=underlying iv30](reference_u1804173_iv_column.md); [Trades schema migrated](reference_trades_right_column_sparse.md) (parse Instrument; group by TradeNr)
+- [Tdata vs MCP](reference_tdata_vs_ibkr_mcp.md); [Entitlements](reference_ibkr_data_entitlements.md); [Option fetch](reference_tdata_option_fetch_internals.md); [getValue batch -1](reference_tdata_getvalue_batch_all_or_nothing.md) one bad contract unprices all; [Spread module](reference_tdata_spread_module.md); [force_refresh](feedback_tdata_force_refresh.md); [Rebuild→restart R](feedback_tdata_rebuild_restart_r.md); [Install](reference_tdata_install_topology.md)
+- [Yahoo FX dated 1 day early in BST](reference_yahoo_fx_calendar_shift.md) as-of join for FX ratios; [getStoredMetrics no age check](reference_getstoredmetrics_no_freshness.md); [tdata_py binding](reference_tdata_py_active_binding.md); [getLastRate](reference_tdata_interest_rate_utils.md); [IR refresh](reference_tdata_ir_refresh_system.md); [VRP](reference_tdata_vrp_formula.md); [Vol pctile](reference_tdata_vol_percentile_helpers.md); [Solve IV](feedback_iv_solve_when_tws_returns_null.md); [IV column](reference_u1804173_iv_column.md); [Trades schema](reference_trades_right_column_sparse.md)
 
-## Refs — Environment & Tooling
-- [box::use caches per R session](reference_box_module_session_cache.md) — module edits need `box::purge_cache()` or an R restart; runApp alone re-sources only app.R
-- [R-4.4.3 env](reference_r_environment.md) (lib RLibrary; Renviron.site = hard link to R etc/, holds secrets — check via Sys.getenv); [Python/conda launch](reference_python_conda_launch.md); [PS `${Var}:` scope](reference_powershell_variable_colon.md); [gcloud scp needs dest dir](reference_pscp_recursive_destdir.md); [MD→PDF pipeline](reference_markdown_pdf_pipeline.md); [transcribe.py atomic](reference_transcribe_pipeline_atomic.md); [change.log convention](reference_changelog_convention.md); [renv safe to track](reference_renv_safe_to_track.md); [CFTC COT URLs](reference_cftc_cot_urls.md); [SQLite reads auto-approved](feedback_no_sqlite_prompts.md)
+## Refs — Environment
+- [box::use cache](reference_box_module_session_cache.md); [R env](reference_r_environment.md); [conda](reference_python_conda_launch.md); [PS scope](reference_powershell_variable_colon.md); [gcloud scp](reference_pscp_recursive_destdir.md); [MD→PDF](reference_markdown_pdf_pipeline.md); [transcribe atomic, ~2.5-3.5× audio, AC sleep was 5 min](reference_transcribe_pipeline_atomic.md); [BPT archive→Vimeo IDs, yt-dlp titles, NAME arg, FIFO queue, sequential chain](reference_bigpicture_archive_vimeo.md); [change.log](reference_changelog_convention.md); [renv track](reference_renv_safe_to_track.md); [COT URLs](reference_cftc_cot_urls.md); [SQLite auto-approved](feedback_no_sqlite_prompts.md)
 
-## Refs — Working Style & Process
-- [display_error_message() = bare stop()](reference_display_error_message_is_stop.md) — shows nothing; never in a tryCatch handler (double-throw → raw traceback). Use showNotification / validate+need
-- [Legend = definitions, rationale in the doc](feedback_legend_definitions_not_rationale.md); [No static option judgements in screens](feedback_no_static_option_judgements_in_screens.md); [No LaTeX math; escape EVERY \$](feedback_no_latex_math_blocks.md); [Concise, no repeated phrases](feedback_concise_no_repeated_phrases.md); [Minimal bold (leading labels only)](feedback_minimal_bold_formatting.md); [Plain language, expand jargon](feedback_plain_language_no_jargon.md); [No tautological signal rows](feedback_no_tautological_signal_rows.md); [Size analytics to ~40d horizon](feedback_size_analytics_to_trade_horizon.md)
-- [Anchor net claims on reconciliation](feedback_anchor_net_claims_on_reconciliation.md); [Press "+X% on the day" = intraday, pull OHLC](feedback_verify_price_move_vs_close.md); [Verify codebase facts wide (grep all repos)](feedback_verify_before_claiming_codebase_facts.md); [Check memory + runtime before 'not set' claims](feedback_check_memory_before_absence_claims.md); [Verify "NEVER X" assertions](feedback_verify_policy_assertions.md); [Re-survey stale "execute" TODOs](feedback_resurvey_stale_todos.md); [git status after .gitignore edit](feedback_gitignore_edit_resurfaces_state.md); [Unify-rule needs full audit](feedback_unify_rule_audit_full_surface.md)
-- [Build payload before open(w) + back up user files](feedback_build_payload_before_open_w.md) (truncates on open; .tmp + os.replace); [Map all fetch sites before optimizing](feedback_map_all_fetch_sites_before_optimizing.md); [V5 scanner lessons](feedback_v5_implementation_lessons.md); [RApplication repo policy](project_rapplication_repo_policy.md) (canonical "commit X?"; mydb.sql = Git LFS, committed WEEKLY by backup_database.R, --force override, pre-commit guard); [Commit with pathspec](feedback_commit_with_pathspec.md) (pre-staged files get swept); *Global memory:* No approval prompts, Simplicity over complexity, User Trading Framework
+## Refs — Working Style
+- [display_error_message = stop()](reference_display_error_message_is_stop.md); [Legend = definitions](feedback_legend_definitions_not_rationale.md); [No static option judgements](feedback_no_static_option_judgements_in_screens.md); [Escape every \$](feedback_no_latex_math_blocks.md); [Concise](feedback_concise_no_repeated_phrases.md); [Minimal bold](feedback_minimal_bold_formatting.md); [Plain language](feedback_plain_language_no_jargon.md); [No tautological rows](feedback_no_tautological_signal_rows.md); [~40d horizon](feedback_size_analytics_to_trade_horizon.md)
+- [Anchor on reconciliation](feedback_anchor_net_claims_on_reconciliation.md); [Intraday moves: pull OHLC](feedback_verify_price_move_vs_close.md); [Grep all repos](feedback_verify_before_claiming_codebase_facts.md); [Install time vs run time](feedback_check_install_time_vs_run_time.md) read run log first; [Check before 'not set'](feedback_check_memory_before_absence_claims.md); [Verify NEVER X](feedback_verify_policy_assertions.md); [Re-survey TODOs](feedback_resurvey_stale_todos.md); [.gitignore edit](feedback_gitignore_edit_resurfaces_state.md); [Unify-rule audit](feedback_unify_rule_audit_full_surface.md)
+- [Payload before open(w)](feedback_build_payload_before_open_w.md); [Map fetch sites](feedback_map_all_fetch_sites_before_optimizing.md); [V5 lessons](feedback_v5_implementation_lessons.md); [RApplication repo policy](project_rapplication_repo_policy.md) mydb.sql LFS weekly; [Commit with pathspec](feedback_commit_with_pathspec.md) takes working tree, check ls-files after rm
 
-## Gonet Account (Swiss private bank, CHF base)
-- [CSV bookkeeping](reference_gonet_csv_bookkeeping.md) — GonetTrades/GonetPos feed getGonet; lot walk, cash-row semantics, baseline cut-off trap, pre-baseline dividends need init_position=0; user's recurring sign errors
-- [Movements statement](reference_gonet_movements_statement.md) — Extourne = reversal; xlsx export format, per-ccy IBANs, book on VALUE date, amounts net of WHT; use it over yfinance
-- [Account history USD→CHF + 2024-25 rebuild](reference_gonet_account_history.md) — rows USD before 2025-10-27, CHF after; 2024–2025 and Jan–Jul 2026 rebuilt from statement (cash, coins, holdings); FXC/AMRZ/ROG prices fixed
-- [Ticker rename trap](reference_ticker_rename_trap.md) — ROG→RO: old symbol on SMART = Rogers Corp (silent ~12k error), Yahoo ROG.SW dead → RO.SW; update GonetPos+GonetTrades sym_yahoo+Tickers together
-- [Dividend reconciliation + TODOs](project_gonet_dividend_reconciliation.md) — 103 income rows to 2026-09-22; Extourne reversals closed. Email drafted 2026-09-29 (`Reports/gonet_email_dividendes_FR_20260929.md`): OR varying effective WHT, FR 25% vs 12.8% (EUR 1,240 excess, 695 since 2024, 2024 reclaim by 31.12.2026), OR not nominatif; W-8BEN still open
-- [French loyalty premium + ISIN codes](reference_loreal_loyalty_bonus.md) — trading ISIN after 2y = not registered; OR/AI have it, TTE/GTT don't
-- [Theoretical WHT = entitlement, not applied rate](feedback_theoretical_wht_is_entitlement.md) — FR 12.8% / US 15% for Swiss-resident individual; OR shortfall EUR 165.86 2022-26; FR reclaim deadline 31 Dec +2y
+## Gonet Account (CHF base)
+- [CSV bookkeeping](reference_gonet_csv_bookkeeping.md) FX/fee rows, DSPF SMART+delayed routing; [Movements + positions export](reference_gonet_movements_statement.md) value date, net WHT, Liquidités = cash check; [History USD→CHF](reference_gonet_account_history.md) 2025-10-27 switch; [NLV attribution recipe](reference_gonet_nlv_attribution_method.md) native-ccy snapshots, FX from cash rows
+- [Ticker rename trap](reference_ticker_rename_trap.md) ROG→RO; [Tuser WeeklyunPnL](reference_tuser_weekly_unpnl.md) mean gap vs last 5 sessions; [Dividend reconciliation](project_gonet_dividend_reconciliation.md) FR WHT email, W-8BEN open; [FR loyalty ISIN](reference_loreal_loyalty_bonus.md); [Theoretical WHT](feedback_theoretical_wht_is_entitlement.md)
 
 ## Database
-- `C:\Users\aldoh\Documents\RApplication\data\mydb.db`; 29+ tables, 2039 trades, 29 strategies. ScannerUniverse ~130 symbols (119 scanner + 10 ETFs + macro)
-- [saveTrades overwrite bug](project_savetrades_overwrite_bug.md) — now freshness-guarded; [Daily portfolio hardening](project_daily_portfolio_hardening.md) — lift TWS managed-accounts filter into Tdata; PY timeout→R error
+- `RApplication\data\mydb.db`; ScannerUniverse ~130; [saveTrades guard](project_savetrades_overwrite_bug.md); [Portfolio hardening](project_daily_portfolio_hardening.md)

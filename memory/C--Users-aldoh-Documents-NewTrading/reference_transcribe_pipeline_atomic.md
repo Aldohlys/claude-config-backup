@@ -12,10 +12,10 @@ metadata:
 **Cost of a crash:** ~80 min wall-clock per 50 min audio on `large-v3 int8` (~0.6× real-time). A mid-run crash followed by a full re-run = ~160 min total. The 2026-05-12 wherestrade run cost ~3.2 h instead of ~1.4 h because of a mid-run UnicodeEncodeError at audio position 10:09.
 
 **Mitigation if a crash happens:**
-- The audio file (`audio_<YYYYMMDD>.mp4` from yt-dlp) is preserved — it's the .txt that gets clobbered, not the source.
+- The audio file (`audio_<NAME>_<YYYYMMDD>.mp4` from yt-dlp; see [[reference-bigpicture-archive-vimeo]]) is preserved — it's the .txt that gets clobbered, not the source.
 - Re-launch with `-SkipDownload` so the 35MB Vimeo fetch doesn't repeat:
   ```powershell
-  pwsh -File Run-Transcribe.ps1 <VIDEO_ID> <YYYYMMDD> -SkipDownload
+  pwsh -File Run-Transcribe.ps1 <VIDEO_ID> <YYYYMMDD> [NAME] -SkipDownload
   ```
 - Don't sleep / hibernate the machine mid-run.
 
@@ -26,3 +26,7 @@ metadata:
 **If future improvement is desired:** add periodic checkpoint write to a sidecar file (e.g. last segment index) and resume from there on re-launch with `--resume`. Not done as of 2026-05-13.
 
 See [[reference-tdata-install-topology]] for the analogous "rebuild requires restart" pattern in the R-side Python bridge.
+
+**Throughput observed 2026-10-02..03 (incl. headless summary):** ~2.3-3.5 min wall per audio minute — e.g. MO 10-02 (24:48) ≈ 58 min, MO 09-29 (17:51) ≈ 80 min, WTT ~55 min audio ≈ 2.5-3 h. Plan overnight batches from that, not from the 0.6× figure above.
+
+**Sleep:** the PC (HP Optimized, Modern Standby) had AC standby = 300 s and the pipeline sets no keep-awake, so unattended runs suspend after 5 min idle. Set `powercfg /change standby-timeout-ac 0` on 2026-10-02 (no admin needed); hibernate AC already 0. Original value was 5 min (the procedure doc's "restore 30" is not the user's setting). Check `powercfg /query SCHEME_CURRENT SUB_SLEEP STANDBYIDLE` before leaving a batch running.

@@ -39,3 +39,6 @@ excluded from guidance.
 
 Entered the SMI effective 21 Sep 2026 — see [[reference_index_rebalance_volume_signature]] before
 reading late-September price action as fundamental.
+
+Position: Gonet bought 200 SDZ at CHF 71.40 on 23.09.2026 (value 25.09; CHF 14,482.05 net, GonetTrades
+TradeNr 30). Related: [[reference_gonet_csv_bookkeeping]].

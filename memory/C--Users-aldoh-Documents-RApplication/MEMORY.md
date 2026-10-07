@@ -15,6 +15,7 @@
 - [/analyze location; use HTML written: path, don't rebuild](reference_analyze_command_location.md)
 - [All-FETCH-FAILED = one unresolved input](feedback_cascade_failures_check_root_input.md)
 ## Risk, Trades & FX
+- [Paper+real parallel fills aren't duplicates; no 2023 statements](reference_paper_real_parallel_trades.md)
 - [Signed-delta Risk, EventType, Return; multi-leg cost NET](project_trades_signed_delta_risk.md)
 - [Strategies.MaxRisk caps display](project_strategies_maxrisk_cap.md) · [account-strategy topology + sizing base](reference_account_strategy_topology.md)
 - [saveTrades drops+recreates Trades; smoke-test](reference_savetrades_overwrite.md)
@@ -37,6 +38,8 @@
 - CashFlow/TWR: [conventions](reference_account_cashflow_conventions.md) · [2026-04-16 transfer fix](project_account_transfer_cashflow_signs.md) · [unPnL not mktValue](reference_strategy_value_pitfalls.md) · [IBKR Activity Statement](reference_ibkr_activity_statement.md)
 - [Portfolio TradeNr NULL: scripts/fix_tradenr.bat <table> [date] [--dry-run]; arg is the table, not a TradeNr](project_tradenr_backfill_stale.md)
 ## Scanner & Swing
+- [Macro bias = regime model; LONG BIAS unreachable, rates not a stress input](project_macro_bias_from_regimes.md) · [BPT vs macro scanner gaps (TODO 105)](project_bpt_vs_macro_scanner.md) · [CBOE VX settlement CSV; ^IRX = 3M bill](reference_cboe_vx_settlement.md)
+- [Macro report graphs: panel sparklines = real closes; 'Last 60 days' = recomputed match score](reference_macro_report_sparklines.md)
 - [BOT = bot_monthly / bot_daily / analyze; shared bot_read.R; membership ADV only; zones descriptive; sort asym_em](reference_bot_three_tool_architecture.md)
 - [BOT edge = asymmetry x many bets, win rate <50% by design; daily sheet simple](feedback_bot_edge_is_asymmetry_not_win_rate.md)
 - [BOT P&L is directional; debit/width sets payoff](project_bot_three_class_framework.md)
@@ -47,6 +50,7 @@
 - [BOT_monthly for new names: dry run + merge cache + --resume; bid/ask in US hours only](reference_bot_monthly_add_names.md)
 - [Tickers 'STOCK' row is a deliberate app default — don't delete; its Yahoo warning is harmless](reference_tickers_stock_placeholder.md)
 - [Scanner sector layer = correlation groups (Cluster/ClusterETF, TODO 71); hand-reviewed 2026-10-02, review page + launcher bat; no --write](project_scanner_correlation_groups.md)
+- [Groups read through members, never anchor ETF: macro sector map EW, S3/grp_rank/analyze median; GROUP_DRIVERS keyed by group](project_groups_read_through_members.md)
 - [Drop a scanner name = IsActive 0, not DELETE (syncTickersToScanner re-adds IV=YES Tickers)](reference_scanner_removal_is_deactivation.md)
 - Scanner: [universe](project_scanner_universe.md) · [Flow_Score](project_scanner_flow_score.md) · [asymmetric thesis](project_asymmetric_trade_thesis.md) · [earnings flag](project_earnings_flag_feature.md)
 ## IBKR / TWS
@@ -110,7 +114,7 @@
 - [Headless slash command](reference_claude_headless_slash_command.md)
 - [Transcribe; NewTrading has a remote, push only when asked; BPT-Master ignored](project_transcribe_autosummary.md)
 - [Claude config backup, /save, /sync](reference_claude_config_backup.md)
-- Scheduler (.bat + cmd //c; fsutil hardlink; StartWhenAvailable): [XML must be UTF-16](reference_schtasks_xml_registration.md) · [renaming a 00_*.bat breaks its task](reference_launcher_bats_and_scheduled_tasks.md) · [.bat logging traps](feedback_batch_arg_and_exitcode_traps.md)
+- Scheduler (.bat + cmd //c; fsutil hardlink; StartWhenAvailable): [XML must be UTF-16](reference_schtasks_xml_registration.md) · [renaming a 00_*.bat breaks its task; activity.log FAIL cause via ACTIVITY_LOG/ACTIVITY_REASON_FILE; never save it from Calc](reference_launcher_bats_and_scheduled_tasks.md) · [.bat logging traps](feedback_batch_arg_and_exitcode_traps.md)
 - [daily update DB contention: busy_timeout](reference_daily_update_subprocess_db_contention.md)
 - Background: [no tail on background Bash](feedback_no_tail_on_background_bash.md) · [diagnose hung build](feedback_diagnose_hung_background_build.md) · [python -u with tee](feedback_python_unbuffered_with_tee.md)
 - Editing: [shell quoting traps](feedback_shell_quoting_traps.md) · [CRLF-safe Python patching](feedback_preserve_crlf_when_patching.md) · [no scratch files in home](feedback_no_scratch_in_home.md)
@@ -118,5 +122,7 @@
 - Metrics: [normalise window metrics per leg](feedback_normalize_window_metrics_to_current_size.md) · [short lookback fits regime](feedback_shortened_lookback_fits_regime.md) · [test gate vs its outcome](feedback_test_a_gate_against_what_it_controls.md)
 - Metrics: [percentile excludes fixed share](feedback_relative_criterion_excludes_a_fixed_fraction.md) · [ratio sort key vs thesis](feedback_ratio_metric_anticorrelated_with_its_own_thesis.md) · [noise floor + persistence](feedback_validate_metric_noise_floor_and_persistence.md)
 - [Events calendar: Equals Money](reference_events_calendar.md)
+- [Valuation app = SWS six checks; SWS pages 403, read news articles; Yahoo FCF, share-class and split traps](reference_valuation_app_sws.md)
+- [PE_History reported_eps: Yahoo calendars stop silently; expire/drop, surprise is no quality test](reference_pe_history_reported_eps_staleness.md)
 - Mobile: [iOS Mail QuickLook: no JS](feedback_ios_mail_quicklook_no_js.md) · [offline PWA](reference_pwa_offline_pattern.md)
 - [BSM Calculator conventions](project_bs_calculator_design.md) · [Position Analysis IV/skew](project_position_analysis_iv_skew_conventions.md)

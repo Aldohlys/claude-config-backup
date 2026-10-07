@@ -1,11 +1,11 @@
 ---
 name: reference_launcher_bats_and_scheduled_tasks
-description: "Launcher .bat files are named 00_*.bat since 2026-09-15; registered scheduled tasks call .bat paths directly, so renaming one breaks the task silently — and the repo task XML is NOT the registered schedule"
+description: "Launcher .bat files are named 00_*.bat; scheduled tasks call .bat paths directly, so renaming one breaks the task silently; repo task XML is NOT the registered schedule; activity.log FAIL cause via ACTIVITY_LOG / ACTIVITY_REASON_FILE; Calc holding activity.log dropped lines"
 metadata: 
   node_type: memory
   type: reference
   originSessionId: 7b2126a4-19e3-44e8-8acf-3feca1d38bea
-  modified: 2026-09-15T09:38:25.513Z
+  modified: 2026-10-06T07:15:25.505Z
 ---
 
 **Launchers (RApplication/scripts, renamed 2026-09-15, content unchanged):** `00_routine.bat`, `00_reporting.bat`, `00_ligne.bat`, `00_spread.bat`, `00_ticker.bat`, `00_daily_portfolio_update.bat` (formerly `Tuser-routine.bat`, `RReporting.bat`, `Tuser-ligne.bat`, `Tuser-spread.bat`, `Tuser-ticker.bat`, `daily_portfolio_update.bat`).
@@ -51,3 +51,35 @@ UpdateHistoricalOptions.
 
 See [[feedback_batch_arg_and_exitcode_traps]] for the four cmd traps this wiring
 had to survive — each found by testing, none by reading.
+
+## UPDATE 2026-10-06 — FAIL lines carry a cause; Calc open on activity.log
+
+Columns are now `date;task;start;end;duration_min;status;args;detail`. On FAIL,
+`detail` = `exit N: <launcher -Reason>: <cause>` (RApplication 3e2c8c2,
+NewTrading 41ded63). The cause comes from two environment variables a launcher
+sets before the work; the `log_activity.bat` call is unchanged:
+
+- `ACTIVITY_REASON_FILE`: a one-line reason the script writes itself (opt-in;
+  `collect_option_surface.R` writes "TWS API not available" / "captured n/N -
+  missing: ..."). Ignored if older than the run, deleted after reading.
+- `ACTIVITY_LOG`: the log the output is redirected to. log_activity.ps1 reads the
+  part after the last `===== Run started` marker and picks: R top-level error >
+  last line if it reads as a failure > last ERROR line > last line.
+
+**How to apply — new or changed launcher:** if it redirects to a log with run
+markers, set `ACTIVITY_LOG` to it, and only in the branch that redirects (the
+NewTrading `/task` branches): pointing it at a log the run did not write reports
+an older run's error. A script that can say why it failed better than its output
+does should write `ACTIVITY_REASON_FILE`. `run_task.bat` sets both and now sends
+the wrapped command's output to `logs\<task>.log` (it was lost before).
+Interactive `pause` launchers (Gonet, IBKR, ...) capture nothing: still `exit N`.
+
+**activity.log open in LibreOffice Calc:** Calc holds the file writable, so
+`Add-Content` (allows others read-only) failed on every append and the line was
+dropped silently — two daily_portfolio_update runs lost on 2026-10-06 (backfilled
+from daily_portfolio_update.log). Fixed: FileShare.ReadWrite stream + named mutex;
+an unwritable line goes to `logs\activity.pending.log`, flushed by the next call.
+**Tell the user:** File > Reload in Calc is fine; never save activity.log from
+Calc — it overwrites lines appended since the load, and a French-locale save can
+rewrite `0.73` as `0,73`. A day with no lines for tasks that ran: check
+`activity.pending.log` and who has the file open.

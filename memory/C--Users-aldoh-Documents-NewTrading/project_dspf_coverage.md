@@ -19,3 +19,7 @@ Conclusions:
 
 **Why:** user evaluating it as an investment (likely a private-bank proposal).
 **How to apply:** open items — FY 25/26 annual report (full-year NAV return, distribution coverage, new dividend ~end Sept 2026), debt cost/maturity, capex plan, next raise timing. See [[project_nb_emd_hard_currency_coverage]] (analysed same day).
+
+Position: Gonet bought 88 DSPF at CHF 165.40 on 23.09.2026 (value 25.09; CHF 14,749.55 net, TradeNr 29),
+i.e. at the agio, not at a raise. Distribution paid 02.10.2026: CHF 3.25/unit (not 3.20), no WHT.
+IBKR: conId 390160297, SMART contract + delayed data only (see [[reference_gonet_csv_bookkeeping]]).
