@@ -1,6 +1,6 @@
 ---
 name: reference_ibkr_dividend_import
-description: IBKR dividends reach the Trades table only via Tdata::importIBKRDividends(statement CSV) — TWS API has no cash ledger; one net row per PAID dividend, EventType "Dividend", Pos 0, on the trade holding the stock
+description: IBKR dividends reach the Trades table only via Tdata::importIBKRDividends(Activity Statement OR Flex cash-transactions CSV, 5.20.13+) — TWS API has no cash ledger; one net row per PAID dividend, EventType "Dividend", Pos 0, on the trade holding the stock
 metadata:
   type: reference
 ---
@@ -23,3 +23,5 @@ UI (the user's choice of place, Tdata 5.20.8, Tuser 24791db, RReporting 69133e4)
 RReporting keeps Trades in memory and `saveTrades` OVERWRITES the table. Tdata 5.20.8 therefore makes `saveTrades` abort when DB dividend rows are missing from the input (the TradeNr check alone could not see them), unless `force = TRUE`. Never write Trades behind an open RReporting session without that guard.
 
 Related: [[reference_internal_transfer_cashflows]], [[feedback_import_ui_placement]].
+
+**Flex format (Tdata 5.20.13, 2026-10-08):** the user downloads "Dividends (N).csv" from IBKR, a Flex Query cash-transactions export: header row `"Date/Time","ClientAccountID","Type",...,"Amount","CurrencyPrimary",...`, followed by a second "Change in Dividend Accruals" block with its own header. `flex_dividend_lines` reads only the Type/Amount block (Dividends, Withholding Tax, Payment In Lieu Of Dividends) and reduces it to the same rows as the statement path, so a payment books identically from either format, with no double booking. Dry run 10-08: 9273 JPY 6,067 + 36 PIL (trade 685, 09-28) and MRD CAD 25.50 (trade 730, 09-29) to insert. 3440.T and 5982.T are still unpaid.

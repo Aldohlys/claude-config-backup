@@ -1,6 +1,6 @@
 ---
 name: feedback-legend-definitions-not-rationale
-description: Column legends carry definitions and formulas only; rationale and evidence live in the accompanying doc
+description: Column legends carry definitions and formulas only, self-contained (no 'see doc X'); rationale and evidence live elsewhere
 metadata:
   type: feedback
 ---
@@ -20,6 +20,10 @@ sent back — wants explicit algebra like `|Close_t - Close_t-20| / ATR14_t`, an
 weighed. Writing the formula precisely also exposes bugs — doing so found that
 `prior20_atr` was a ratio of percentages carrying a spurious price factor.
 
-**How to apply:** legend = what it is, what threshold, where it comes from. Nothing else.
+2026-10-08 refinement (intermarket_sectors legend): every definition must be self-contained,
+"without any external references" — no pointer rows, no "see BOT_TOOLS_DESIGN", no function
+names as explanation. Spell out windows, formulas, value meanings and symbol codes in the cell.
 
-Related: [[feedback-plain-language-no-jargon]], [[project-bot-universe-scanner]]
+**How to apply:** legend = what it is, what threshold, how it is computed. Self-contained. Nothing else.
+
+Related: [[feedback-plain-language-no-jargon]], [[project-bot-universe-scanner]], [[feedback-report-xlsx-with-legend]]

@@ -2,6 +2,7 @@
 ## User Profile & Preferences
 - [Colorblind: blue/vermillion/amber, not green/red](user_colorblind.md)
 - [UI design before code: text + ASCII, await approval](feedback_design_before_code.md)
+- [Tables: blank cells fixed by construction; explanations as tooltips; English weekdays](feedback_ui_constant_cells_and_tooltips.md)
 - [No evaluative framing; attribute ideas factually](feedback_no_evaluative_framing.md)
 - [Comments describe shipped code, no "Phase N"](feedback_comment_describe_shipped_code.md)
 - [No transient schema-migration logic in code](feedback_no_transient_migration_logic_in_code.md)
@@ -30,12 +31,15 @@
 - [greeksNet: deltanotional in trade ccy](reference_greeksnet_contract.md)
 - [Totals include cash-FX P&L; differ from TWS](reference_cash_fx_pnl_in_totals.md)
 ## Account / TWR / CashFlow
-- [Snapshots store unadjusted uPrice; splits fake moves](reference_position_snapshot_uprice_unadjusted.md)
+- [Snapshots: unadjusted uPrice, -2/zero Greeks, IBKR theta 10-25x (ESTX50), stale TradeNr, name mismatch](reference_position_snapshot_uprice_unadjusted.md)
 - Gonet: [PnL total = unPnL + realizedPnL](reference_gonet_pnl_and_stats.md) · [cash rolls from 10.07.2026 baseline](project_gonet_cash_positions.md) · [TradeNr reused; key on symbol](reference_gonet_tradenr_reused.md)
 - ["Live" is virtual, no table; getAccountLive writes](reference_live_virtual_account_no_table.md)
 - [readPortfolio() date is Date class](feedback_readportfolio_date_type.md)
+- [Trades.DateTime is UTC; date-only 00:00:00; cleanup expiry rows 16:00 NY](reference_trades_datetime_utc.md)
+- [Trades.UnderlyingPrice: Close/Adjust fills, option-only; Modify to type; backfill from a config.yml dir](reference_trades_underlyingprice.md)
+- [P&L path Greek split (TODO #106): big residual opposite a Greek = bad input; test guards on 706/753/752 + all BOT](project_pnl_attribution.md)
 - [Held = portfolio snapshot, not Trades.Status](feedback_open_positions_from_portfolio_not_trade_status.md)
-- CashFlow/TWR: [conventions](reference_account_cashflow_conventions.md) · [2026-04-16 transfer fix](project_account_transfer_cashflow_signs.md) · [unPnL not mktValue](reference_strategy_value_pitfalls.md) · [IBKR Activity Statement](reference_ibkr_activity_statement.md)
+- CashFlow/TWR: [conventions](reference_account_cashflow_conventions.md) · [2026-04-16 transfer fix](project_account_transfer_cashflow_signs.md) · [unPnL not mktValue](reference_strategy_value_pitfalls.md) · [IBKR Activity Statement; MULTI file; NAV drop = withdrawals first](reference_ibkr_activity_statement.md)
 - [Portfolio TradeNr NULL: scripts/fix_tradenr.bat <table> [date] [--dry-run]; arg is the table, not a TradeNr](project_tradenr_backfill_stale.md)
 ## Scanner & Swing
 - [Macro bias = regime model; LONG BIAS unreachable, rates not a stress input](project_macro_bias_from_regimes.md) · [BPT vs macro scanner gaps (TODO 105)](project_bpt_vs_macro_scanner.md) · [CBOE VX settlement CSV; ^IRX = 3M bill](reference_cboe_vx_settlement.md)
@@ -65,6 +69,7 @@
 - [IBKR sub-account API](project_ibkr_subaccounts.md)
 - Futures: [FUT/FOP fields](reference_ibkr_fut_fop_contract_fields.md) · [YYYYMM picks wrong contract](feedback_ibkr_lasttradedate_yyyymm.md) · [Tickers FUT row](reference_tickers_fut_row_convention.md) · [chains_manager bug](project_chains_manager_fut_bug.md)
 - [Flex Query traps](project_flex_query_gotchas.md) · [WSH needs News Feed](project_wsh_news_feed_gotcha.md) · [NO IBKR fundamentals (Error 10358) - P/E from yfinance](reference_ibkr_data_entitlements.md)
+- [TSEJ without data permission: IBKR mark can be far off close; TWS value/P&L use mark, snapshots store it](reference_ibkr_tsej_bad_mark_price.md)
 - [IBKR FX conversion mechanics](reference_ibkr_fx_conversion_mechanics.md)
 ## Tdata, Python & Build
 - tdata_py CONFIG cached at import: restart R after config.yml edits; apps need config.yml in CWD
@@ -93,7 +98,7 @@
 ## Shiny
 - [Reactive keyed only on symbol() freezes](feedback_reactive_keyed_only_on_symbol_goes_stale.md)
 - Testing: [testServer drives box modules](reference_testserver_shiny_wiring.md) · [Tuser box internals](reference_testing_tuser_box_internals.md) · [qualify dplyr::filter](feedback_dplyr_filter_masked_standalone.md)
-- shinytest2: [get_logs() for silent bugs](feedback_shinytest2_for_silent_bugs.md) · [headless visual pass](reference_routine_app_visual_pass.md) · [AppDriver writes PRODUCTION DB](feedback_appdriver_ignores_config_env.md)
+- shinytest2: [get_logs() for silent bugs](feedback_shinytest2_for_silent_bugs.md) · [headless visual pass; widget PNG via chrome --headless](reference_routine_app_visual_pass.md) · [AppDriver writes PRODUCTION DB](feedback_appdriver_ignores_config_env.md)
 - [No priority= in observers](feedback_no_shiny_priority.md)
 - [Unopened tabPanel output is suspended](reference_shiny_tabpanel_suspends_output.md)
 - [selectize=FALSE default](feedback_selectize_plugin_a11y.md)

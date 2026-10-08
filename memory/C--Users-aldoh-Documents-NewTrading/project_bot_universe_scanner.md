@@ -1,8 +1,11 @@
 ---
 name: project-bot-universe-scanner
-description: One merged tradable universe + the Python BOT breakout scanner; technicals only, options deferred to a second step
+description: "One merged tradable universe + the Python BOT breakout scanner; technicals only, options deferred to a second step"
 metadata:
+  node_type: memory
   type: project
+  originSessionId: e13833e0-75b1-4cd3-b4b2-9a6d425e2a9d
+  modified: 2026-10-08T17:46:23.209Z
 ---
 
 `Strategies/tradable_universe_20260827.csv` is the single canonical universe (137 rows).
@@ -25,14 +28,14 @@ untradable on premium, that is a step-2 finding, not a universe exclusion.
 
 Related: [[project-bot-book-design]], [[reference-rstudies-indicators-source]]
 
-**BOT daily workbook (2026-09-23).** `NewTrading/scripts/bot_daily_to_xlsx.py` turns `Reports/bot_daily_<date>.csv` into `Trades/bot_daily_<date>.xlsx`, styled like the old bot_scan workbooks. Sheet "BOT daily" has a tier column, rows shaded by tier, a frozen header plus tier/date/name columns, and an autofilter. Sheet "legend" has the tier rules and counts, plus column definitions parsed from `RApplication/docs/BOT_TOOLS_DESIGN.md` §3. `run_bot_daily.bat` calls it after the R step (the task run and the manual run; the manual run opens the XLSX).
+**BOT daily workbook.** Since 2026-10-08 main.R writes `Reports/bot_daily_<date>_<hhmm>.xlsx` directly (`RStudies/reports/bot_daily/bot_daily_xlsx.R`): sheet Data = tier + 13 daily columns, shaded by tier, filter on row 1; Detail = all 95 fields; Legend = tier rules + counts + self-contained definition of every column (`BOT_DAILY_LEGEND`, run stops on an undefined column). No CSV any more. 2026-09-23 → 10-08: CSV in Reports + `NewTrading/scripts/bot_daily_to_xlsx.py` → `Trades/bot_daily_*.xlsx` (script kept for those old files, no longer called by `run_bot_daily.bat`).
 
 Tiers are the user's choice, "trend first", and are highlighting, not ranking:
 - BOT: tradable, trend ≥ 4/6, asym ≥ 1.5
-- BOT-: tradable, trend ≥ 4/6, asym 1–1.5
-- COUNTER-TREND (blue): trend ≤ 3/6, asym ≥ 2
-- WATCH: asym ≥ 1
+- BOT-: tradable, trend ≥ 4/6, asym 1–1.5; OR (2026-10-08) asym ≥ 1, daily trend ≤ 3/6 but w_trend_state ≥ 4/6 and close above a rising daily EMA50 ("daily trend paused in intact trend", any asym ≥ 1 capped at BOT-). User's case: NET, flag breakout drifting above the broken level, was mislabelled COUNTER-TREND; user rejected a separate BREAKOUT-HOLD tier ("overcomplicates, need a synthetic view over 100+ names"). Forward test records tier_reason = weekly_trend_hold.
+- COUNTER-TREND: REMOVED 2026-10-08 — those rows (daily trend ≤ 3/6, asym ≥ 2, not paused-trend BOT-) are now WATCH. User: "don't catch a falling knife", a BOT long needs positive price action (SAF/MS/KO 10-08); user rejected keeping it as its own tier and chose WATCH over VETO/LOW (VETO = mechanical no-trade with reason, LOW = asym < 1).
+- WATCH: asym ≥ 1, none of the above — a level to watch, not an entry
 - LOW: the rest of the tradable rows
 - VETO: tradable = 0
 
-**Why:** high-asym rows are mostly pullbacks (trend 0–1/6), not BOT continuation. Rows keep the CSV reading order. `--all` rebuilds every CSV.
+**Why:** high-asym rows are mostly pullbacks (trend 0–1/6), not BOT continuation. Rows keep the reading order (tradable, asym desc, sess_target_p75 asc). Same tier rule in bot_daily_xlsx.R::bot_tier and bot_fwd common.py::tier_of.

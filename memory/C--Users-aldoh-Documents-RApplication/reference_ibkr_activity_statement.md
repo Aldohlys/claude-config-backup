@@ -1,6 +1,6 @@
 ---
 name: reference_ibkr_activity_statement
-description: "IBKR Activity Statement CSV layout - how to source official TWR, cashflows, and in-kind transfers for reconciliation"
+description: "IBKR Activity Statement CSV layout - official TWR, cashflows, in-kind transfers; MULTI two-account file; decomposing a NAV drop into withdrawals vs P&L"
 metadata: 
   node_type: memory
   type: reference
@@ -41,3 +41,11 @@ Header: `Statement, Data, Period, "<start> - <end>"`. The TWR is computed over t
 - Verifying inter-account transfers
 - Auditing realized vs unrealized P&L per symbol
 - Any time the system's portfolio-level numbers conflict with the user's recollection
+
+### MULTI statements (both IBKR accounts in one CSV)
+`MULTI_<start>_<end>.csv` holds U1804173 and U25343478 as consecutive blocks, each beginning again with `Statement,Header`. Sections repeat per account, so a `grep` returns each section twice — attribute rows to an account by line order. `Account Summary` (once, at top) gives Prior/Current NAV per account plus Total.
+
+### Decomposing a NAV change ("why is the account down X?")
+Sum `Change in NAV` across both accounts. Internal flows between the two accounts (CHF cash, GBP/JPY legs, `Position Transfers`) cancel in the sum. What remains = external Deposits & Withdrawals + P&L lines (MTM, dividends, interest, fees, commissions). Check the withdrawals first. Example (2026-10-07, period 25.12.2025–06.10.2026): NAV 104,148 → 78,169 CHF; −24,431 was net external withdrawals (EUR 21,000 disbursed in 4 lots + CHF −5,000 net); only −1,548 was trading/costs. U1804173 alone showed −44,683 D&W because its transfers to U25343478 look like outflows.
+Per-symbol attribution: `Mark-to-Market Performance Summary`, second-to-last field = MTM P/L Total; each asset class ends in a `Total` row (the asset-class name is on the row above).
+The user's own NAV figures can differ by ~0.1–1.5k from the statement (different valuation day or source). Say that the statement can't explain that gap; don't force a reconciliation.
