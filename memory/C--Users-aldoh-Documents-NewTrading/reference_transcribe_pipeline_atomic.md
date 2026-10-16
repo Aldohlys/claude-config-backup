@@ -5,6 +5,7 @@ metadata:
   node_type: memory
   type: reference
   originSessionId: 0bb4ef14-7deb-4012-92d7-6a1eda0ffb8a
+  modified: 2026-10-15T17:32:19.549Z
 ---
 
 `C:\Users\aldoh\Documents\NewTrading\Transcripts\transcribe.py` (called by `Run-Transcribe.ps1`) processes the audio in a single pass and writes the .txt file line-by-line as Whisper emits each segment. There is **no checkpoint, no resume**. If the script crashes (e.g. UnicodeEncodeError on a stdout print, OOM, ctrl-C), the partial .txt is overwritten on the next run via `open(output_file, "w", ...)` and the entire audio is re-transcribed from zero.
@@ -31,4 +32,8 @@ See [[reference-tdata-install-topology]] for the analogous "rebuild requires res
 
 **Sleep:** the PC (HP Optimized, Modern Standby) had AC standby = 300 s and the pipeline sets no keep-awake, so unattended runs suspend after 5 min idle. Set `powercfg /change standby-timeout-ac 0` on 2026-10-02 (no admin needed); hibernate AC already 0. Original value was 5 min (the procedure doc's "restore 30" is not the user's setting). Check `powercfg /query SCHEME_CURRENT SUB_SLEEP STANDBYIDLE` before leaving a batch running.
 
+**Screen-off = Modern Standby (2026-10-15):** with standby-timeout AC 0, the display timeout (VIDEOIDLE AC 300 s) still puts this HP into Modern Standby (event 506). On 10-15 the PC hard-hung in Connected Standby at ~11:25 mid-batch (Kernel-Power 41, BugcheckCode 0, ConnectedStandbyInProgress true; earlier CS crashes 04-18 and 07-30, non-CS 10-12), killing all 4 queued jobs. Chain scripts now hold `SetThreadExecutionState(ES_CONTINUOUS|SYSTEM|DISPLAY_REQUIRED)` for the run (scratchpad `transcribe_chain_20261015.ps1` is the template). Stale queue tickets in `%TEMP%\bpt_transcribe_queue\` contain `ID DATE NAME`, so they recover video IDs after a crash; delete them before relaunching, because PIDs can be reused after a reboot.
+
 **Memory pressure (2026-10-08):** Whisper large-v3 used ~4.6 GB while transcribing; Claude Code reaped an idle background watcher (`until [ -f summary ]` loop) for low system memory. The transcription itself survived. Do not rely on a background shell to wait for a summary during a transcribe run; ask the user to say when it is done, or check the files on the next turn. Observed timing that evening: MO 15 min audio started 20:37, summary 21:31; WTT 30 min audio started 21:34, summary 22:48.
+
+**Audio cleanup (user preference, 2026-10-16):** once `<NAME>_<DATE>_transcript.txt` and `_summary.md` both exist and are non-empty, the user wants `audio_<NAME>_<DATE>.mp4` deleted (asked twice that day). Offer it when reporting finished jobs; never delete audio of a job still running or queued (`%TEMP%\bpt_transcribe_queue\` tickets) — a crash re-run with `-SkipDownload` needs it.

@@ -15,3 +15,5 @@ Seen 2026-10-08 with `build_package("Tdata", auto_version = TRUE, cascade = FALS
 - A run can take close to 10 minutes. Keep the Bash timeout at least 590 s and check every target's DESCRIPTION afterwards (the loop is in [[reference_tdata_install_topology]]).
 
 Related: [[project_build_package_renv_prune_todo]], [[feedback_tdata_rebuild_restart_r]].
+
+2026-10-16 (5.21.4): build ran >10 min → use run_in_background; RLibrary WAS updated this time; 0 FAIL / 1145 PASS. The script does not commit the apps' `renv.lock` pins — commit them per app with pathspec ("Pin Tdata X (...)") and push.
