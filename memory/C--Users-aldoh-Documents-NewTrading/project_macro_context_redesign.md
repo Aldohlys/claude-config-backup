@@ -87,7 +87,7 @@ metadata:
   - Prototype rule on the daily top labels: a run counts from 3 sessions; gaps of 4 sessions or less between runs of the same scenario are bridged; a run of 1–2 sessions still going today is shown as pending.
   - User decision 10-20: Regime and status follow the same rule. A scenario with fewer than 3 days in place is PENDING n/3 and does not count for Regime. On 10-20 the Regime read NEUTRAL (stagflation pending 2/3), and the framework cell was neutral × elevated.
 
-**Ported to R (2026-10-20):** RStudies branch `claude/macro-context-main-detail`, created from `claude/vibrant-newton-2xvfgc`. Commits 63e4ce7 (port), 00f264e (header), de3f1ad (drivers table), d72d643 (lost-top card); pushed to origin. `main` is not merged yet. The branch is checked out, so the 09:00 RunScanner uses it.
+**Ported to R (2026-10-20):** RStudies branch `claude/macro-context-main-detail`, created from `claude/vibrant-newton-2xvfgc`. Commits 63e4ce7 (port), 00f264e (header), de3f1ad (drivers table), d72d643 (lost-top card); pushed to origin; main fast-forwarded to d72d643 the same day. The branch is checked out, so the 09:00 RunScanner uses it.
 - New files:
   - `regime_risk.R`: Regime/Risk, FRAMEWORK, band_runs, MIN_IN_PLACE = 3.
   - `legend.R`: LEGEND_GLOSSARY, plus `leg_note()`, which replaces every im-legend footnote.

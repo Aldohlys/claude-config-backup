@@ -28,7 +28,7 @@ untradable on premium, that is a step-2 finding, not a universe exclusion.
 
 Related: [[project-bot-book-design]], [[reference-rstudies-indicators-source]]
 
-**BOT daily workbook.** Since 2026-10-08 main.R writes `Reports/bot_daily_<date>_<hhmm>.xlsx` directly (`RStudies/reports/bot_daily/bot_daily_xlsx.R`): sheet Data = tier + 13 daily columns, shaded by tier, filter on row 1; Detail = all 95 fields; Legend = tier rules + counts + self-contained definition of every column (`BOT_DAILY_LEGEND`, run stops on an undefined column). No CSV any more. 2026-09-23 → 10-08: CSV in Reports + `NewTrading/scripts/bot_daily_to_xlsx.py` → `Trades/bot_daily_*.xlsx` (script kept for those old files, no longer called by `run_bot_daily.bat`).
+**BOT daily workbook.** Since 2026-10-08 main.R writes `Reports/bot_daily_<date>_<hhmm>.xlsx` directly (`RStudies/reports/bot_daily/bot_daily_xlsx.R`): sheet Data = tier + 14 daily columns (ema21_disp_atr added 2026-10-20, see [[project-ema21-extension-column]]), shaded by tier, filter on row 1; Detail = all 95 fields; Legend = tier rules + counts + self-contained definition of every column (`BOT_DAILY_LEGEND`, run stops on an undefined column). No CSV any more. 2026-09-23 → 10-08: CSV in Reports + `NewTrading/scripts/bot_daily_to_xlsx.py` → `Trades/bot_daily_*.xlsx` (script kept for those old files, no longer called by `run_bot_daily.bat`).
 
 Tiers are the user's choice, "trend first", and are highlighting, not ranking:
 - BOT: tradable, trend ≥ 4/6, asym ≥ 1.5

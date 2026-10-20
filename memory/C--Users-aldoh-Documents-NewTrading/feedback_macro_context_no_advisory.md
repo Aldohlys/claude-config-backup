@@ -21,5 +21,6 @@ On 2026-10-20 the user asked where the regime × risk cell texts came from ("Ful
 - Label the line "What followed historically", not "Read".
 - No size words (full / reduced / smallest), and no do / don't verbs.
 - The scenario texts in `archetypes.R` (`bot$note`, e.g. "Exit energy longs on the first sign…") are advisory in the same way, so flag them when porting.
+- Done 2026-10-20: section 08 `events.R` action texts and the FOMC/Mag 7 rows were rewritten as neutral descriptions or measured history (RStudies 4956bd5). `archetypes.R` `bot$note` is still open.
 
 Same principle as [[feedback_analyze_data_only]]. Related: [[project_macro_context_redesign]].
