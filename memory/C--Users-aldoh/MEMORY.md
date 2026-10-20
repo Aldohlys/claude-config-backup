@@ -1,0 +1,1 @@
+- [Webex : caméra « occupée »](webex-camera-occupied.md) — C920 bloquée par FrameServer ; procédure de dépannage et correctif `Restart-Service FrameServer`

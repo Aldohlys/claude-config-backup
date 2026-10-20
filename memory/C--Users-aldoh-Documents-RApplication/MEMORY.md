@@ -32,7 +32,7 @@
 - [Totals include cash-FX P&L; differ from TWS](reference_cash_fx_pnl_in_totals.md)
 ## Account / TWR / CashFlow
 - [Snapshots: unadjusted uPrice, -2/zero Greeks, IBKR theta 10-25x (ESTX50), stale TradeNr, name mismatch](reference_position_snapshot_uprice_unadjusted.md)
-- Gonet: [PnL total = unPnL + realizedPnL](reference_gonet_pnl_and_stats.md) · [cash rolls from 10.07.2026 baseline](project_gonet_cash_positions.md) · [TradeNr reused; key on symbol](reference_gonet_tradenr_reused.md)
+- Gonet: [PnL total = unPnL + realizedPnL](reference_gonet_pnl_and_stats.md) · [cash rolls from 10.07.2026 baseline](project_gonet_cash_positions.md) · [TradeNr reused; key on symbol; not unique across accounts, qualify under Live](reference_gonet_tradenr_reused.md)
 - ["Live" is virtual, no table; getAccountLive writes](reference_live_virtual_account_no_table.md)
 - [readPortfolio() date is Date class](feedback_readportfolio_date_type.md)
 - [Trades.DateTime is UTC; date-only 00:00:00; cleanup expiry rows 16:00 NY](reference_trades_datetime_utc.md)
@@ -68,7 +68,7 @@
 - Bad requests: [TWS drops connection](feedback_tws_drops_connection_on_malformed.md) · [never send NaN](feedback_no_nan_to_tws.md)
 - [IBKR sub-account API](project_ibkr_subaccounts.md)
 - Futures: [FUT/FOP fields](reference_ibkr_fut_fop_contract_fields.md) · [YYYYMM picks wrong contract](feedback_ibkr_lasttradedate_yyyymm.md) · [Tickers FUT row](reference_tickers_fut_row_convention.md) · [chains_manager bug](project_chains_manager_fut_bug.md)
-- [Flex Query traps](project_flex_query_gotchas.md) · [WSH needs News Feed](project_wsh_news_feed_gotcha.md) · [NO IBKR fundamentals (Error 10358) - P/E from yfinance](reference_ibkr_data_entitlements.md)
+- [Flex Query traps](project_flex_query_gotchas.md) · [WSH needs News Feed](project_wsh_news_feed_gotcha.md) · [Entitlement gaps: no fundamentals (10358); unsubscribed returns price 0 NOT NaN (354)](reference_ibkr_data_entitlements.md)
 - [TSEJ without data permission: IBKR mark can be far off close; TWS value/P&L use mark, snapshots store it](reference_ibkr_tsej_bad_mark_price.md)
 - [IBKR FX conversion mechanics](reference_ibkr_fx_conversion_mechanics.md)
 ## Tdata, Python & Build
@@ -101,6 +101,7 @@
 - shinytest2: [get_logs() for silent bugs](feedback_shinytest2_for_silent_bugs.md) · [headless visual pass; widget PNG via chrome --headless](reference_routine_app_visual_pass.md) · [AppDriver writes PRODUCTION DB](feedback_appdriver_ignores_config_env.md)
 - [No priority= in observers](feedback_no_shiny_priority.md)
 - [Unopened tabPanel output is suspended](reference_shiny_tabpanel_suspends_output.md)
+- [App 'blocked' = first Python call ~45 s; app log in <App>/app/logs](reference_shiny_first_python_call_latency.md)
 - [selectize=FALSE default](feedback_selectize_plugin_a11y.md)
 - DT: [idioms](reference_dt_idioms.md) · [snapshot selection at button press](feedback_snapshot_dt_selection_for_modals.md)
 - plotly: [ggplotly autosize](feedback_ggplotly_autosize.md) · [lines: sort by x](feedback_plotly_lines_sort_by_x.md)
