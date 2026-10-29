@@ -1,6 +1,6 @@
 ---
 name: project_pnl_attribution
-description: "Trade P&L path split into delta/gamma/vega/theta/residual/execution (TODO #106, Tdata 5.21.x, routine Trade tab); how to diagnose a big residual"
+description: "Trade P&L path split into delta/gamma/vega/theta/residual/execution (TODO #106 done, Tdata 5.21.x); ONE shared box module in the routine Trade tab and RReporting Trades tab; how to diagnose a big residual"
 metadata:
   node_type: memory
   type: project
@@ -13,6 +13,8 @@ Built 2026-10-08 (TODO #106). `Tdata::getTradePnLAttribution(trade_nr, account, 
 app Trade tab ("P&L path": grouped daily bars, weekly above 30 slots, daily
 table with Flag tooltips). Exit intervals need `Trades.UnderlyingPrice`
 ([[reference_trades_underlyingprice]]).
+
+**Display = one shared box module (2026-10-22):** `Tuser/symbol/view/pnlPathUI.R`, `server(id, tradeNr, account, asOf, currency)` (tradeNr: number shows it, NULL hides, a string is shown as the reason). Used by the routine Trade tab (displaytradeUI) and RReporting's Trades tab (dropdown trade wins; else selected rows with one TradeNr). Change the path display there, never in a host app. Chart: days <= 30 slots, else ISO weeks ("W14") while <= 30, else months; legend above the plot (below, it collided with the axis title). Table stays daily, 20/page, totals in the tfoot. Box caches modules: restart the app after editing.
 
 **Validation baseline:** closed BOT trades on U1804173 — median |residual| ≈
 12% of the first-to-last-mark P&L (study S-1 in TODO #82 measured 11.7%).

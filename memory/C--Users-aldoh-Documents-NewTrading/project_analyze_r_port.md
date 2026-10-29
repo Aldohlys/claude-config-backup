@@ -15,7 +15,7 @@ originSessionId: 75f9ac77-f927-4c30-a86a-44aad89326ce
 - **R pipeline** (`Aldohlys/RStudies` repo, branch `main`): `reports/analyze/{main,phases,funnel,structures,report,defaults}.R`. First commit: `c8054d8` (2026-04-30).
 - **Built-in defaults** in `defaults.R`: `risk_cap_lot_usd: 300`, `rr_min: 0.5`, IVP/VRP/term thresholds, spread widths `[5, 10]`, moneyness `0.20`, earnings window 14d. Script runs without any local `config.yml`.
 - **Optional override:** `RStudies/config.yml` is local-only (not tracked, may contain secrets). If a `default.analyze` block exists there, keys deep-merge over the defaults — set only what you want to override.
-- **Batch wrapper** (`Aldohlys/RApplication` repo, branch `master`): `scripts/run_analyze.bat`. First commit: `4ae3e43` (2026-04-30). Auto-discovered by `scripts/launcher.py` (called from Desktop `RTrading.bat`); the `%~1`/`%~2` args trigger the launcher's arg-entry box.
+- **Batch wrapper** (`Aldohlys/RApplication` repo, branch `master`): `scripts/run_analyze.bat (now NewTrading/scripts/3_run_analyze.bat)`. First commit: `4ae3e43` (2026-04-30). Auto-discovered by `scripts/launcher.py` (called from Desktop `RTrading.bat`); the `%~1`/`%~2` args trigger the launcher's arg-entry box.
 - **Slash-command stub** (`NewTrading/.claude/commands/analyze.md`): 30-line wrapper that calls `Rscript`. **Gitignored** — `.claude/` is line 9 of NewTrading's `.gitignore`. Open TODO `project_track_claude_commands_todo.md` (2026-04-27) tracks lifting that rule and adding a NewTrading remote.
 
 ## Known gaps (deferred — fix when actually needed)

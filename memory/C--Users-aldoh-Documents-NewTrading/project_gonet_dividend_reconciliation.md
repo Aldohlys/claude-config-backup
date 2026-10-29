@@ -1,12 +1,16 @@
 ---
 name: project_gonet_dividend_reconciliation
-description: "Gonet dividend history loaded through 22.09.2026 — email to Gonet drafted 2026-09-29 (OR effective-rate + FR 25% vs 12.8% + OR nominatif); awaiting reply; FR 2024 reclaim deadline 31.12.2026"
+description: "Gonet dividend history loaded through 22.09.2026 — email to Gonet drafted 2026-09-29 (OR effective-rate + FR 25% vs 12.8%); OR nominatif administré form sent 2026-10-26; FR 2024 reclaim deadline 31.12.2026"
 metadata: 
   node_type: memory
   type: project
   originSessionId: bcd2f874-bc6c-429b-a57e-f3de0e852923
-  modified: 2026-09-27T18:26:02.603Z
+  modified: 2026-10-26T07:54:06.862Z
 ---
+
+## Status 2026-10-29 — Gonet DECLINED the French reclaim
+
+Gonet replied (user, 29.10): they will not file any reclaim with the French tax authorities; they consider the amounts too small for the administrative effort. Remaining route = file 5000 + 5001 directly (residence certified by the Swiss tax office, Gonet's tax vouchers per payment); 2024 payments must be filed by 31.12.2026 (deadline from secondary source, still unverified). Ongoing excess ≈ EUR 200–250/yr. Not yet known: Gonet's answer on the W-8BEN, the OR DPS anomaly and the EUR 4.11 Indemnisation.
 
 ## Status 2026-09-29 — email drafted, not yet confirmed sent
 
@@ -31,7 +35,14 @@ Evidence established this session:
 
 ## TODO — raise with Gonet
 
-**1. Register the L'Oréal holding as nominatif.** The 30 OR.PA shares (TradeNr 6) at Gonet are held
+**1. Register the L'Oréal holding as nominatif — FORM SENT 2026-10-26.** L'Oréal/Uptevia form
+"inscription en nominatif administré" filled (nominatif administré, 30 shares, compte 114848,
+Banque Gonet & Cie SA, e-mail aldohlys@gmail.com, address Chemin Franconis 6, 1290 Versoix) and
+signed with the scanned signature; user sent it to Gonet 2026-10-26, before L'Oréal's 15.12.2026
+cut-off → loyalty premium from the 2029 dividend. Files in Downloads:
+`LOreal_nominatif_administre_Gonet_114848_signe.pdf` (+ `_rempli` unsigned). Follow-up: check
+the OR line moves off trading ISIN FR0000120321 to a loyalty/vintage code in the Gonet statement;
+if Gonet asks for a wet signature, print the unsigned version. Background: The 30 OR.PA shares (TradeNr 6) at Gonet are held
 au porteur (confirmed by ISIN, see above) and earn no loyalty premium. Air Liquide at the same bank IS registered — it pays two
 credits every May in a 1:10 ratio (EUR 3.70 + EUR 0.37/sh in 2026), the Air Liquide 10% premium,
 both withheld at 25%. So Gonet supports nominatif administré and the user already uses it; this is

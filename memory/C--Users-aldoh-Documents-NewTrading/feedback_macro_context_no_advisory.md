@@ -21,6 +21,7 @@ On 2026-10-20 the user asked where the regime × risk cell texts came from ("Ful
 - Label the line "What followed historically", not "Read".
 - No size words (full / reduced / smallest), and no do / don't verbs.
 - The scenario texts in `archetypes.R` (`bot$note`, e.g. "Exit energy longs on the first sign…") are advisory in the same way, so flag them when porting.
-- Done 2026-10-20: section 08 `events.R` action texts and the FOMC/Mag 7 rows were rewritten as neutral descriptions or measured history (RStudies 4956bd5). `archetypes.R` `bot$note` is still open.
+- Done 2026-10-20: section 08 `events.R` action texts and the FOMC/Mag 7 rows were rewritten as neutral descriptions or measured history (RStudies 4956bd5). `archetypes.R` `bot$note` + yen-carry `bot` rewritten the same day as 7-force-analog history or "Not tested."
+- Done 2026-10-20 (f17834e): the `archetypes.R` `bot$note` texts and the yen-carry BOT text now cite the closest step-2 analog's history. Still advisory-style: the VIX ≥ 25 stress banner in render_html.R ("Consider waiting for VIX to settle below 25").
 
 Same principle as [[feedback_analyze_data_only]]. Related: [[project_macro_context_redesign]].

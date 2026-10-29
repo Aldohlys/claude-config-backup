@@ -1,6 +1,6 @@
 ---
 name: feedback_batch_arg_and_exitcode_traps
-description: "Four Windows .bat traps that silently corrupt task logging: %TIME%'s locale comma splits cmd arguments, pause resets %ERRORLEVEL%, shift moves %0 so %~n0 breaks, and calling a .bat without `call` never returns"
+description: "Windows .bat traps that silently corrupt task logging: %TIME%'s locale comma splits cmd arguments, pause resets %ERRORLEVEL%, shift moves %0 so %~n0 breaks, calling a .bat without `call` never returns, a failed >> redirect skips the command with ERRORLEVEL 0"
 metadata: 
   node_type: memory
   type: feedback
@@ -41,3 +41,22 @@ an error.
 
 Related: [[feedback_shell_quoting_traps]],
 [[reference_launcher_bats_and_scheduled_tasks]].
+
+
+## UPDATE 2026-10-26 — two more, found the same way
+
+5. **A failed redirection skips the command and leaves `%ERRORLEVEL%` at 0.**
+   `"Rscript.exe" x.R >> "%LOG%"` with LOG held open by another process: R never
+   starts, `set "RC=%ERRORLEVEL%"` gives 0, the run is logged OK. `||` does fire
+   on a redirect failure, so: `set "RC=0"` then
+   `cmd ... >> "%LOG%" 2>&1 || ( if errorlevel 1 (set "RC=!ERRORLEVEL!") else (set "RC=1") )`.
+   Probe a log before the work with `2>nul (echo.>> "%LOG%") || (...fail...)`.
+   Verified both ways 2026-10-26 (old form 0, new form 1).
+6. **A digit right before `>>` is a handle number.** `echo rc=%~3>> file` with
+   `%~3` = 3 expands to `rc=3>> file` — redirects handle 3, the line vanishes.
+   Put the redirect first: `>> "file" echo rc=%~3`.
+
+**Testing pattern that avoids the real logs and TWS:** copy the .bat to the
+scratchpad, `.Replace()` the LOG path, the `log_activity.bat` path (→ a stub that
+echoes its arguments and the reason file) and the .R path (→ `quit(status = 3L)`);
+hold the log with `[IO.File]::Open(p,'Open','ReadWrite','None')` for the lock case.

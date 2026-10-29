@@ -83,3 +83,28 @@ an unwritable line goes to `logs\activity.pending.log`, flushed by the next call
 Calc — it overwrites lines appended since the load, and a French-locale save can
 rewrite `0.73` as `0,73`. A day with no lines for tasks that ran: check
 `activity.pending.log` and who has the file open.
+
+## UPDATE 2026-10-26 — ExecutionTimeLimit orphans the Rscript; a locked log logs a false OK
+
+- **The time limit kills only the launcher's cmd.exe.** CollectOptionSurface
+  (limit PT2H) started 2026-10-22 19:30; the cmd was stopped, its Rscript ran on
+  through TWS disconnects until 2026-10-26 08:40, still appending to
+  `collect_option_surface.log`. Signs: a `===== Run started` with no `Run
+  finished`, no activity.log line, and log timestamps days after the marker.
+  The TaskScheduler/Operational event log is **disabled** on this PC, so there is
+  no event to confirm a kill — infer from the markers.
+- **The orphan held the log open**, so the next launches (three on 2026-10-24)
+  could not redirect into it: cmd skipped the Rscript command and logged OK in
+  ~0.5 min. A short OK with no markers in the task's own log = R never ran.
+- **Fix (RApplication cec436b):** `scripts/stop_orphan_rscript.ps1 -Script <name.R>`
+  stops every `Rscript.exe` whose command line names the script (bin\Rscript.exe
+  starts bin\x64\Rscript.exe — no Rterm.exe child on this install), called by
+  `collect_option_surface.bat` before each run; output goes into the log after
+  the start marker. The bat then fails with exit 1 / "log locked by another
+  process" if the log still cannot be opened. Only safe for a task with
+  MultipleInstancesPolicy IgnoreNew — it also kills a hand-started run.
+- Normal runs come close to the limit (111.9 min on 2026-10-20). Raising
+  ExecutionTimeLimit in the registered task was offered, not done.
+- Other launchers with the same shape (Rscript redirected into a fixed log under
+  a time-limited task) have the same exposure; only collect_option_surface has
+  the fix.

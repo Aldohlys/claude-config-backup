@@ -8,7 +8,7 @@ metadata:
   modified: 2026-10-08T17:46:18.186Z
 ---
 
-Built 2026-10-07/08. Code `RApplication/RStudies/reports/bot_fwd/` (Python, ib_async direct), run after every `bot_daily` by `NewTrading/scripts/run_bot_daily.bat` (log `RApplication/logs/bot_fwd.log`). Design + decisions + implementation notes: `NewTrading/Strategies/Breakouts/bot_forward_test_proposal_20261007.md` (§8 decisions, §9 implementation, §9.4 decisions of 10-08).
+Built 2026-10-07/08. Code `RApplication/RStudies/reports/bot_fwd/` (Python, ib_async direct), run after every `bot_daily` by `NewTrading/scripts/2_run_bot_daily.bat` (log `RApplication/logs/bot_fwd.log`). Design + decisions + implementation notes: `NewTrading/Strategies/Breakouts/bot_forward_test_proposal_20261007.md` (§8 decisions, §9 implementation, §9.4 decisions of 10-08).
 
 - Tables `bot_fwd_signal/position/contract/mark/result/underlying` in mydb.db; weekly report `NewTrading/Reports/bot_fwd_<Monday>.md`.
 - Backfilled 2026-09-21 → 10-07 on 10-08 (182 signals entered, 384 positions). 09-21 is the earliest bot_daily file with `tradable`; files 09-25..09-29 09:21 have no `atr` (ATR14 computed instead).

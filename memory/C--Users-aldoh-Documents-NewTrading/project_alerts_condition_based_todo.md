@@ -1,62 +1,28 @@
 ---
 name: project-alerts-condition-based-todo
-description: "Build condition-evaluating alert path in check_alerts.R so triggers fire when ESTX50/SPY/etc. conditions are actually met, not just when AlertDate arrives"
-metadata: 
+description: "Condition alerts live since Tdata 5.23.0 (2026-10-26): Alerts.TriggerType/Condition JSON, getTriggeredAlerts on last Yahoo close, e-mailed by CheckAlerts 07:30; option own-IV conditions still open"
+metadata:
   node_type: memory
   type: project
-  originSessionId: 350b1975-d6ea-43f7-9086-8a8012f5cbc2
+  originSessionId: dd8f0bea-ff17-47d3-80cd-59333ebf1b0c
+  modified: 2026-10-26T18:07:21.780Z
 ---
 
-## Gap
+Since 2026-10-26 (Tdata 5.23.0, TODO #65 partial) an alert can fire on a price condition, not only on its date.
 
-The current alert system (`Tdata/R/alert.R` + `scripts/check_alerts.R` + Windows Task `CheckAlerts.xml`) is **purely date-based**. `getUpcomingAlerts(days_ahead)` returns active alerts whose `AlertDate` falls in [today, today+days_ahead]. There is no evaluation of trigger conditions written in the `Description` field — they are free-text instructions for the human, not executable.
+- Write: `addAlert(theme, asset, alert_date, description, trigger_type = "Condition"|"Both", condition = list(yahoo = "NUCL.L", close_lte = 41.9))`. Grammar: `close_lte`/`close_gte` on a Yahoo symbol, `date_gte`, composed with `all_of`/`any_of`. Validated at insert. Themes: `ALERT_THEMES` (13, incl. Stop/Momentum/Volatility).
+- Evaluate: `getTriggeredAlerts()` uses the **last Yahoo daily close** (no TWS) — at 07:30 that is the previous session. Unevaluable alerts come back in attr `"unevaluated"` and get their own e-mail section. A met condition is e-mailed every morning until dismissed.
+- `scripts/check_alerts.R --dry-run` prints the e-mail without sending.
+- 5.24.0: leaf `{"gonet_weight":"PM_15606539","weight_lte":0.09}` = share of NLV in the last Gonet snapshot (alert 88, gold rebalance at 9%). Theme `Allocation`.
+- Friday task `\RApplication\CheckAlertsPreclose` 16:30 runs `check_alerts.R --preclose`: condition alerts only, on live Yahoo quotes (`quantmod::getQuote`), e-mail only if something is met. It exists because 07:30 uses the previous close, so a weekly close would otherwise reach the user on Monday. Paris, Zurich and London close 17:30 CET every weekday.
+- Gonet exit alerts (26.10 review + `Reports/Gonet_action_plan_20261026.md`):
+  - Small-gain lines are absolute: NUCL 81, GTT 82, CNYA 83, DSPF 84 (year-end window to 8.1.2027), AMRZ 94 (dismiss after the sale).
+  - Gold weight: 88. TTE results reminder: 87.
+  - Core holdings, 5.25.0 relative leaf: `all_of [close ≤ level, stock − beta × index ≤ −5 pts]`, alerts 102–114.
+    - Indices: SMI for the Swiss names, ESTX50 for AI/OR/TTE, SPY for QQQ (beta 1.12; the 0.82 down-week slope with intercept was wrong for cumulative moves).
+    - Bases are the 26.10 closes; reset them with the monthly re-computation.
+- **Why relative:** user rule — light corrections are neither hedged nor sold; deep falls are hedged with ESTX50 put spreads (Jun-27 5700/4600 priced at 142.6 pts on 26.10). With absolute levels, a −10% market fall fired 11 of 13 exits.
 
-This means alerts like "SELL 4700P if ESTX50 <= 5430 AND 4700P own-IV >= 35%" silently sit until their `AlertDate`, regardless of whether the condition is actually met. The user has had to work around this by either: (a) setting `AlertDate` to the option expiry and accepting the alert will surface late, or (b) setting it to a near-term reminder date and manually re-resetting on each review.
+**Open:** option own-IV conditions (alerts 60/61 shape) need TWS; Tuser Alerts tab still offers 4 themes and no TriggerType/Condition fields (`alertUI.R:29`).
 
-**Why:** The original system was scoped for date-bound calendar events (earnings, expiries, FOMC dates), not market-state-conditional triggers. Volatility/hedge-conversion triggers added later (alerts 49/50/51/52 from 2026-03-26, and 60/61/62 from 2026-05-15) don't fit the date-based model.
-
-**How to apply:** When the user adds a market-conditional alert (anything with "TRIGGER" or "if X then Y" semantics), today it must be set up as a manual-reminder date with periodic re-set. A proper fix would let the alert system actually evaluate the condition against live data.
-
-## Implementation sketch (Path B from 2026-05-15 conversation)
-
-1. **Schema extension.** Add columns to `Alerts`:
-   - `TriggerType TEXT` — one of `Date`, `MarketCondition`, `Both`
-   - `Condition TEXT` — JSON payload, e.g. `{"underlying":"ESTX50","spot_max":5430,"iv_strike":4700,"iv_min":0.35}`
-   - Or extract into a normalized `AlertConditions` table keyed by `alert_id`
-
-2. **New function `getTriggeredAlerts()`** in `Tdata/R/alert.R`:
-   - Pulls live underlying spot via existing Tdata IBKR helpers (`getOptValue` for option own-IV, `reqMktData` for spot)
-   - Parses the JSON `Condition` field for each Active alert
-   - Returns rows where condition currently evaluates TRUE
-   - Handles missing data gracefully (TWS disconnect → return empty, log warning)
-
-3. **Modify `scripts/check_alerts.R`** to call both:
-   - `getUpcomingAlerts()` — date-based reminders (existing behavior)
-   - `getTriggeredAlerts()` — condition-met triggers (new)
-   - Email body has two clearly separated sections so user can tell them apart
-
-4. **Run cadence.** Current daily 07:30 is fine for date-based reminders but inadequate for live triggers — a market move at 14:00 CET wouldn't notify until next morning. Either:
-   - Add a second Task Scheduler entry running hourly during EUREX/NYSE hours
-   - Or accept once-daily evaluation as good enough for swing-trade triggers (probably fine — wait-and-convert doesn't need minute-level latency)
-
-5. **Theme cleanup.** `addAlert()` validates Theme against `c("Earnings","Macro","Expiration","Technical")` (alert.R:81) but the table contains Volatility/Pyramid/Stop/Roll/Covenant/Thesis from actual usage. Expand the whitelist when touching this code.
-
-## Concrete first use-case (pilot) — added 2026-06-02
-
-**SPY ≤ 705 level trigger.** During the 2026-06-02 ESTX50 hedge roll, the user wanted a market-driven "act now" alert on the SPY 660P hedge: *if SPY ≤ 705 (–7%), the US hedge is going live → roll 660P up+out to Dec before Sep expiry.* Because the DB can't fire on price, this had to be set as an **external charting alert** (user chose TradingView: SPY crossing down 705, open-ended) while the DB held only the dated calendar reminder (id=61, 14-Aug). This is the canonical case `getTriggeredAlerts()` should absorb: a single DB row `{"underlying":"SPY","spot_max":705}` that auto-fires, instead of splitting the trigger across TWS + a date-based DB stub. The monetize leg (`SPY ≤ 660 AND VIX ≥ 28`) is a second condition on the same hedge — exactly the two-condition shape the JSON `Condition` field is meant to hold. **Use SPY ≤ 705 as the test row when building the path.**
-
-## Existing alerts that would benefit (state as of 2026-06-02)
-
-| id | Asset | Status | What it tries to express |
-|---|---|---|---|
-| 52 | SPY-SPREAD | **deactivated** | (stale — old SPY 580P, position closed) |
-| 60 | OESX-ROLL | **executed 2026-06-02** | roll done; no longer conditional |
-| 61 | SPY-ROLL | **active** | SPY ≤ 705 → roll 660P→Dec; monetize if SPY ≤ 660 AND VIX ≥ 28. **Currently date-based (14-Aug) + TWS tick for the level — the pilot above.** |
-| 62 | OESX-MONITOR | active | ESTX50 ~5417 zone / VSTOXX ≥ 25-30 → monetise Dec 5700/4600 spread |
-| 56-57 | MCL | active | Pyramid/stop levels — could auto-evaluate against live CL price |
-
-## Effort / priority
-
-~1-2 days of work in Tdata + scripts. Touches DB schema (migration needed) and adds a TWS dependency to the daily check (operational fragility — if TWS is down at 07:30, conditions are unevaluated). **Data point from the 2026-06-02 hedge cycle:** the workaround now forces splitting a single logical trigger across two systems (TWS tick alert for the price level + a date-based DB stub for the backstop) — manageable for one hedge, but it's the recurring friction the user keeps hitting. The SPY ≤ 705 pilot above is the clean test case to build against.
-
-See [[reference-u1804173-iv-column]] for the related "DB IV column is wrong layer" finding from the same 2026-05-15 session.
+**How to apply:** for a price trigger, write a Condition alert instead of a dated reminder. Yahoo symbol must be the listing actually held (NUCL.L, not US NUCL). Related: [[reference-alerts-email-date-window]].

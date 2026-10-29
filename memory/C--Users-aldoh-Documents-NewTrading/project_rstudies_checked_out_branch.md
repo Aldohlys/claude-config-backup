@@ -1,6 +1,6 @@
 ---
 name: project_rstudies_checked_out_branch
-description: "RunScanner 09:00 runs whatever branch RStudies has checked out; claude/vibrant-newton-2xvfgc still checked out but fast-forwarded into main on 2026-10-19 (identical at 1f6d535)"
+description: "RunScanner 09:00 runs whatever branch RStudies has checked out; main checked out again 2026-10-27 at 975ebd3 after fast-forward from claude/funny-albattani-5nviy7"
 metadata:
   node_type: memory
   type: project
@@ -21,3 +21,7 @@ On 2026-10-12 RStudies (`RApplication/RStudies`) was switched from `main` to `cl
 - db3ce3c: bot_daily EMA21 distance columns.
 
 Both were taken in on the user's decision, without review in this session.
+
+**Update 2026-10-20, late:** f17834e (scenario BOT notes made non-advisory) was committed on main and pushed. `claude/macro-context-main-detail` was then fast-forwarded to main and pushed: both at f17834e.
+
+**Update 2026-10-27:** the checkout had drifted to `claude/funny-albattani-5nviy7` (8 commits ahead of main: bot_daily/bot_monthly/zones work from other sessions plus 975ebd3, COT section 11 charts). main was fast-forwarded to 975ebd3, pushed, and checked out again; production follows main.

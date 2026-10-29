@@ -36,7 +36,7 @@ The macro_context redesign runs forces → scenario → next paths → trades, f
   - setting the Risk thresholds from data;
   - a backtest of the 13 R scenarios themselves (M7 uses the 7-force scenarios as a stand-in);
   - checking every scenario's `bot$long/short` ETF lists against its calibrated fingerprint (GDX in stagflation was one mismatch);
-  - neutralising the advice-style `bot$note` texts.
+  - the VIX ≥ 25 stress banner wording ("Consider waiting…"); the `bot$note` texts were made non-advisory in f17834e.
 
 **Why:** the user is rebuilding macro_context so that each label rests on measured history, not judgment.
 

@@ -30,6 +30,7 @@ On 2026-10-20 the user asked whether scheduled events (FOMC, NVDA/Mag 7 earnings
 - `event_history.R`: FOMC and Mag 7 rows for the next 28 days, with `boost = FALSE`.
 - Summary tiles get a "FOMC-made" tag.
 - All `events.R` action texts were rewritten as neutral "Not tested." descriptions.
+- f17834e (main, pushed): the scenario `bot$note` texts and the yen-carry BOT text now cite the closest step-2 7-force analog (hit vs base, Fridays, episodes) or say "Not tested."; the label became "BOT, what followed historically.". Only stagflation (XLY<XLP 75% vs 46%) and goldilocks (QQQ up 79% vs 66%) show an edge.
 
 **Why:** feeds the forces → scenario → trades redesign ([[project_macro_context_redesign]]). The history-only rule is in [[feedback_macro_context_no_advisory]].
 

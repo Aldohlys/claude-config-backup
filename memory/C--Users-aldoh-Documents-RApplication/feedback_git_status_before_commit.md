@@ -73,3 +73,18 @@ publishes it under a message that does not describe it. See
 necessarily something you reverted — the user may have committed it underneath
 you. Check `git log --format='%h | %ad | %s' --date=format:'%Y-%m-%d %H:%M'`
 before concluding you destroyed work ([[feedback_verify_before_acting]]).
+
+## 3. A shared folder's branch can move between your merge and your delete
+
+2026-10-26: I fast-forwarded master to `fix/option-surface-orphan-run` (cec436b),
+then, asked to delete the leftover branch, ran `git branch -d` + `git push origin
+--delete`. Meanwhile another session in the same folder had committed 0539692 on
+that branch and pushed it. `branch -d` only warned ("merged to its upstream, not
+to HEAD") and deleted; the remote delete went through too. Restored with
+`git branch <name> 0539692` + push (the sha is in the "Deleted branch ... (was
+<sha>)" line). Switching to master also hid that session's edits from the files.
+
+**How to apply:** right before deleting a branch or switching away in a folder
+other sessions use, run `git log master..<branch>` (and against `origin/<branch>`
+after a fetch). Anything listed is not yours to drop — stop and report. Read the
+"(was <sha>)" in the delete output against the sha you merged.

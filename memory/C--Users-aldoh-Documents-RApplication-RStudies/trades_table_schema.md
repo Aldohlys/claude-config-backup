@@ -1,42 +1,22 @@
 ---
 name: Trades table schema (mydb.db)
-description: Column layout and conventions for the Trades table in data/mydb.db, used for portfolio-history queries
-type: reference
-originSessionId: bc7eb8bf-68dc-4f7b-b7cb-a86ad3ffcd75
+description: Column layout and conventions for the Trades table in data/mydb.db (English column names since 2026; Symbol is the ticker)
+metadata:
+  type: reference
 ---
-DB at `Sys.getenv("R_DB_PATH")` = `C:/Users/aldoh/Documents/RApplication/data/mydb.db`. Trades table columns:
+DB at `Sys.getenv("R_DB_PATH")` = `C:/Users/aldoh/Documents/RApplication/data/mydb.db`. Columns (checked 2026-10-26):
 
-- `TradeNr` INTEGER — trade ID (often 0 for older imports)
-- `Account` TEXT — IBKR account (U1804173, U25343478, DU5221795...) or "Gonet"
-- `TradeDate` INTEGER — YYYYMMDD format
-- `DateTime` TEXT — ISO timestamp
-- `TimeZoneSource` TEXT
-- `Strategy` TEXT — values include: `OFI`, `BOT`, `BPT`, `Perso`, `Sharpe2`, `WHEEL`, `LTO`, `CS`, `CAL`, `A14`, `TBILL`, `Gonet`, `Erreur`, `Tactical`, `Money`, `CS SPY`, `FOREX`, `VALUE`, `SPY`, `TB`, `Ryan`, `Daubasses`, `CCT`, `Uranium`, `MC`, `RUT`, `IWM`, `WITT`, `USO`, `MOS`. **`BOT` is literally the strategy name for "long bought" trades** (not an action column).
-- `Instrument` TEXT — full description, often includes spreads (e.g. "HOLN Vertical Spread 16.12.2022 40.5/43 1P/-1P")
-- `Ssjacent` TEXT — **the underlying ticker** (e.g. "AAPL", "VZ", "HOLN")
-- `Pos` INTEGER — signed quantity (>0 long, <0 short)
-- `Prix` REAL — entry price
-- `Comm.` REAL — commission
-- `Total` REAL — net cash flow
-- `Exp.Date` TEXT — option expiry, French format DD.MM.YYYY (string, not date)
-- `Risk` REAL, `Reward` REAL — planned values
-- `PnL` REAL — realized P&L (populated only on close)
-- `Statut` TEXT — `'Fermé'` (closed) or other; **filter `Statut = 'Fermé'`** for realized winners
-- `Currency` TEXT — USD/EUR/CHF/JPY
-- `Remarques` TEXT
-- `Strike` TEXT, `Right` TEXT — option-leg fields
+TradeNr, Account, TradeDate (INTEGER YYYYMMDD), DateTime, TimeZoneSource, Strategy, Instrument, **Symbol**, Pos, **Price**, **Commission**, Total, Exp.Date, Risk, Reward, PnL, **Status**, Currency, **Notes**, Strike, Right, EventType, Return, **Underlying**, Stop, UnderlyingPrice.
 
-There is **no `Action` column** despite IBKR-style nomenclature.
+- The old French names are gone: `Ssjacent`→`Symbol`, `Prix`→`Price`, `Comm.`→`Commission`, `Statut`→`Status`, `Remarques`→`Notes`. Any code still using them errors ("no such column").
+- **Key per-name joins to `Tickers.Name` on `Symbol`, not `Underlying`.** `Underlying` is NULL on all but 4 BOT rows and holds the futures contract there (GCM5 while Symbol = GC).
+- `Strategy = 'BOT'` is the "long bought" strategy, not an action column. There is no `Action` column.
+- `PnL` is populated only on the closing leg. `Status = 'Fermé'` marks closed trades.
 
-Top realized winners by underlying for closed BOT-strategy trades (snapshot 2026-04-28): AAPL, GOLD, XOM, DOW, JNJ, OXY, URA, WMT, NFLX, TGT, GLD.
-
-Useful query template for "best long winners by underlying":
+Closed-BOT record per name (pattern used by bot_monthly's trade-record override):
 ```sql
-SELECT Ssjacent AS sym, ROUND(SUM(PnL),0) AS total_pnl, COUNT(*) AS n_trades
-FROM Trades
-WHERE Statut = 'Fermé' AND PnL IS NOT NULL AND PnL != 0
-  AND Strategy = 'BOT'
-  AND Ssjacent IS NOT NULL AND Ssjacent != ''
-GROUP BY Ssjacent HAVING total_pnl > 0
-ORDER BY total_pnl DESC LIMIT 20
+SELECT name, COUNT(*) n, SUM(pnl) pnl FROM (
+  SELECT TradeNr, Symbol AS name, SUM(PnL) pnl FROM Trades
+   WHERE Strategy = 'BOT' GROUP BY TradeNr, Symbol HAVING COUNT(PnL) > 0)
+GROUP BY name
 ```

@@ -4,7 +4,7 @@ description: Swing scanner (front-run option flow) stopped 2026-10-05; only its 
 metadata:
   type: project
 ---
-Swing scanner removed 2026-10-05. `RStudies/reports/swing_scanner/` was deleted; the last version is the git tag `swing-scanner-final` (pushed). The RunScanner task (09:00) now runs `NewTrading/scripts/run_macro_context.bat`, macro_context only. /analyze no longer reads `swing_scanner_<date>.csv`. `daily_option_fetch.R` and `test_v5_modules.R` were removed. The DB tables were kept: `option_*_history` serves as /analyze's cache, `scanner_results` as history.
+Swing scanner removed 2026-10-05. `RStudies/reports/swing_scanner/` was deleted; the last version is the git tag `swing-scanner-final` (pushed). The RunScanner task (09:00) now runs `NewTrading/scripts/1_run_macro_context.bat`, macro_context only. /analyze no longer reads `swing_scanner_<date>.csv`. `daily_option_fetch.R` and `test_v5_modules.R` were removed. The DB tables were kept: `option_*_history` serves as /analyze's cache, `scanner_results` as history.
 
 **Why:**
 - The P&L split of 116 BOT option trades showed spot drives P&L and vol does not (see [[project-bot-pnl-greeks-decomposition]]). So the scanner's core thesis, buying cheap vol (Phase C), was never where the money came from.

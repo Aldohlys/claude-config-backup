@@ -1,3 +1,10 @@
-- [Trades table schema](trades_table_schema.md) — Ssjacent=underlying, PnL only on close, Statut='Fermé', Strategy='BOT' for long bought
+- [Trades table schema](trades_table_schema.md) — English columns now (Symbol=ticker, Status, Price); Underlying mostly NULL; BOT = long bought
 - [Research style — falsification first](research_style_falsification.md) — user wants robustness checks and literature review before celebrating positives
 - [IVolatility data pipeline](ivolatility_data_pipeline.md) — async job pattern, probe script, 17 tickers of 2021-2026 IV-surface parquets on disk
+- [ATR / gap volatility study](atr_gap_volatility_study.md) — atr-gap-volatility/ on branch study/atr-gap-volatility (pushed, no PR); AAPL headline results
+- [Daily OHLC source for studies](daily_ohlc_source_for_studies.md) — Tdata::getYahooData for current OHLC; ivol parquets end 2026-04-27; outputs in git-ignored output/
+- [BOT_monthly runs](bot_monthly_runs.md) — cache sits beside live DB even with --db; no --resume after partial runs; 2026-10-22 run result
+- [Zone engine replay 2026-10-26](zone_engine_replay_2026_10_26.md) — bar_order/breakout_n R-neutral; asym>=1 filter not predictive
+- [BOT_daily sector verdict](bot_daily_sector_verdict.md) — sector_verdict from DB macro_intermarket_sectors (latest cache_date); keep column name group for bot_fwd
+- [Subscription video sources](subscription_video_sources.md) — MarketLife/BPT login-gated videos; Vimeo ID + caption extraction via DevTools; summarize, never verbatim
+- [MMM breakout 2026-10](mmm_breakout_2026_10.md) — 10-20 results-day breakout, target 182.45 / stop 167.58, OTM verticals only pass 33%, oil beta −0.08..−0.15
